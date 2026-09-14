@@ -1,0 +1,31 @@
+{
+  "categories": [
+    {
+      "id": "cat_1",
+      "name": "Technology",
+      "slug": "technology",
+      "description": "All posts related to technology and gadgets.",
+      "parent": null,
+      "count": 0,
+      "createdAt": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id": "cat_2",
+      "name": "News",
+      "slug": "news",
+      "description": "Latest news and updates.",
+      "parent": null,
+      "count": 0,
+      "createdAt": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id": "cat_3",
+      "name": "Lifestyle",
+      "slug": "lifestyle",
+      "description": "Lifestyle tips and stories.",
+      "parent": null,
+      "count": 0,
+      "createdAt": "2026-09-14T00:00:00.000Z"
+    }
+  ]
+}
