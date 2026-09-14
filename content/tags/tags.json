@@ -1,0 +1,28 @@
+{
+  "tags": [
+    {
+      "id": "tag_1",
+      "name": "javascript",
+      "slug": "javascript",
+      "description": "Posts related to JavaScript.",
+      "count": 0,
+      "createdAt": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id": "tag_2",
+      "name": "netlify",
+      "slug": "netlify",
+      "description": "Posts related to Netlify deployment.",
+      "count": 0,
+      "createdAt": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id": "tag_3",
+      "name": "static",
+      "slug": "static",
+      "description": "Posts related to static site generation.",
+      "count": 0,
+      "createdAt": "2026-09-14T00:00:00.000Z"
+    }
+  ]
+}
