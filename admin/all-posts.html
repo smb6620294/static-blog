@@ -63,14 +63,40 @@
 
   <script>
     // ==================== CONFIG ====================
-    // Update this path if your posts folder is located elsewhere
     const POSTS_FOLDER = '../content/posts/';
-    
-    // Demo list of post files (in real scenario, we'll use GitHub API to list files)
-    // For now, this is a manually maintained list. We'll replace with GitHub API later.
-    const POST_FILES = ['101.json'];
+    const POST_FILES = ['101.json']; // Manually maintained list (will use GitHub API later)
 
     let allPosts = [];
+    let categoriesData = {};
+    let tagsData = {};
+
+    // ==================== LOAD CATEGORIES ====================
+    async function loadCategories() {
+      try {
+        let response = await fetch('../content/categories/categories.json');
+        if (!response.ok) throw new Error('Not found');
+        let data = await response.json();
+        data.categories.forEach(cat => {
+          categoriesData[cat.slug] = cat.name;
+        });
+      } catch (err) {
+        console.warn('Could not load categories:', err);
+      }
+    }
+
+    // ==================== LOAD TAGS ====================
+    async function loadTags() {
+      try {
+        let response = await fetch('../content/tags/tags.json');
+        if (!response.ok) throw new Error('Not found');
+        let data = await response.json();
+        data.tags.forEach(tag => {
+          tagsData[tag.slug] = tag.name;
+        });
+      } catch (err) {
+        console.warn('Could not load tags:', err);
+      }
+    }
 
     // ==================== LOAD POSTS ====================
     async function loadPosts() {
@@ -79,16 +105,33 @@
       
       allPosts = [];
 
+      // Load categories and tags first
+      await loadCategories();
+      await loadTags();
+
+      // 1. Load posts from JSON files
       for (let file of POST_FILES) {
         try {
           let response = await fetch(POSTS_FOLDER + file);
           if (!response.ok) throw new Error('Not found');
           let post = await response.json();
+          post._source = 'file';
           post._fileName = file;
           allPosts.push(post);
         } catch (err) {
           console.warn('Could not load: ' + file, err);
         }
+      }
+
+      // 2. Load posts from LocalStorage (newly published)
+      try {
+        let localPosts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
+        localPosts.forEach(post => {
+          post._source = 'local';
+          allPosts.push(post);
+        });
+      } catch (err) {
+        console.warn('Could not load LocalStorage posts:', err);
       }
 
       // Sort by date (newest first)
@@ -115,15 +158,17 @@
       }
 
       list.innerHTML = posts.map(post => {
-        // Build category badges
-        let categories = (post.categories || []).map(c => 
-          `<span class="badge category">${escapeHtml(c)}</span>`
-        ).join('');
+        // Category badges (with pretty names)
+        let categories = (post.categories || []).map(c => {
+          let name = categoriesData[c] || c;
+          return `<span class="badge category">${escapeHtml(name)}</span>`;
+        }).join('');
         
-        // Build tag badges
-        let tags = (post.tags || []).map(t => 
-          `<span class="badge tag">${escapeHtml(t)}</span>`
-        ).join('');
+        // Tag badges (with pretty names)
+        let tags = (post.tags || []).map(t => {
+          let name = tagsData[t] || t;
+          return `<span class="badge tag">${escapeHtml(name)}</span>`;
+        }).join('');
 
         return `
         <div class="post-item">
@@ -141,7 +186,7 @@
           <div class="post-actions">
             <a href="edit-post.html?id=${encodeURIComponent(post.id || '')}" class="action-btn btn-edit">✏️ Edit</a>
             <a href="../posts/${encodeURIComponent(post.permalink || '')}.html" target="_blank" class="action-btn btn-view">👁️ View</a>
-            <button class="action-btn btn-delete" onclick="deletePost('${escapeHtml(post.id || '')}', '${escapeHtml(post._fileName || '')}')">🗑️ Delete</button>
+            <button class="action-btn btn-delete" onclick="deletePost('${escapeHtml(post.id || '')}', '${escapeHtml(post._fileName || '')}', '${escapeHtml(post._source || '')}')">🗑️ Delete</button>
           </div>
         </div>`;
       }).join('');
@@ -172,16 +217,27 @@
     }
 
     // ==================== DELETE POST ====================
-    function deletePost(id, fileName) {
-      if (!confirm('Are you sure you want to delete this post?\n\nID: ' + id + '\nFile: ' + fileName)) {
+    function deletePost(id, fileName, source) {
+      if (!confirm('Are you sure you want to delete this post?\n\nID: ' + id)) {
         return;
       }
       
-      // NOTE: This is a demo. Real deletion requires GitHub API.
-      alert('🗑️ Delete requested for post ID: ' + id + '\n\n(Demo only — real deletion needs GitHub API integration.)');
+      // If it's a LocalStorage post, delete from LocalStorage
+      if (source === 'local') {
+        let posts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
+        let originalLength = posts.length;
+        posts = posts.filter(p => p.id !== id);
+        
+        if (posts.length < originalLength) {
+          localStorage.setItem('blog_posts', JSON.stringify(posts));
+          alert('✅ Post deleted from LocalStorage.');
+          loadPosts();
+          return;
+        }
+      }
       
-      // After real deletion, we'll refresh the list
-      // loadPosts();
+      // If it's a file-based post, needs GitHub API
+      alert('🗑️ Delete requested for file-based post: ' + fileName + '\n\n(Demo only — real deletion needs GitHub API.)');
     }
 
     // ==================== UTILITY ====================
