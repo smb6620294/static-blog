@@ -1,0 +1,18 @@
+{
+  "home": "Home",
+  "blog": "Blog",
+  "read_more": "Read More",
+  "recent_posts": "Recent Posts",
+  "categories": "Categories",
+  "tags": "Tags",
+  "related_posts": "Related Posts",
+  "submit_comment": "Submit Comment",
+  "name": "Name",
+  "email": "Email",
+  "comment": "Comment",
+  "previous": "Previous",
+  "next": "Next",
+  "posted_on": "Posted on",
+  "by": "by",
+  "no_posts": "No posts found."
+}

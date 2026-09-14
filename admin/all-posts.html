@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - All Posts</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; color: #333; }
+    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h1 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .add-btn { background: #28a745; color: #fff; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; }
+    .post-item { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+    .post-info { flex: 1; min-width: 200px; }
+    .post-title { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
+    .post-meta { font-size: 12px; color: #666; }
+    .post-actions { display: flex; gap: 6px; }
+    .action-btn { padding: 6px 10px; font-size: 12px; border-radius: 4px; text-decoration: none; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+    .btn-edit { background: #007bff; }
+    .btn-view { background: #17a2b8; }
+    .btn-delete { background: #dc3545; }
+    .badge { display: inline-block; background: #e9ecef; color: #333; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 4px; }
+    @media (max-width: 600px) { 
+      .post-item { flex-direction: column; }
+      .post-actions { width: 100%; }
+      .action-btn { flex: 1; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      All Posts
+      <a href="add-new-post.html" class="add-btn">+ Add New</a>
+    </h1>
+
+    <div id="postsList">
+      <!-- Demo posts. Will be loaded dynamically via JavaScript later. -->
+      <div class="post-item">
+        <div class="post-info">
+          <div class="post-title">My First Blog Post</div>
+          <div class="post-meta">
+            By Admin • 13/09/2026 • 
+            <span class="badge">Technology</span>
+            <span class="badge">javascript</span>
+          </div>
+        </div>
+        <div class="post-actions">
+          <a href="edit-post.html" class="action-btn btn-edit">Edit</a>
+          <a href="../index.html" class="action-btn btn-view">View</a>
+          <button class="action-btn btn-delete" onclick="deletePost(101)">Delete</button>
+        </div>
+      </div>
+
+      <div class="post-item">
+        <div class="post-info">
+          <div class="post-title">Netlify Deployment Guide</div>
+          <div class="post-meta">
+            By Admin • 12/09/2026 • 
+            <span class="badge">News</span>
+            <span class="badge">netlify</span>
+          </div>
+        </div>
+        <div class="post-actions">
+          <a href="edit-post.html" class="action-btn btn-edit">Edit</a>
+          <a href="../index.html" class="action-btn btn-view">View</a>
+          <button class="action-btn btn-delete" onclick="deletePost(102)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function deletePost(id) {
+      if (confirm('Are you sure you want to delete this post?')) {
+        alert('Post ' + id + ' deleted! (Demo only)');
+      }
+    }
+  </script>
+</body>
+</html>

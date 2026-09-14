@@ -1,0 +1,14 @@
+{
+  "site_title": "My Static Blog",
+  "tagline": "Fast, Modern, Netlify-ready",
+  "site_url": "https://example.netlify.app",
+  "favicon": "/assets/images/favicon.ico",
+  "admin_email": "admin@example.com",
+  "timezone": "Europe/Moscow",
+  "date_format": "DD.MM.YYYY",
+  "time_format": "24h",
+  "public_language": "ru",
+  "available_languages": ["ru", "ur", "ar", "en"],
+  "posts_per_page": 10,
+  "related_posts": { "enabled": true, "count": 3, "based_on": "both" }
+}

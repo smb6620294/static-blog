@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "client_id": "ca-pub-XXXXXXXXXXXXXXXX",
+  "slots": {
+    "below_post_title": "",
+    "inside_post_content": "",
+    "sidebar_top": "",
+    "sidebar_bottom": ""
+  }
+}

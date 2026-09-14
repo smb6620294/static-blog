@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Static Blog</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #f5f5f5; color: #333; line-height: 1.6; }
+    header { background: #fff; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .logo { font-size: 22px; font-weight: bold; color: #007bff; text-decoration: none; }
+    nav a { margin-left: 15px; text-decoration: none; color: #333; font-size: 14px; font-weight: 500; }
+    nav a:hover { color: #007bff; }
+    .lang-switch { font-size: 13px; }
+    .lang-switch a { margin-left: 8px; text-decoration: none; color: #666; }
+    .lang-switch a.active { color: #007bff; font-weight: bold; }
+
+    .layout { max-width: 1100px; margin: 25px auto; padding: 0 15px; display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+
+    .post-card { background: #fff; border-radius: 8px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .post-thumb { width: 100%; height: 200px; background: #ddd; background-size: cover; background-position: center; }
+    .post-body { padding: 18px; }
+    .post-title { font-size: 20px; margin: 0 0 8px; }
+    .post-title a { text-decoration: none; color: #222; }
+    .post-title a:hover { color: #007bff; }
+    .post-meta { font-size: 12px; color: #777; margin-bottom: 10px; }
+    .post-excerpt { font-size: 14px; color: #555; margin-bottom: 12px; }
+    .read-more { display: inline-block; color: #007bff; text-decoration: none; font-weight: bold; font-size: 14px; }
+
+    .sidebar { background: #fff; border-radius: 8px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 20px; }
+    .sidebar h3 { margin-top: 0; font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar li { padding: 6px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+    .sidebar a { color: #333; text-decoration: none; }
+    .sidebar a:hover { color: #007bff; }
+
+    footer { background: #222; color: #ccc; text-align: center; padding: 20px; font-size: 13px; margin-top: 40px; }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .header-inner { justify-content: center; text-align: center; }
+      nav a { margin: 0 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="logo" data-i18n="site_title">My Static Blog</a>
+      <nav>
+        <a href="index.html" data-i18n="home">Главная</a>
+        <a href="#" data-i18n="blog">Блог</a>
+        <a href="#" data-i18n="about">О нас</a>
+        <a href="#" data-i18n="contact">Контакты</a>
+      </nav>
+      <div class="lang-switch">
+        <a href="#" class="active" onclick="switchLang('ru')">RU</a>
+        <a href="#" onclick="switchLang('ur')">UR</a>
+        <a href="#" onclick="switchLang('ar')">AR</a>
+        <a href="#" onclick="switchLang('en')">EN</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- MAIN CONTENT -->
+    <main>
+      <article class="post-card">
+        <div class="post-thumb" style="background-image: url('https://via.placeholder.com/800x400/007bff/ffffff?text=Featured+Image');"></div>
+        <div class="post-body">
+          <h2 class="post-title"><a href="#">My First Blog Post</a></h2>
+          <div class="post-meta" data-i18n="posted_on">Опубликовано: 13.09.2026 • Автор: Admin</div>
+          <p class="post-excerpt">This is a short excerpt from the first paragraph of the post. It gives readers a quick preview of the article's content.</p>
+          <a href="#" class="read-more" data-i18n="read_more">Читать далее →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-thumb" style="background-image: url('https://via.placeholder.com/800x400/28a745/ffffff?text=Second+Post');"></div>
+        <div class="post-body">
+          <h2 class="post-title"><a href="#">Netlify Deployment Guide</a></h2>
+          <div class="post-meta" data-i18n="posted_on">Опубликовано: 12.09.2026 • Автор: Admin</div>
+          <p class="post-excerpt">Learn how to deploy your static blog on Netlify with GitHub integration. Step by step guide for beginners.</p>
+          <a href="#" class="read-more" data-i18n="read_more">Читать далее →</a>
+        </div>
+      </article>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="sidebar">
+        <h3 data-i18n="recent_posts">Последние записи</h3>
+        <ul>
+          <li><a href="#">My First Blog Post</a></li>
+          <li><a href="#">Netlify Deployment Guide</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar">
+        <h3 data-i18n="categories">Категории</h3>
+        <ul>
+          <li><a href="#">Technology</a></li>
+          <li><a href="#">News</a></li>
+          <li><a href="#">Lifestyle</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar">
+        <h3 data-i18n="tags">Метки</h3>
+        <ul>
+          <li><a href="#">javascript</a></li>
+          <li><a href="#">netlify</a></li>
+          <li><a href="#">static</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <p data-i18n="all_rights_reserved">© 2026 My Static Blog. Все права защищены.</p>
+  </footer>
+
+  <script>
+    function switchLang(lang) {
+      alert('Language switch to: ' + lang + ' (Full i18n engine will be added later)');
+      // Later: Load /locales/{lang}.json and update all data-i18n elements
+    }
+  </script>
+</body>
+</html>
