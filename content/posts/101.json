@@ -1,0 +1,17 @@
+{
+  "id": "101",
+  "title": "My First Blog Post",
+  "permalink": "my-first-blog-post",
+  "author": "Admin",
+  "date": "2026-09-13",
+  "time": "10:30",
+  "timezone": "Asia/Karachi",
+  "categories": ["tech", "news"],
+  "tags": ["javascript", "netlify"],
+  "image": "/assets/images/my-first-blog-post.svg",
+  "content": "<h2>...</h2>",
+  "excerpt": "...",
+  "seoTitle": "...",
+  "seoDescription": "...",
+  "seoKeyword": "..."
+}
