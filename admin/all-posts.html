@@ -6,19 +6,37 @@
   <title>Admin - All Posts</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; color: #333; }
-    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     h1 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .add-btn { background: #28a745; color: #fff; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; }
-    .post-item { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+    .add-btn:hover { background: #218838; }
+    
+    .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .search-box { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+    .refresh-btn { background: #17a2b8; color: #fff; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+    
+    .post-item { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; background: #fafafa; }
+    .post-item:hover { background: #f0f8ff; border-color: #007bff; }
     .post-info { flex: 1; min-width: 200px; }
-    .post-title { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
-    .post-meta { font-size: 12px; color: #666; }
-    .post-actions { display: flex; gap: 6px; }
-    .action-btn { padding: 6px 10px; font-size: 12px; border-radius: 4px; text-decoration: none; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+    .post-title { font-weight: bold; font-size: 16px; margin-bottom: 4px; color: #222; }
+    .post-meta { font-size: 12px; color: #666; margin-bottom: 6px; }
+    .post-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .badge { display: inline-block; background: #e9ecef; color: #333; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    .badge.category { background: #d1ecf1; color: #0c5460; }
+    .badge.tag { background: #d4edda; color: #155724; }
+    .post-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .action-btn { padding: 6px 12px; font-size: 12px; border-radius: 4px; text-decoration: none; color: #fff; border: none; cursor: pointer; font-weight: bold; }
     .btn-edit { background: #007bff; }
     .btn-view { background: #17a2b8; }
     .btn-delete { background: #dc3545; }
-    .badge { display: inline-block; background: #e9ecef; color: #333; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 4px; }
+    .btn-edit:hover { background: #0056b3; }
+    .btn-view:hover { background: #138496; }
+    .btn-delete:hover { background: #c82333; }
+    
+    .loading { text-align: center; padding: 40px; color: #666; font-size: 16px; }
+    .no-posts { text-align: center; padding: 40px; color: #999; }
+    .no-posts h3 { color: #666; }
+    
     @media (max-width: 600px) { 
       .post-item { flex-direction: column; }
       .post-actions { width: 100%; }
@@ -33,48 +51,152 @@
       <a href="add-new-post.html" class="add-btn">+ Add New</a>
     </h1>
 
-    <div id="postsList">
-      <!-- Demo posts. Will be loaded dynamically via JavaScript later. -->
-      <div class="post-item">
-        <div class="post-info">
-          <div class="post-title">My First Blog Post</div>
-          <div class="post-meta">
-            By Admin • 13/09/2026 • 
-            <span class="badge">Technology</span>
-            <span class="badge">javascript</span>
-          </div>
-        </div>
-        <div class="post-actions">
-          <a href="edit-post.html" class="action-btn btn-edit">Edit</a>
-          <a href="../index.html" class="action-btn btn-view">View</a>
-          <button class="action-btn btn-delete" onclick="deletePost(101)">Delete</button>
-        </div>
-      </div>
+    <div class="toolbar">
+      <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search posts by title, tags, or author..." oninput="filterPosts()">
+      <button class="refresh-btn" onclick="loadPosts()">🔄 Refresh</button>
+    </div>
 
-      <div class="post-item">
-        <div class="post-info">
-          <div class="post-title">Netlify Deployment Guide</div>
-          <div class="post-meta">
-            By Admin • 12/09/2026 • 
-            <span class="badge">News</span>
-            <span class="badge">netlify</span>
-          </div>
-        </div>
-        <div class="post-actions">
-          <a href="edit-post.html" class="action-btn btn-edit">Edit</a>
-          <a href="../index.html" class="action-btn btn-view">View</a>
-          <button class="action-btn btn-delete" onclick="deletePost(102)">Delete</button>
-        </div>
-      </div>
+    <div id="postsList">
+      <div class="loading">Loading posts...</div>
     </div>
   </div>
 
   <script>
-    function deletePost(id) {
-      if (confirm('Are you sure you want to delete this post?')) {
-        alert('Post ' + id + ' deleted! (Demo only)');
+    // ==================== CONFIG ====================
+    // Update this path if your posts folder is located elsewhere
+    const POSTS_FOLDER = '../content/posts/';
+    
+    // Demo list of post files (in real scenario, we'll use GitHub API to list files)
+    // For now, this is a manually maintained list. We'll replace with GitHub API later.
+    const POST_FILES = ['101.json'];
+
+    let allPosts = [];
+
+    // ==================== LOAD POSTS ====================
+    async function loadPosts() {
+      let list = document.getElementById('postsList');
+      list.innerHTML = '<div class="loading">Loading posts...</div>';
+      
+      allPosts = [];
+
+      for (let file of POST_FILES) {
+        try {
+          let response = await fetch(POSTS_FOLDER + file);
+          if (!response.ok) throw new Error('Not found');
+          let post = await response.json();
+          post._fileName = file;
+          allPosts.push(post);
+        } catch (err) {
+          console.warn('Could not load: ' + file, err);
+        }
       }
+
+      // Sort by date (newest first)
+      allPosts.sort((a, b) => {
+        let dateA = (a.date || '') + ' ' + (a.time || '');
+        let dateB = (b.date || '') + ' ' + (b.time || '');
+        return dateB.localeCompare(dateA);
+      });
+
+      renderPosts(allPosts);
     }
+
+    // ==================== RENDER POSTS ====================
+    function renderPosts(posts) {
+      let list = document.getElementById('postsList');
+      
+      if (posts.length === 0) {
+        list.innerHTML = `
+          <div class="no-posts">
+            <h3>No posts found</h3>
+            <p>Click "+ Add New" to create your first post.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = posts.map(post => {
+        // Build category badges
+        let categories = (post.categories || []).map(c => 
+          `<span class="badge category">${escapeHtml(c)}</span>`
+        ).join('');
+        
+        // Build tag badges
+        let tags = (post.tags || []).map(t => 
+          `<span class="badge tag">${escapeHtml(t)}</span>`
+        ).join('');
+
+        return `
+        <div class="post-item">
+          <div class="post-info">
+            <div class="post-title">${escapeHtml(post.title || 'Untitled')}</div>
+            <div class="post-meta">
+              By ${escapeHtml(post.author || 'Unknown')} • 
+              ${escapeHtml(post.date || '')} ${escapeHtml(post.time || '')}
+            </div>
+            <div class="post-tags">
+              ${categories}
+              ${tags}
+            </div>
+          </div>
+          <div class="post-actions">
+            <a href="edit-post.html?id=${encodeURIComponent(post.id || '')}" class="action-btn btn-edit">✏️ Edit</a>
+            <a href="../posts/${encodeURIComponent(post.permalink || '')}.html" target="_blank" class="action-btn btn-view">👁️ View</a>
+            <button class="action-btn btn-delete" onclick="deletePost('${escapeHtml(post.id || '')}', '${escapeHtml(post._fileName || '')}')">🗑️ Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ==================== SEARCH / FILTER ====================
+    function filterPosts() {
+      let query = document.getElementById('searchBox').value.toLowerCase().trim();
+      
+      if (!query) {
+        renderPosts(allPosts);
+        return;
+      }
+
+      let filtered = allPosts.filter(post => {
+        let title = (post.title || '').toLowerCase();
+        let author = (post.author || '').toLowerCase();
+        let tags = (post.tags || []).join(' ').toLowerCase();
+        let categories = (post.categories || []).join(' ').toLowerCase();
+        
+        return title.includes(query) 
+          || author.includes(query) 
+          || tags.includes(query) 
+          || categories.includes(query);
+      });
+
+      renderPosts(filtered);
+    }
+
+    // ==================== DELETE POST ====================
+    function deletePost(id, fileName) {
+      if (!confirm('Are you sure you want to delete this post?\n\nID: ' + id + '\nFile: ' + fileName)) {
+        return;
+      }
+      
+      // NOTE: This is a demo. Real deletion requires GitHub API.
+      alert('🗑️ Delete requested for post ID: ' + id + '\n\n(Demo only — real deletion needs GitHub API integration.)');
+      
+      // After real deletion, we'll refresh the list
+      // loadPosts();
+    }
+
+    // ==================== UTILITY ====================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', loadPosts);
   </script>
 </body>
 </html>
