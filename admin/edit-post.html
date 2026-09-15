@@ -3,620 +3,436 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Edit Post</title>
+  <title>Edit Post - Admin</title>
+  
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h1 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .post-id-badge { font-size: 13px; background: #e9ecef; padding: 4px 10px; border-radius: 4px; color: #555; font-weight: normal; }
-    h2 { font-size: 18px; margin-top: 25px; color: #007bff; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-    input[type="text"], input[type="date"], input[type="time"], input[type="email"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; font-family: inherit; }
-    .note { font-size: 12px; color: #666; margin-top: 5px; }
-    .btn-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .btn { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; min-width: 120px; }
-    .btn-primary { background: #007bff; color: #fff; }
-    .btn-primary:hover { background: #0056b3; }
-    .btn-secondary { background: #6c757d; color: #fff; }
-    .btn-secondary:hover { background: #5a6268; }
-    .btn-view { background: #17a2b8; color: #fff; }
-    .btn-view:hover { background: #138496; }
+    /* ============ POST FORM STYLES (Same as add-new-post) ============ */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1d2327; }
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group input[type="time"],
+    .form-group input[type="email"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 9px 12px;
+      border: 1px solid #8c8f94; border-radius: 4px;
+      font-size: 13.5px; box-sizing: border-box;
+      font-family: inherit; background: #fff;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: #2271b1; outline: none;
+      box-shadow: 0 0 0 1px #2271b1;
+    }
+    .form-group input[readonly] { background: #f6f7f7; cursor: not-allowed; }
+    .note { font-size: 11.5px; color: #646970; margin-top: 4px; }
     .row { display: flex; gap: 15px; }
     .row .form-group { flex: 1; }
     
-    .category-box { border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 150px; overflow-y: auto; background: #fafafa; }
-    .category-box label { font-weight: normal; display: flex; align-items: center; margin-bottom: 5px; }
-    .category-box input[type="checkbox"] { width: auto; margin-right: 8px; }
-    .add-cat-btn { background: #e9ecef; border: 1px solid #ccc; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; margin-top: 5px; display: inline-block; }
+    .post-id-badge {
+      font-size: 12px;
+      background: #e9ecef;
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: #646970;
+      font-weight: normal;
+      font-family: 'Consolas', monospace;
+    }
     
-    .tags-input-container { border: 1px solid #ccc; border-radius: 5px; padding: 8px; background: #fff; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
-    .tags-input-container input { border: none; outline: none; flex: 1; min-width: 120px; padding: 5px; font-size: 14px; }
-    .tag-badge { background: #007bff; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
+    .category-box {
+      border: 1px solid #8c8f94; border-radius: 4px;
+      padding: 10px; max-height: 150px;
+      overflow-y: auto; background: #fff;
+    }
+    .category-box label {
+      font-weight: normal; display: flex;
+      align-items: center; margin-bottom: 6px;
+      font-size: 13px; cursor: pointer;
+    }
+    .category-box input[type="checkbox"] { width: auto; margin-right: 8px; }
+    .add-cat-btn {
+      background: #f6f7f7; border: 1px solid #2271b1;
+      color: #2271b1; padding: 5px 12px;
+      font-size: 12px; border-radius: 3px;
+      cursor: pointer; margin-top: 6px; font-family: inherit;
+    }
+    .add-cat-btn:hover { background: #f0f0f1; }
+    
+    .tags-input-container {
+      border: 1px solid #8c8f94; border-radius: 4px;
+      padding: 6px 8px; background: #fff;
+      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    }
+    .tags-input-container input {
+      border: none !important; outline: none; flex: 1;
+      min-width: 120px; padding: 5px; font-size: 13px;
+      box-shadow: none !important;
+    }
+    .tag-badge {
+      background: #2271b1; color: #fff;
+      padding: 3px 8px; border-radius: 3px;
+      font-size: 12px; display: inline-flex;
+      align-items: center; gap: 5px;
+    }
     .tag-badge span { cursor: pointer; font-weight: bold; }
     
-    .editor-wrapper { border: 1px solid #ccc; border-radius: 5px; overflow: hidden; background: #fff; }
-    .editor-tabs { background: #f5f5f5; border-bottom: 1px solid #ccc; padding: 8px 10px; display: flex; gap: 5px; }
-    .editor-tab { padding: 6px 15px; font-size: 14px; border: 1px solid transparent; border-radius: 4px; cursor: pointer; background: transparent; color: #555; font-weight: 500; }
+    .editor-wrapper {
+      border: 1px solid #8c8f94; border-radius: 4px;
+      overflow: hidden; background: #fff;
+    }
+    .editor-tabs {
+      background: #f6f7f7; border-bottom: 1px solid #dcdcde;
+      padding: 8px 10px; display: flex; gap: 5px;
+    }
+    .editor-tab {
+      padding: 6px 14px; font-size: 13px;
+      border: 1px solid transparent; border-radius: 3px;
+      cursor: pointer; background: transparent;
+      color: #50575e; font-weight: 500; font-family: inherit;
+    }
     .editor-tab:hover { background: #e9e9e9; }
-    .editor-tab.active { background: #fff; border-color: #ccc; border-bottom-color: #fff; color: #007bff; font-weight: bold; }
+    .editor-tab.active {
+      background: #fff; border-color: #8c8f94;
+      border-bottom-color: #fff; color: #2271b1; font-weight: 600;
+    }
     .editor-panel { display: none; }
     .editor-panel.active { display: block; }
-    .code-textarea { width: 100%; height: 400px; border: none; padding: 15px; font-family: 'Courier New', monospace; font-size: 13px; resize: vertical; box-sizing: border-box; outline: none; }
+    .code-textarea {
+      width: 100%; height: 400px; border: none;
+      padding: 15px; font-family: 'Courier New', monospace;
+      font-size: 13px; resize: vertical;
+      box-sizing: border-box; outline: none;
+    }
     
-    .image-upload-area { border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; background: #fafafa; cursor: pointer; }
-    .image-upload-area:hover { border-color: #007bff; background: #f0f8ff; }
-    .image-preview { max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 5px; display: none; }
-    .upload-status { font-size: 12px; margin-top: 5px; }
-    .upload-status.success { color: #28a745; }
-    .upload-status.error { color: #dc3545; }
+    .image-upload-area {
+      border: 2px dashed #8c8f94; border-radius: 6px;
+      padding: 20px; text-align: center;
+      background: #f6f7f7; cursor: pointer; transition: 0.15s;
+    }
+    .image-upload-area:hover { border-color: #2271b1; background: #f0f6fc; }
+    .image-preview {
+      max-width: 100%; max-height: 200px;
+      margin-top: 10px; border-radius: 4px; display: none;
+    }
+    .upload-status { font-size: 12px; margin-top: 6px; }
+    .upload-status.success { color: #00a32a; }
+    .upload-status.error { color: #d63638; }
+    .upload-status.info { color: #2271b1; }
     
-    .seo-box { border: 2px solid #007bff; border-radius: 8px; padding: 15px; margin-top: 20px; background: #f9fbff; }
-    .seo-box h2 { margin-top: 0; color: #007bff; border-bottom: 1px solid #cce0ff; padding-bottom: 8px; }
-    .seo-score-container { display: flex; align-items: center; gap: 20px; margin-top: 15px; }
-    .seo-chart-wrapper { width: 150px; height: 150px; }
+    .seo-box {
+      border: 2px solid #2271b1; border-radius: 6px;
+      padding: 16px; margin-top: 20px; background: #f0f6fc;
+    }
+    .seo-box h2 {
+      margin-top: 0; color: #2271b1;
+      border-bottom: 1px solid #c3d9f0;
+      padding-bottom: 8px; font-size: 16px;
+    }
+    .seo-score-container {
+      display: flex; align-items: center;
+      gap: 20px; margin-top: 15px;
+    }
+    .seo-chart-wrapper { width: 140px; height: 140px; flex-shrink: 0; }
     .seo-details { flex: 1; }
-    .seo-check { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 0; border-bottom: 1px solid #eee; }
-    .seo-check.pass { color: #28a745; }
-    .seo-check.fail { color: #dc3545; }
+    .seo-check {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12.5px; padding: 6px 0;
+      border-bottom: 1px solid #e0e8f0;
+    }
+    .seo-check.pass { color: #00a32a; }
+    .seo-check.fail { color: #d63638; }
     .seo-check .icon { font-weight: bold; }
     
-    @media (max-width: 600px) { 
+    .token-warning {
+      background: #fcf9e8; border-left: 4px solid #dba617;
+      color: #614200; padding: 10px 14px;
+      border-radius: 4px; margin-bottom: 16px;
+      font-size: 13px; display: none;
+    }
+    .token-warning.show { display: block; }
+    
+    .form-actions {
+      display: flex; gap: 10px;
+      margin-top: 24px; padding-top: 20px;
+      border-top: 1px solid #dcdcde;
+      flex-wrap: wrap;
+    }
+    .form-actions .wp-btn { flex: 1; text-align: center; padding: 11px; font-size: 14px; min-width: 120px; }
+    
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.9);
+      display: none; align-items: center;
+      justify-content: center; z-index: 9999;
+    }
+    .loading-overlay.show { display: flex; }
+    .loading-overlay .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid #dcdcde;
+      border-top-color: #2271b1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    @media (max-width: 600px) {
       .row { flex-direction: column; gap: 0; }
       .seo-score-container { flex-direction: column; }
+      .form-actions { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>
-      Edit Post
-      <span class="post-id-badge">ID: <span id="displayPostId">-</span></span>
-    </h1>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
     
-    <form id="postForm">
-      <div class="form-group">
-        <label>Post ID (Read-only)</label>
-        <input type="text" id="postId" readonly style="background:#e9ecef;">
+    <main id="admin-content">
+      
+      <!-- Loading overlay -->
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
       </div>
-
-      <div class="form-group">
-        <label>Post Title</label>
-        <input type="text" id="postTitle" placeholder="Enter post title" required oninput="updateSEO()">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">
+          ✏️ Edit Post
+          <span class="post-id-badge" id="displayPostId">Loading...</span>
+        </h1>
+        <a href="all-posts.html" class="wp-btn wp-btn-secondary">← All Posts</a>
       </div>
-
-      <div class="form-group">
-        <label>Permalink</label>
-        <input type="text" id="postPermalink" placeholder="auto-generated-from-title">
+      
+      <div class="token-warning" id="tokenWarning">
+        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set your token.
       </div>
-
-      <div class="row">
-        <div class="form-group">
-          <label>Author</label>
-          <input type="text" id="postAuthor">
-        </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="postDate">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="form-group">
-          <label>Time (Server)</label>
-          <input type="time" id="postTime" readonly style="background:#f0f0f0;">
-        </div>
-        <div class="form-group">
-          <label>Timezone</label>
-          <input type="text" id="postTimezone" readonly style="background:#f0f0f0;">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Categories</label>
-        <div class="category-box" id="categoryCheckboxes">
-          <label><input type="checkbox" value="technology"> Technology</label>
-          <label><input type="checkbox" value="news"> News</label>
-          <label><input type="checkbox" value="lifestyle"> Lifestyle</label>
-        </div>
-        <button type="button" class="add-cat-btn" onclick="addNewCategory()">+ Add New Category</button>
-      </div>
-
-      <div class="form-group">
-        <label>Tags</label>
-        <div class="tags-input-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
-          <input type="text" id="tagInput" placeholder="hi, we, you (comma separated)">
-        </div>
-        <button type="button" class="add-cat-btn" onclick="addTagsFromInput()" style="background:#007bff;color:#fff;border:none;">+ Add Tags</button>
-      </div>
-
-      <div class="form-group">
-        <label>Post Image</label>
-        <div class="image-upload-area" onclick="document.getElementById('postImageFile').click()">
-          <div style="font-size:32px;">📷</div>
-          <div style="font-weight:bold; margin-top:8px;">Click to Replace Image</div>
-          <div class="note">JPG, PNG, GIF, WebP — auto-converted to SVG</div>
-          <input type="file" id="postImageFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-        </div>
-        <img id="imagePreview" class="image-preview" alt="Preview">
-        <div id="uploadStatus" class="upload-status"></div>
-        <input type="hidden" id="postImage" value="">
-      </div>
-
-      <div class="form-group">
-        <label>Content</label>
-        <div class="editor-wrapper">
-          <div class="editor-tabs">
-            <button type="button" class="editor-tab active" id="tabVisual" onclick="switchEditorTab('visual')">Visual</button>
-            <button type="button" class="editor-tab" id="tabCode" onclick="switchEditorTab('code')">Code</button>
+      
+      <div class="admin-card">
+        <form id="postForm">
+          
+          <!-- Post ID (read-only) -->
+          <div class="form-group">
+            <label>Post ID (Read-only)</label>
+            <input type="text" id="postId" readonly>
+            <div class="note">This ID uniquely identifies this post.</div>
           </div>
-          <div class="editor-panel active" id="panelVisual">
-            <textarea id="postContentVisual"></textarea>
+
+          <!-- Title -->
+          <div class="form-group">
+            <label>Post Title</label>
+            <input type="text" id="postTitle" placeholder="Enter post title" required oninput="updateSEO()">
           </div>
-          <div class="editor-panel" id="panelCode">
-            <textarea id="postContentCode" class="code-textarea" placeholder="Paste HTML here..."></textarea>
+
+          <!-- Permalink -->
+          <div class="form-group">
+            <label>Permalink</label>
+            <input type="text" id="postPermalink" placeholder="auto-generated-from-title">
+            <div class="note">⚠️ Changing this will change the file name on GitHub too.</div>
           </div>
-        </div>
-      </div>
 
-      <div class="form-group">
-        <label>Custom Excerpt / Teaser (Optional)</label>
-        <textarea id="postExcerpt" rows="3" placeholder="Leave blank to auto-generate"></textarea>
-      </div>
-
-      <div class="seo-box">
-        <h2>🔍 SEO Settings</h2>
-        
-        <div class="form-group">
-          <label>SEO Title</label>
-          <input type="text" id="seoTitle" placeholder="SEO optimized title" oninput="updateSEO()">
-          <div class="note">Recommended: 50-60 chars. Current: <span id="seoTitleCount">0</span></div>
-        </div>
-
-        <div class="form-group">
-          <label>SEO Meta Description</label>
-          <textarea id="seoDescription" rows="3" placeholder="Write a compelling meta description..." oninput="updateSEO()"></textarea>
-          <div class="note">Recommended: 150-160 chars. Current: <span id="seoDescCount">0</span></div>
-        </div>
-
-        <div class="form-group">
-          <label>SEO Focus Keyword</label>
-          <input type="text" id="seoKeyword" placeholder="e.g., static blog" oninput="updateSEO()">
-        </div>
-
-        <div class="seo-score-container">
-          <div class="seo-chart-wrapper">
-            <canvas id="seoChart"></canvas>
+          <!-- Author + Date -->
+          <div class="row">
+            <div class="form-group">
+              <label>Author</label>
+              <input type="text" id="postAuthor" value="Admin">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="postDate">
+            </div>
           </div>
-          <div class="seo-details" id="seoChecks"></div>
-        </div>
-      </div>
 
-      <div class="btn-group">
-        <button type="button" class="btn btn-secondary" onclick="window.location.href='all-posts.html'">Cancel</button>
-        <button type="button" class="btn btn-view" onclick="viewPost()">👁️ View Post</button>
-        <button type="button" class="btn btn-primary" onclick="updatePost()">Update Post</button>
+          <!-- Time + Timezone -->
+          <div class="row">
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" id="postTime">
+            </div>
+            <div class="form-group">
+              <label>Timezone</label>
+              <input type="text" id="postTimezone" readonly>
+            </div>
+          </div>
+
+          <!-- Categories -->
+          <div class="form-group">
+            <label>Categories</label>
+            <div class="category-box" id="categoryCheckboxes">
+              <div class="note">Loading categories...</div>
+            </div>
+            <button type="button" class="add-cat-btn" onclick="addNewCategory()">+ Add New Category</button>
+          </div>
+
+          <!-- Tags -->
+          <div class="form-group">
+            <label>Tags</label>
+            <div class="tags-input-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
+              <input type="text" id="tagInput" placeholder="hi, we, you (comma separated)">
+            </div>
+            <button type="button" class="add-cat-btn" onclick="addTagsFromInput()" style="background:#2271b1;color:#fff;border-color:#2271b1;">+ Add Tags</button>
+            <div class="note">Type tags separated by commas and click <b>+ Add Tags</b>.</div>
+          </div>
+
+          <!-- Post Image -->
+          <div class="form-group">
+            <label>Post Image</label>
+            <div class="image-upload-area" onclick="document.getElementById('postImageFile').click()">
+              <div style="font-size:32px;">📷</div>
+              <div style="font-weight:600; margin-top:8px;">Click to Replace Image</div>
+              <div class="note">JPG, PNG, GIF, WebP — will be uploaded to GitHub as SVG</div>
+              <input type="file" id="postImageFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+            </div>
+            <img id="imagePreview" class="image-preview" alt="Preview">
+            <div id="uploadStatus" class="upload-status"></div>
+            <input type="hidden" id="postImage" value="">
+            <input type="hidden" id="postImageBase64" value="">
+          </div>
+
+          <!-- Content Editor -->
+          <div class="form-group">
+            <label>Content</label>
+            <div class="editor-wrapper">
+              <div class="editor-tabs">
+                <button type="button" class="editor-tab active" id="tabVisual" onclick="switchEditorTab('visual')">Visual</button>
+                <button type="button" class="editor-tab" id="tabCode" onclick="switchEditorTab('code')">Code</button>
+              </div>
+              <div class="editor-panel active" id="panelVisual">
+                <textarea id="postContentVisual"></textarea>
+              </div>
+              <div class="editor-panel" id="panelCode">
+                <textarea id="postContentCode" class="code-textarea" placeholder="Paste HTML here..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Excerpt -->
+          <div class="form-group">
+            <label>Custom Excerpt / Teaser (Optional)</label>
+            <textarea id="postExcerpt" rows="3" placeholder="Leave blank to auto-generate"></textarea>
+          </div>
+
+          <!-- SEO SECTION -->
+          <div class="seo-box">
+            <h2>🔍 SEO Settings</h2>
+            
+            <div class="form-group">
+              <label>SEO Title</label>
+              <input type="text" id="seoTitle" placeholder="SEO optimized title" oninput="updateSEO()">
+              <div class="note">Recommended: 50-60 chars. Current: <span id="seoTitleCount">0</span></div>
+            </div>
+
+            <div class="form-group">
+              <label>SEO Meta Description</label>
+              <textarea id="seoDescription" rows="3" placeholder="Write a compelling meta description..." oninput="updateSEO()"></textarea>
+              <div class="note">Recommended: 150-160 chars. Current: <span id="seoDescCount">0</span></div>
+            </div>
+
+            <div class="form-group">
+              <label>SEO Focus Keyword</label>
+              <input type="text" id="seoKeyword" placeholder="e.g., static blog" oninput="updateSEO()">
+            </div>
+
+            <div class="seo-score-container">
+              <div class="seo-chart-wrapper">
+                <canvas id="seoChart"></canvas>
+              </div>
+              <div class="seo-details" id="seoChecks"></div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="wp-btn wp-btn-secondary" onclick="window.location.href='all-posts.html'">Cancel</button>
+            <button type="button" class="wp-btn wp-btn-secondary" onclick="viewPost()">👁️ View Post</button>
+            <button type="button" class="wp-btn wp-btn-primary" id="updateBtn" onclick="updatePost()">💾 Update Post</button>
+          </div>
+          
+        </form>
       </div>
-    </form>
+      
+    </main>
   </div>
 
+  <!-- ============================================
+       JAVASCRIPT MODULES
+       ============================================ -->
+  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  <script src="/assets/js/editor.js"></script>
+  <script src="/assets/js/tags.js"></script>
+  <script src="/assets/js/categories.js"></script>
+  <script src="/assets/js/image-upload.js"></script>
+  <script src="/assets/js/seo.js"></script>
+  <script src="/assets/js/post-form.js"></script>
+  
+  <!-- ============================================
+       PAGE INITIALIZATION
+       ============================================ -->
   <script>
-    // ==================== DEMO DATA ====================
-    const demoPostData = {
-      "101": {
-        id: "101",
-        title: "My First Blog Post",
-        permalink: "my-first-blog-post",
-        author: "Admin",
-        date: "2026-09-13",
-        time: "10:30",
-        timezone: "Asia/Karachi",
-        categories: ["technology", "news"],
-        tags: ["javascript", "netlify", "static"],
-        image: "/content/media/images/my-first-blog-post.svg",
-        content: "<h2>Welcome to My First Post</h2><p>This is a <strong>demo post</strong> that shows how content appears in the editor.</p>",
-        excerpt: "This is a short custom excerpt.",
-        seoTitle: "My First Blog Post - Complete Guide",
-        seoDescription: "Learn how to build a static blog with this complete step-by-step guide.",
-        seoKeyword: "static blog"
-      }
-    };
-
-    // ==================== TINYMCE INIT ====================
-    tinymce.init({
-      selector: '#postContentVisual',
-      height: 400,
-      menubar: false,
-      plugins: 'lists link image table wordcount',
-      toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image',
-      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-      setup: function(editor) {
-        editor.on('keyup change', function() { 
-          document.getElementById('postContentCode').value = editor.getContent();
-          updateSEO(); 
-        });
-      }
-    });
-
-    // ==================== EDITOR TAB SWITCHING ====================
-    let currentEditorMode = 'visual';
-
-    function switchEditorTab(mode) {
-      if (mode === currentEditorMode) return;
-
-      let visualTab = document.getElementById('tabVisual');
-      let codeTab = document.getElementById('tabCode');
-      let visualPanel = document.getElementById('panelVisual');
-      let codePanel = document.getElementById('panelCode');
-      let codeTextarea = document.getElementById('postContentCode');
-
-      if (mode === 'code') {
-        let content = tinymce.get('postContentVisual').getContent();
-        codeTextarea.value = content;
-        visualTab.classList.remove('active');
-        codeTab.classList.add('active');
-        visualPanel.classList.remove('active');
-        codePanel.classList.add('active');
-      } else {
-        let codeContent = codeTextarea.value;
-        tinymce.get('postContentVisual').setContent(codeContent);
-        visualTab.classList.add('active');
-        codeTab.classList.remove('active');
-        visualPanel.classList.add('active');
-        codePanel.classList.remove('active');
-      }
-
-      currentEditorMode = mode;
-      updateSEO();
-    }
-
-    // ==================== DATE & TIME ====================
-    let now = new Date();
-    let defaultHours = String(now.getHours()).padStart(2, '0');
-    let defaultMinutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('postTime').value = defaultHours + ':' + defaultMinutes;
-    document.getElementById('postTimezone').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    // ==================== LOAD POST DATA ====================
-    function loadPostData() {
-      let urlParams = new URLSearchParams(window.location.search);
-      let postId = urlParams.get('id');
+    window.addEventListener('load', async function() {
       
+      // 1. Check token
+      checkToken();
+      
+      // 2. Get post ID from URL
+      let postId = getQueryParam('id');
       if (!postId) {
         alert('No post ID provided. Redirecting to All Posts.');
         window.location.href = 'all-posts.html';
         return;
       }
       
-      // Look in LocalStorage first
-      let localPosts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
-      let post = localPosts.find(p => p.id === postId);
+      // Show loading
+      document.getElementById('loadingOverlay').classList.add('show');
+      document.getElementById('displayPostId').textContent = postId;
       
-      // If not found, check demo data
-      if (!post) {
-        post = demoPostData[postId];
-      }
-      
-      if (!post) {
-        alert('Post with ID "' + postId + '" not found.');
-        window.location.href = 'all-posts.html';
-        return;
-      }
-
-      document.getElementById('postId').value = post.id;
-      document.getElementById('displayPostId').textContent = post.id;
-      document.getElementById('postTitle').value = post.title || '';
-      document.getElementById('postPermalink').value = post.permalink || '';
-      document.getElementById('postAuthor').value = post.author || 'Admin';
-      document.getElementById('postDate').value = post.date || '';
-      document.getElementById('postTime').value = post.time || defaultHours + ':' + defaultMinutes;
-      document.getElementById('postTimezone').value = post.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-      document.getElementById('postExcerpt').value = post.excerpt || '';
-      document.getElementById('postImage').value = post.image || '';
-      
-      document.getElementById('seoTitle').value = post.seoTitle || '';
-      document.getElementById('seoDescription').value = post.seoDescription || '';
-      document.getElementById('seoKeyword').value = post.seoKeyword || '';
-
-      document.getElementById('postPermalink').dataset.manual = 'true';
-
-      document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(cb => {
-        cb.checked = post.categories && post.categories.includes(cb.value);
-      });
-
-      tags = post.tags ? [...post.tags] : [];
-      renderTags();
-
-      if (tinymce.get('postContentVisual')) {
-        tinymce.get('postContentVisual').setContent(post.content || '');
-        document.getElementById('postContentCode').value = post.content || '';
-      }
-
-      if (post.image) {
-        let preview = document.getElementById('imagePreview');
-        preview.src = post.image;
-        preview.style.display = 'block';
-        document.getElementById('uploadStatus').textContent = 'Existing image loaded';
-        document.getElementById('uploadStatus').className = 'upload-status success';
-      }
-
-      updateSEO();
-    }
-
-    // ==================== PERMALINK ====================
-    document.getElementById('postTitle').addEventListener('input', function() {
-      let slug = this.value.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-      if (!document.getElementById('postPermalink').dataset.manual) {
-        document.getElementById('postPermalink').value = slug;
-      }
-    });
-
-    document.getElementById('postPermalink').addEventListener('input', function() {
-      this.dataset.manual = 'true';
-    });
-
-    // ==================== TAGS ====================
-    const tagInput = document.getElementById('tagInput');
-    const tagsContainer = document.getElementById('tagsContainer');
-    let tags = [];
-
-    tagInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); addTagsFromInput(); }
-    });
-
-    function addTagsFromInput() {
-      let raw = tagInput.value.trim();
-      if (!raw) return;
-      let parts = raw.split(',').map(t => t.trim()).filter(t => t.length > 0);
-      parts.forEach(part => { if (!tags.includes(part)) tags.push(part); });
-      tagInput.value = '';
-      renderTags();
-      updateSEO();
-    }
-
-    function renderTags() {
-      document.querySelectorAll('.tag-badge').forEach(b => b.remove());
-      tags.forEach((tag, index) => {
-        let badge = document.createElement('div');
-        badge.className = 'tag-badge';
-        badge.innerHTML = `${tag} <span onclick="removeTag(${index})">×</span>`;
-        tagsContainer.insertBefore(badge, tagInput);
-      });
-    }
-
-    function removeTag(index) { tags.splice(index, 1); renderTags(); updateSEO(); }
-
-    // ==================== IMAGE UPLOAD + SVG ====================
-    function handleImageUpload(event) {
-      let file = event.target.files[0];
-      if (!file) return;
-      let status = document.getElementById('uploadStatus');
-      let preview = document.getElementById('imagePreview');
-      
-      status.textContent = 'Converting to SVG...';
-      status.className = 'upload-status';
-
-      if (!file.type.startsWith('image/')) {
-        status.textContent = '❌ Invalid image file.';
-        status.className = 'upload-status error';
-        return;
-      }
-
-      let reader = new FileReader();
-      reader.onload = function(e) {
-        let img = new Image();
-        img.onload = function() {
-          let svgContent = convertImageToSVG(img, file.name);
-          let svgBlob = new Blob([svgContent], {type: 'image/svg+xml'});
-          let svgUrl = URL.createObjectURL(svgBlob);
-          
-          let permalink = document.getElementById('postPermalink').value.trim();
-          if (!permalink) {
-            permalink = document.getElementById('postTitle').value.toLowerCase()
-              .replace(/[^a-z0-9\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/-+/g, '-') || 'post-image';
+      try {
+        // 3. Initialize editor first (before setting content)
+        initRichEditor('#postContentVisual');
+        
+        // 4. Initialize tags system
+        initTags();
+        
+        // 5. Load categories list from GitHub
+        await loadCategoriesList();
+        
+        // 6. Initialize SEO chart
+        initSeoChart();
+        
+        // 7. Load post data (from LocalStorage or GitHub)
+        await loadPostData(postId);
+        
+        // 8. Setup permalink auto-generate (if user changes title)
+        document.getElementById('postTitle').addEventListener('input', function() {
+          let permalinkEl = document.getElementById('postPermalink');
+          if (!permalinkEl.dataset.manual) {
+            permalinkEl.value = generateSlug(this.value);
           }
-          let fileName = permalink + '.svg';
-          let imagePath = '/content/media/images/' + fileName;
-          
-          document.getElementById('postImage').value = imagePath;
-          preview.src = svgUrl;
-          preview.style.display = 'block';
-          
-          status.textContent = '✓ Converted to SVG: ' + fileName;
-          status.className = 'upload-status success';
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function convertImageToSVG(img, originalName) {
-      let width = img.width, height = img.height;
-      let canvas = document.createElement('canvas');
-      canvas.width = width; canvas.height = height;
-      let ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      let base64 = canvas.toDataURL('image/png');
-      return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-  <title>${originalName}</title>
-  <image width="${width}" height="${height}" xlink:href="${base64}"/>
-</svg>`;
-    }
-
-    // ==================== CATEGORY ====================
-    function addNewCategory() {
-      let newCat = prompt("Enter new category name:");
-      if (newCat) {
-        let label = document.createElement('label');
-        label.innerHTML = `<input type="checkbox" value="${newCat.toLowerCase()}" checked> ${newCat}`;
-        document.getElementById('categoryCheckboxes').appendChild(label);
-      }
-    }
-
-    // ==================== SEO ====================
-    let seoChart;
-
-    function initSeoChart() {
-      const ctx = document.getElementById('seoChart').getContext('2d');
-      seoChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Score', 'Remaining'],
-          datasets: [{ data: [0, 100], backgroundColor: ['#dc3545', '#e9ecef'], borderWidth: 0 }]
-        },
-        options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, responsive: true, maintainAspectRatio: true }
-      });
-    }
-
-    function getCurrentContent() {
-      if (currentEditorMode === 'visual') {
-        return tinymce.get('postContentVisual').getContent({format: 'text'}) || '';
-      } else {
-        return document.getElementById('postContentCode').value.replace(/<[^>]*>/g, '');
-      }
-    }
-
-    function updateSEO() {
-      let title = (document.getElementById('postTitle').value || '').toLowerCase();
-      let seoTitle = (document.getElementById('seoTitle').value || '').toLowerCase();
-      let seoDesc = (document.getElementById('seoDescription').value || '').toLowerCase();
-      let keyword = (document.getElementById('seoKeyword').value || '').toLowerCase().trim();
-      let content = getCurrentContent().toLowerCase();
-      
-      document.getElementById('seoTitleCount').textContent = document.getElementById('seoTitle').value.length;
-      document.getElementById('seoDescCount').textContent = document.getElementById('seoDescription').value.length;
-
-      if (!keyword) { renderSeoChecks([]); updateChart(0); return; }
-
-      let checks = [], score = 0;
-
-      let titleHasKeyword = seoTitle.includes(keyword) || title.includes(keyword);
-      checks.push({ label: 'Focus keyword in Title', pass: titleHasKeyword });
-      if (titleHasKeyword) score += 20;
-
-      let descHasKeyword = seoDesc.includes(keyword);
-      checks.push({ label: 'Focus keyword in Meta Description', pass: descHasKeyword });
-      if (descHasKeyword) score += 20;
-
-      let keywordAtStart = content.substring(0, 150).includes(keyword);
-      checks.push({ label: 'Keyword at start of content', pass: keywordAtStart });
-      if (keywordAtStart) score += 20;
-
-      let headingCount = 0;
-      let htmlContent = currentEditorMode === 'visual' 
-        ? tinymce.get('postContentVisual').getContent() 
-        : document.getElementById('postContentCode').value;
-      let headings = htmlContent.match(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi) || [];
-      headings.forEach(h => { if (h.toLowerCase().includes(keyword)) headingCount++; });
-      let headingHasKeyword = headingCount > 0;
-      checks.push({ label: 'Keyword in Headings (' + headingCount + ' times)', pass: headingHasKeyword });
-      if (headingHasKeyword) score += 15;
-
-      let keywordCount = (content.match(new RegExp(keyword, 'g')) || []).length;
-      let density = content.length > 0 ? (keywordCount / content.split(' ').length) * 100 : 0;
-      let densityOk = density >= 0.5 && density <= 2.5;
-      checks.push({ label: 'Keyword Density: ' + density.toFixed(2) + '%', pass: densityOk });
-      if (densityOk) score += 15;
-
-      let wordCount = content.split(/\s+/).filter(w => w.length > 0).length;
-      let lengthOk = wordCount >= 300;
-      checks.push({ label: 'Content Length: ' + wordCount + ' words', pass: lengthOk });
-      if (lengthOk) score += 10;
-
-      renderSeoChecks(checks);
-      updateChart(score);
-    }
-
-    function renderSeoChecks(checks) {
-      let container = document.getElementById('seoChecks');
-      if (checks.length === 0) {
-        container.innerHTML = '<div class="note">Enter a Focus Keyword to see SEO analysis.</div>';
-        return;
-      }
-      container.innerHTML = checks.map(c => 
-        `<div class="seo-check ${c.pass ? 'pass' : 'fail'}"><span class="icon">${c.pass ? '✓' : '✗'}</span><span>${c.label}</span></div>`
-      ).join('');
-    } 
-
-    function updateChart(score) {
-      if (!seoChart) return;
-      let color = score >= 80 ? '#28a745' : (score >= 50 ? '#ffc107' : '#dc3545');
-      seoChart.data.datasets[0].data = [score, 100 - score];
-      seoChart.data.datasets[0].backgroundColor = [color, '#e9ecef'];
-      seoChart.update();
-    }
-
-    // ==================== UPDATE POST ====================
-    function updatePost() {
-      let content = currentEditorMode === 'visual' 
-        ? tinymce.get('postContentVisual').getContent() 
-        : document.getElementById('postContentCode').value;
-      
-      if (!content) { alert('Please write some content.'); return; }
-      
-      let postId = document.getElementById('postId').value;
-      let title = document.getElementById('postTitle').value.trim();
-      
-      if (!title) { alert('Please enter a post title.'); return; }
-      
-      let categories = [];
-      document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked').forEach(cb => {
-        categories.push(cb.value);
-      });
-      
-      let localPosts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
-      let index = localPosts.findIndex(p => p.id === postId);
-      
-      if (index !== -1) {
-        localPosts[index] = {
-          ...localPosts[index],
-          title: title,
-          permalink: document.getElementById('postPermalink').value.trim(),
-          author: document.getElementById('postAuthor').value.trim(),
-          date: document.getElementById('postDate').value,
-          time: document.getElementById('postTime').value,
-          timezone: document.getElementById('postTimezone').value,
-          categories: categories,
-          tags: [...tags],
-          image: document.getElementById('postImage').value,
-          content: content,
-          excerpt: document.getElementById('postExcerpt').value.trim(),
-          seoTitle: document.getElementById('seoTitle').value.trim(),
-          seoDescription: document.getElementById('seoDescription').value.trim(),
-          seoKeyword: document.getElementById('seoKeyword').value.trim(),
-          updatedAt: new Date().toISOString()
-        };
+        });
         
-        localStorage.setItem('blog_posts', JSON.stringify(localPosts));
-        alert('✅ Post updated!\n\nRedirecting to All Posts...');
+        document.getElementById('postPermalink').addEventListener('input', function() {
+          this.dataset.manual = 'true';
+        });
         
-        setTimeout(() => {
-          window.location.href = 'all-posts.html';
-        }, 1200);
-      } else {
-        alert('⚠️ This is a demo post (read-only).\n\nIn real system, this would be updated via GitHub API.');
+        // 9. Update SEO analysis
+        updateSEO();
+        
+      } catch (err) {
+        console.error('Load error:', err);
+        alert('❌ Error loading post:\n\n' + err.message);
+      } finally {
+        // Hide loading
+        document.getElementById('loadingOverlay').classList.remove('show');
       }
-    }
-
-    // ==================== VIEW POST ====================
-    function viewPost() {
-      let permalink = document.getElementById('postPermalink').value;
-      alert('Opening post: ' + permalink + '\n(Frontend URL: /posts/' + permalink + '.html)');
-    }
-
-    // ==================== INITIALIZE ====================
-    window.addEventListener('load', function() { 
-      initSeoChart(); 
-      loadPostData(); 
     });
   </script>
 </body>
