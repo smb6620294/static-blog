@@ -3,326 +3,619 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - All Posts</title>
+  <title>All Posts - Admin</title>
+  
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; color: #333; }
-    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h1 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .add-btn { background: #28a745; color: #fff; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; }
-    .add-btn:hover { background: #218838; }
+    /* Toolbar (Search + Refresh + Add New) */
+    .posts-toolbar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 16px; align-items: center;
+    }
+    .posts-toolbar .search-box {
+      flex: 1; min-width: 200px;
+      padding: 9px 12px;
+      border: 1px solid #8c8f94;
+      border-radius: 4px;
+      font-size: 13.5px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .posts-toolbar .search-box:focus {
+      border-color: #2271b1;
+      outline: none;
+      box-shadow: 0 0 0 1px #2271b1;
+    }
     
-    .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-    .search-box { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
-    .refresh-btn { background: #17a2b8; color: #fff; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex; gap: 5px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #dcdcde;
+      padding-bottom: 0;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 8px 14px;
+      font-size: 13px;
+      color: #50575e;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 3px 3px 0 0;
+      cursor: pointer;
+      background: transparent;
+      font-family: inherit;
+      transition: all 0.1s;
+    }
+    .filter-tab:hover {
+      color: #2271b1;
+      background: #f6f7f7;
+    }
+    .filter-tab.active {
+      color: #2271b1;
+      font-weight: 600;
+      background: #fff;
+      border-color: #dcdcde;
+      border-bottom-color: #fff;
+      margin-bottom: -1px;
+    }
+    .filter-tab .count {
+      color: #787c82;
+      font-weight: normal;
+      margin-left: 4px;
+    }
     
-    .post-item { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; background: #fafafa; }
-    .post-item:hover { background: #f0f8ff; border-color: #007bff; }
-    .post-info { flex: 1; min-width: 200px; }
-    .post-title { font-weight: bold; font-size: 16px; margin-bottom: 4px; color: #222; }
-    .post-meta { font-size: 12px; color: #666; margin-bottom: 6px; }
-    .post-tags { display: flex; gap: 5px; flex-wrap: wrap; }
-    .badge { display: inline-block; background: #e9ecef; color: #333; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-    .badge.category { background: #d1ecf1; color: #0c5460; }
-    .badge.tag { background: #d4edda; color: #155724; }
-    .post-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .action-btn { padding: 6px 12px; font-size: 12px; border-radius: 4px; text-decoration: none; color: #fff; border: none; cursor: pointer; font-weight: bold; }
-    .btn-edit { background: #007bff; }
-    .btn-view { background: #17a2b8; }
-    .btn-delete { background: #dc3545; }
-    .btn-edit:hover { background: #0056b3; }
-    .btn-view:hover { background: #138496; }
-    .btn-delete:hover { background: #c82333; }
+    /* Posts table */
+    .posts-table {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .posts-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    .posts-table thead {
+      background: #f6f7f7;
+      border-bottom: 1px solid #dcdcde;
+    }
+    .posts-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      color: #1d2327;
+      font-size: 13px;
+    }
+    .posts-table th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .posts-table th.sortable:hover { color: #2271b1; }
+    .posts-table th .sort-icon {
+      color: #a7aaad;
+      margin-left: 4px;
+      font-size: 10px;
+    }
     
-    .loading { text-align: center; padding: 40px; color: #666; font-size: 16px; }
-    .no-posts { text-align: center; padding: 40px; color: #999; }
-    .no-posts h3 { color: #666; }
+    .posts-table tbody tr {
+      border-bottom: 1px solid #f0f0f1;
+      transition: background 0.1s;
+    }
+    .posts-table tbody tr:hover { background: #f6f7f7; }
+    .posts-table tbody tr:last-child { border-bottom: none; }
     
-    @media (max-width: 600px) { 
-      .post-item { flex-direction: column; }
-      .post-actions { width: 100%; }
-      .action-btn { flex: 1; text-align: center; }
+    .posts-table td {
+      padding: 12px 14px;
+      vertical-align: top;
+    }
+    
+    .post-title {
+      font-weight: 600;
+      color: #1d2327;
+      margin-bottom: 3px;
+    }
+    .post-title a {
+      color: #2271b1;
+      text-decoration: none;
+    }
+    .post-title a:hover { text-decoration: underline; }
+    .post-excerpt {
+      color: #646970;
+      font-size: 12px;
+      margin-top: 4px;
+      max-width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .post-badges {
+      display: flex; flex-wrap: wrap;
+      gap: 4px; margin-top: 6px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge.category {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    .badge.tag {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .row-actions {
+      font-size: 12px;
+      color: #a7aaad;
+    }
+    .row-actions a, .row-actions button {
+      color: #2271b1;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+      font-family: inherit;
+    }
+    .row-actions a:hover, .row-actions button:hover {
+      text-decoration: underline;
+    }
+    .row-actions .delete-btn { color: #d63638; }
+    .row-actions .separator {
+      color: #dcdcde;
+      margin: 0 4px;
+    }
+    
+    /* Loading state */
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #646970;
+    }
+    .loading-state .spinner {
+      display: inline-block;
+      width: 30px; height: 30px;
+      border: 3px solid #dcdcde;
+      border-top-color: #2271b1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 15px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #646970;
+    }
+    .empty-state h3 { color: #1d2327; margin: 15px 0 8px; }
+    
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: #646970;
+    }
+    
+    /* Mobile */
+    @media (max-width: 782px) {
+      .posts-table thead { display: none; }
+      .posts-table tbody tr {
+        display: block;
+        padding: 14px;
+        border-bottom: 1px solid #dcdcde;
+      }
+      .posts-table td {
+        display: block;
+        padding: 4px 0;
+      }
+      .posts-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #646970;
+        font-size: 11px;
+        display: block;
+        margin-bottom: 3px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>
-      All Posts
-      <a href="add-new-post.html" class="add-btn">+ Add New</a>
-    </h1>
 
-    <div class="toolbar">
-      <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search posts by title, tags, or author..." oninput="filterPosts()">
-      <button class="refresh-btn" onclick="loadPosts()">🔄 Refresh</button>
-    </div>
-
-    <div id="postsList">
-      <div class="loading">Loading posts...</div>
-    </div>
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
+    
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">📚 All Posts</h1>
+        <a href="add-new-post.html" class="wp-btn wp-btn-primary">+ Add New Post</a>
+      </div>
+      
+      <div class="token-warning" id="tokenWarning" style="display:none;background:#fcf9e8;border-left:4px solid #dba617;color:#614200;padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:13px;">
+        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set your token.
+      </div>
+      
+      <!-- Toolbar -->
+      <div class="posts-toolbar">
+        <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search posts by title, tags, author...">
+        <button class="wp-btn wp-btn-secondary" onclick="loadPosts()" id="refreshBtn">🔄 Refresh</button>
+      </div>
+      
+      <!-- Filter Tabs -->
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">
+          All <span class="count" id="countAll">0</span>
+        </button>
+        <button class="filter-tab" data-filter="github" onclick="setFilter('github')">
+          📁 Published <span class="count" id="countGithub">0</span>
+        </button>
+        <button class="filter-tab" data-filter="local" onclick="setFilter('local')">
+          💾 Local <span class="count" id="countLocal">0</span>
+        </button>
+      </div>
+      
+      <!-- Posts Table -->
+      <div class="posts-table">
+        <div id="postsContainer">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <div>Loading posts from GitHub...</div>
+          </div>
+        </div>
+      </div>
+      
+    </main>
   </div>
 
+  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  
   <script>
-    // ==================== CONFIG ====================
-<<<<<<< HEAD
-    // Update this path if your posts folder is located elsewhere
-    const POSTS_FOLDER = '../content/posts/';
+    // ==================== STATE ====================
+    let allPosts = [];
+    let categoriesMap = {};
+    let tagsMap = {};
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let currentSort = { by: 'date', order: 'desc' };
     
-    // Demo list of post files (in real scenario, we'll use GitHub API to list files)
-    // For now, this is a manually maintained list. We'll replace with GitHub API later.
-    const POST_FILES = ['101.json'];
-
-    let allPosts = [];
-
-    // ==================== LOAD POSTS ====================
+    // ==================== LOAD ====================
     async function loadPosts() {
-      let list = document.getElementById('postsList');
-      list.innerHTML = '<div class="loading">Loading posts...</div>';
+      let container = document.getElementById('postsContainer');
+      container.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <div>Loading posts from GitHub...</div>
+        </div>`;
+      
+      let refreshBtn = document.getElementById('refreshBtn');
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = '⏳ Loading...';
       
       allPosts = [];
-
-      for (let file of POST_FILES) {
-        try {
-          let response = await fetch(POSTS_FOLDER + file);
-          if (!response.ok) throw new Error('Not found');
-          let post = await response.json();
-          post._fileName = file;
-          allPosts.push(post);
-        } catch (err) {
-          console.warn('Could not load: ' + file, err);
-        }
-=======
-    const POSTS_FOLDER = '../content/posts/';
-    const POST_FILES = ['101.json']; // Manually maintained list (will use GitHub API later)
-
-    let allPosts = [];
-    let categoriesData = {};
-    let tagsData = {};
-
-    // ==================== LOAD CATEGORIES ====================
-    async function loadCategories() {
-      try {
-        let response = await fetch('../content/categories/categories.json');
-        if (!response.ok) throw new Error('Not found');
-        let data = await response.json();
-        data.categories.forEach(cat => {
-          categoriesData[cat.slug] = cat.name;
-        });
-      } catch (err) {
-        console.warn('Could not load categories:', err);
->>>>>>> 80dad69fec9d17803c367a11f8b84a1b106a3fb8
-      }
-
-      // Sort by date (newest first)
-      allPosts.sort((a, b) => {
-        let dateA = (a.date || '') + ' ' + (a.time || '');
-        let dateB = (b.date || '') + ' ' + (b.time || '');
-        return dateB.localeCompare(dateA);
-      });
-
-      renderPosts(allPosts);
-    }
-
-<<<<<<< HEAD
-=======
-    // ==================== LOAD TAGS ====================
-    async function loadTags() {
-      try {
-        let response = await fetch('../content/tags/tags.json');
-        if (!response.ok) throw new Error('Not found');
-        let data = await response.json();
-        data.tags.forEach(tag => {
-          tagsData[tag.slug] = tag.name;
-        });
-      } catch (err) {
-        console.warn('Could not load tags:', err);
-      }
-    }
-
-    // ==================== LOAD POSTS ====================
-    async function loadPosts() {
-      let list = document.getElementById('postsList');
-      list.innerHTML = '<div class="loading">Loading posts...</div>';
       
-      allPosts = [];
-
-      // Load categories and tags first
-      await loadCategories();
-      await loadTags();
-
-      // 1. Load posts from JSON files
-      for (let file of POST_FILES) {
-        try {
-          let response = await fetch(POSTS_FOLDER + file);
-          if (!response.ok) throw new Error('Not found');
-          let post = await response.json();
-          post._source = 'file';
-          post._fileName = file;
-          allPosts.push(post);
-        } catch (err) {
-          console.warn('Could not load: ' + file, err);
-        }
-      }
-
-      // 2. Load posts from LocalStorage (newly published)
+      // Load categories & tags for display names
+      await loadCategoriesAndTags();
+      
+      // 1. Load from GitHub
       try {
-        let localPosts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
+        let files = await listFilesFromGitHub(CONFIG.POSTS_FOLDER);
+        
+        for (let file of files) {
+          if (!file.name.endsWith('.json')) continue;
+          
+          let post = await fetchFileFromGitHub(CONFIG.POSTS_FOLDER + file.name);
+          if (post && typeof post === 'object') {
+            post._source = 'github';
+            post._fileName = file.name;
+            allPosts.push(post);
+          }
+        }
+      } catch (err) {
+        console.warn('GitHub load error:', err);
+      }
+      
+      // 2. Merge LocalStorage
+      try {
+        let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
         localPosts.forEach(post => {
-          post._source = 'local';
-          allPosts.push(post);
+          let exists = allPosts.find(p => p.id === post.id);
+          if (!exists) {
+            post._source = 'local';
+            allPosts.push(post);
+          }
         });
-      } catch (err) {
-        console.warn('Could not load LocalStorage posts:', err);
+      } catch (e) {
+        console.warn('LocalStorage error:', e);
       }
-
-      // Sort by date (newest first)
+      
+      // 3. Sort by date
+      sortPosts();
+      
+      // 4. Update counts and render
+      updateCounts();
+      applyFiltersAndRender();
+      
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = '🔄 Refresh';
+    }
+    
+    // ==================== LOAD CATEGORIES & TAGS ====================
+    async function loadCategoriesAndTags() {
+      // Categories
+      try {
+        let cats = await fetchFileFromGitHub(CONFIG.CATEGORIES_FILE);
+        if (cats && cats.categories) {
+          cats.categories.forEach(c => {
+            categoriesMap[c.slug] = c.name;
+          });
+        }
+      } catch (e) {}
+      
+      // Tags
+      try {
+        let tags = await fetchFileFromGitHub(CONFIG.TAGS_FILE);
+        if (tags && tags.tags) {
+          tags.tags.forEach(t => {
+            tagsMap[t.slug] = t.name;
+          });
+        }
+      } catch (e) {}
+    }
+    
+    // ==================== SORT ====================
+    function sortPosts() {
       allPosts.sort((a, b) => {
         let dateA = (a.date || '') + ' ' + (a.time || '');
         let dateB = (b.date || '') + ' ' + (b.time || '');
-        return dateB.localeCompare(dateA);
+        if (currentSort.order === 'desc') {
+          return dateB.localeCompare(dateA);
+        } else {
+          return dateA.localeCompare(dateB);
+        }
       });
-
-      renderPosts(allPosts);
     }
-
->>>>>>> 80dad69fec9d17803c367a11f8b84a1b106a3fb8
-    // ==================== RENDER POSTS ====================
-    function renderPosts(posts) {
-      let list = document.getElementById('postsList');
+    
+    function toggleSort(by) {
+      if (currentSort.by === by) {
+        currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
+      } else {
+        currentSort.by = by;
+        currentSort.order = 'desc';
+      }
+      sortPosts();
+      applyFiltersAndRender();
+    }
+    
+    // ==================== FILTERS ====================
+    function setFilter(filter) {
+      currentFilter = filter;
       
-      if (posts.length === 0) {
-        list.innerHTML = `
-          <div class="no-posts">
-            <h3>No posts found</h3>
-            <p>Click "+ Add New" to create your first post.</p>
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.filter === filter);
+      });
+      
+      applyFiltersAndRender();
+    }
+    
+    function updateCounts() {
+      let githubCount = allPosts.filter(p => p._source === 'github').length;
+      let localCount = allPosts.filter(p => p._source === 'local').length;
+      
+      document.getElementById('countAll').textContent = allPosts.length;
+      document.getElementById('countGithub').textContent = githubCount;
+      document.getElementById('countLocal').textContent = localCount;
+    }
+    
+    function applyFiltersAndRender() {
+      let filtered = [...allPosts];
+      
+      // Filter by source
+      if (currentFilter === 'github') {
+        filtered = filtered.filter(p => p._source === 'github');
+      } else if (currentFilter === 'local') {
+        filtered = filtered.filter(p => p._source === 'local');
+      }
+      
+      // Filter by search
+      if (currentSearch) {
+        let q = currentSearch.toLowerCase();
+        filtered = filtered.filter(post => {
+          let title = (post.title || '').toLowerCase();
+          let author = (post.author || '').toLowerCase();
+          let tags = (post.tags || []).join(' ').toLowerCase();
+          let cats = (post.categories || []).join(' ').toLowerCase();
+          return title.includes(q) || author.includes(q) || tags.includes(q) || cats.includes(q);
+        });
+      }
+      
+      renderPosts(filtered);
+    }
+    
+    // ==================== RENDER ====================
+    function renderPosts(posts) {
+      let container = document.getElementById('postsContainer');
+      
+      if (allPosts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size:48px;">📝</div>
+            <h3>No posts yet</h3>
+            <p>Click "Add New Post" to create your first post.</p>
+            <a href="add-new-post.html" class="wp-btn wp-btn-primary" style="margin-top:15px;display:inline-block;">+ Add New Post</a>
           </div>`;
         return;
       }
-
-      list.innerHTML = posts.map(post => {
-<<<<<<< HEAD
-        // Build category badges
-        let categories = (post.categories || []).map(c => 
-          `<span class="badge category">${escapeHtml(c)}</span>`
-        ).join('');
-        
-        // Build tag badges
-        let tags = (post.tags || []).map(t => 
-          `<span class="badge tag">${escapeHtml(t)}</span>`
-        ).join('');
-=======
-        // Category badges (with pretty names)
-        let categories = (post.categories || []).map(c => {
-          let name = categoriesData[c] || c;
+      
+      if (posts.length === 0) {
+        container.innerHTML = `
+          <div class="no-results">
+            <div style="font-size:36px;">🔍</div>
+            <h3>No posts match your search</h3>
+            <p>Try different keywords or clear the search.</p>
+          </div>`;
+        return;
+      }
+      
+      let sortIcon = (by) => {
+        if (currentSort.by !== by) return '<span class="sort-icon">⇅</span>';
+        return currentSort.order === 'desc' 
+          ? '<span class="sort-icon">▼</span>' 
+          : '<span class="sort-icon">▲</span>';
+      };
+      
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th style="width:140px;">Author</th>
+              <th class="sortable" style="width:140px;" onclick="toggleSort('date')">
+                Date ${sortIcon('date')}
+              </th>
+              <th style="width:100px;">Source</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      posts.forEach(post => {
+        // Categories badges
+        let catsHtml = (post.categories || []).slice(0, 3).map(slug => {
+          let name = categoriesMap[slug] || slug;
           return `<span class="badge category">${escapeHtml(name)}</span>`;
         }).join('');
         
-        // Tag badges (with pretty names)
-        let tags = (post.tags || []).map(t => {
-          let name = tagsData[t] || t;
+        // Tags badges
+        let tagsHtml = (post.tags || []).slice(0, 3).map(slug => {
+          let name = tagsMap[slug] || slug;
           return `<span class="badge tag">${escapeHtml(name)}</span>`;
         }).join('');
->>>>>>> 80dad69fec9d17803c367a11f8b84a1b106a3fb8
-
-        return `
-        <div class="post-item">
-          <div class="post-info">
-            <div class="post-title">${escapeHtml(post.title || 'Untitled')}</div>
-            <div class="post-meta">
-              By ${escapeHtml(post.author || 'Unknown')} • 
-              ${escapeHtml(post.date || '')} ${escapeHtml(post.time || '')}
-            </div>
-            <div class="post-tags">
-              ${categories}
-              ${tags}
-            </div>
-          </div>
-          <div class="post-actions">
-            <a href="edit-post.html?id=${encodeURIComponent(post.id || '')}" class="action-btn btn-edit">✏️ Edit</a>
-            <a href="../posts/${encodeURIComponent(post.permalink || '')}.html" target="_blank" class="action-btn btn-view">👁️ View</a>
-<<<<<<< HEAD
-            <button class="action-btn btn-delete" onclick="deletePost('${escapeHtml(post.id || '')}', '${escapeHtml(post._fileName || '')}')">🗑️ Delete</button>
-=======
-            <button class="action-btn btn-delete" onclick="deletePost('${escapeHtml(post.id || '')}', '${escapeHtml(post._fileName || '')}', '${escapeHtml(post._source || '')}')">🗑️ Delete</button>
->>>>>>> 80dad69fec9d17803c367a11f8b84a1b106a3fb8
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    // ==================== SEARCH / FILTER ====================
-    function filterPosts() {
-      let query = document.getElementById('searchBox').value.toLowerCase().trim();
-      
-      if (!query) {
-        renderPosts(allPosts);
-        return;
-      }
-
-      let filtered = allPosts.filter(post => {
-        let title = (post.title || '').toLowerCase();
-        let author = (post.author || '').toLowerCase();
-        let tags = (post.tags || []).join(' ').toLowerCase();
-        let categories = (post.categories || []).join(' ').toLowerCase();
         
-        return title.includes(query) 
-          || author.includes(query) 
-          || tags.includes(query) 
-          || categories.includes(query);
-      });
-
-      renderPosts(filtered);
-    }
-
-    // ==================== DELETE POST ====================
-<<<<<<< HEAD
-    function deletePost(id, fileName) {
-      if (!confirm('Are you sure you want to delete this post?\n\nID: ' + id + '\nFile: ' + fileName)) {
-        return;
-      }
-      
-      // NOTE: This is a demo. Real deletion requires GitHub API.
-      alert('🗑️ Delete requested for post ID: ' + id + '\n\n(Demo only — real deletion needs GitHub API integration.)');
-      
-      // After real deletion, we'll refresh the list
-      // loadPosts();
-=======
-    function deletePost(id, fileName, source) {
-      if (!confirm('Are you sure you want to delete this post?\n\nID: ' + id)) {
-        return;
-      }
-      
-      // If it's a LocalStorage post, delete from LocalStorage
-      if (source === 'local') {
-        let posts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
-        let originalLength = posts.length;
-        posts = posts.filter(p => p.id !== id);
-        
-        if (posts.length < originalLength) {
-          localStorage.setItem('blog_posts', JSON.stringify(posts));
-          alert('✅ Post deleted from LocalStorage.');
-          loadPosts();
-          return;
+        // Excerpt
+        let excerpt = post.excerpt || '';
+        if (!excerpt && post.content) {
+          let tmp = document.createElement('div');
+          tmp.innerHTML = post.content;
+          excerpt = (tmp.textContent || '').substring(0, 120) + '...';
         }
+        
+        // Source badge
+        let sourceBadge = post._source === 'github' 
+          ? '<span style="color:#00a32a;font-size:12px;">📁 GitHub</span>'
+          : '<span style="color:#dba617;font-size:12px;">💾 Local</span>';
+        
+        html += `
+          <tr>
+            <td data-label="Title">
+              <div class="post-title">
+                <a href="edit-post.html?id=${encodeURIComponent(post.id || '')}">${escapeHtml(post.title || 'Untitled')}</a>
+              </div>
+              ${excerpt ? `<div class="post-excerpt">${escapeHtml(excerpt)}</div>` : ''}
+              <div class="post-badges">${catsHtml} ${tagsHtml}</div>
+              <div class="row-actions" style="margin-top:6px;">
+                <a href="edit-post.html?id=${encodeURIComponent(post.id || '')}">Edit</a>
+                <span class="separator">|</span>
+                <a href="/posts/${encodeURIComponent(post.permalink || '')}.html" target="_blank">View</a>
+                <span class="separator">|</span>
+                <button class="delete-btn" onclick="confirmDelete('${escapeHtml(post.id || '')}', '${escapeHtml(post._fileName || '')}', '${escapeHtml(post._source || '')}', '${escapeHtml(post.title || '')}')">Delete</button>
+              </div>
+            </td>
+            <td data-label="Author">${escapeHtml(post.author || 'Unknown')}</td>
+            <td data-label="Date">${escapeHtml(post.date || '')}</td>
+            <td data-label="Source">${sourceBadge}</td>
+          </tr>
+        `;
+      });
+      
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+    
+    // ==================== DELETE ====================
+    function confirmDelete(postId, fileName, source, title) {
+      if (!confirm(`Are you sure you want to delete this post?\n\n"${title}"\n\nThis will remove it from GitHub.`)) {
+        return;
       }
       
-      // If it's a file-based post, needs GitHub API
-      alert('🗑️ Delete requested for file-based post: ' + fileName + '\n\n(Demo only — real deletion needs GitHub API.)');
->>>>>>> 80dad69fec9d17803c367a11f8b84a1b106a3fb8
+      deletePost(postId, fileName, source, title);
     }
-
-    // ==================== UTILITY ====================
-    function escapeHtml(str) {
-      if (str === null || str === undefined) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    
+    async function deletePost(postId, fileName, source, title) {
+      let token = getToken();
+      if (!token) {
+        promptForToken();
+        return;
+      }
+      
+      try {
+        // 1. Remove from LocalStorage
+        let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
+        let originalLength = localPosts.length;
+        localPosts = localPosts.filter(p => p.id !== postId);
+        if (localPosts.length < originalLength) {
+          localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(localPosts));
+        }
+        
+        // 2. Delete from GitHub if it's a GitHub post
+        if (source === 'github' && fileName) {
+          await deleteFileFromGitHub(
+            CONFIG.POSTS_FOLDER + fileName,
+            `Delete post: ${title}`
+          );
+          
+          // Also try to delete associated image
+          let post = allPosts.find(p => p.id === postId);
+          if (post && post.image && post.image.startsWith('/content/')) {
+            try {
+              await deleteFileFromGitHub(
+                post.image.replace(/^\//, ''),
+                `Delete image: ${post.image}`
+              );
+            } catch (e) {
+              console.warn('Image delete failed (may not exist):', e);
+            }
+          }
+        }
+        
+        showToast('✅ Post deleted!', 'success');
+        
+        // Reload
+        setTimeout(() => loadPosts(), 500);
+        
+      } catch (err) {
+        console.error(err);
+        alert('❌ Delete failed:\n\n' + err.message);
+      }
     }
-
+    
+    // ==================== SEARCH ====================
+    const searchBox = document.getElementById('searchBox');
+    searchBox.addEventListener('input', debounce(function() {
+      currentSearch = this.value.trim();
+      applyFiltersAndRender();
+    }, 300));
+    
     // ==================== INITIALIZE ====================
-    window.addEventListener('load', loadPosts);
+    window.addEventListener('load', function() {
+      checkToken();
+      loadPosts();
+    });
   </script>
 </body>
 </html>
