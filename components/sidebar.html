@@ -1,0 +1,233 @@
+<!-- ============================================
+     ADMIN SIDEBAR (WordPress-Style)
+     This file is auto-included in every admin page
+     via /assets/js/load-sidebar.js
+     ============================================ -->
+
+<div class="admin-sidebar">
+
+  <!-- Brand / Logo -->
+  <div class="sidebar-brand">
+    <a href="index.html" class="brand-link">
+      <span class="brand-icon">📝</span>
+      <span class="brand-text">My Static Blog</span>
+    </a>
+  </div>
+
+  <!-- Main Menu -->
+  <nav class="sidebar-nav">
+
+    <!-- 1. Dashboard / Home -->
+    <a href="index.html" class="menu-item" data-page="index">
+      <span class="menu-icon">🏠</span>
+      <span class="menu-text">Dashboard</span>
+    </a>
+
+    <!-- 2. Posts (Drop-down) -->
+    <div class="menu-group" data-group="posts">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">📝</span>
+        <span class="menu-text">Posts</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="all-posts.html" class="submenu-item" data-page="all-posts">
+          <span>All Posts</span>
+        </a>
+        <a href="add-new-post.html" class="submenu-item" data-page="add-new-post">
+          <span>Add New Post</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 3. Categories (Drop-down) -->
+    <div class="menu-group" data-group="categories">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">📂</span>
+        <span class="menu-text">Categories</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="add-new-category.html" class="submenu-item" data-page="add-new-category">
+          <span>All Categories</span>
+        </a>
+        <a href="add-new-category.html" class="submenu-item" data-page="add-new-category">
+          <span>Add New Category</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 4. Tags (Drop-down) -->
+    <div class="menu-group" data-group="tags">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">🏷️</span>
+        <span class="menu-text">Tags</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="add-new-tag.html" class="submenu-item" data-page="add-new-tag">
+          <span>All Tags</span>
+        </a>
+        <a href="add-new-tag.html" class="submenu-item" data-page="add-new-tag">
+          <span>Add New Tag</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 5. Media (Drop-down) -->
+    <div class="menu-group" data-group="media">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">🖼️</span>
+        <span class="menu-text">Media</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="#" class="submenu-item" data-page="all-media">
+          <span>Media Library</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="add-new-media">
+          <span>Add New Media</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 6. Pages (Drop-down) -->
+    <div class="menu-group" data-group="pages">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">📄</span>
+        <span class="menu-text">Pages</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="#" class="submenu-item" data-page="all-pages">
+          <span>All Pages</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="add-new-page">
+          <span>Add New Page</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 7. Comments -->
+    <a href="#" class="menu-item" data-page="comments">
+      <span class="menu-icon">💬</span>
+      <span class="menu-text">Comments</span>
+    </a>
+
+    <!-- 8. Languages (Drop-down) -->
+    <div class="menu-group" data-group="languages">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">🌐</span>
+        <span class="menu-text">Languages</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="#" class="submenu-item" data-page="all-languages">
+          <span>All Languages</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="add-new-language">
+          <span>Add New Language</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 9. SEO (Drop-down) -->
+    <div class="menu-group" data-group="seo">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">🔍</span>
+        <span class="menu-text">SEO</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="#" class="submenu-item" data-page="seo-sitemaps">
+          <span>Sitemaps</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="seo-schema">
+          <span>Schema</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="seo-general">
+          <span>SEO Settings</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 10. AdSense (Drop-down) -->
+    <div class="menu-group" data-group="adsense">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">💰</span>
+        <span class="menu-text">AdSense</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="#" class="submenu-item" data-page="adsense-settings">
+          <span>Settings</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="adsense-slots">
+          <span>Ad Slots</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 11. Analytics -->
+    <a href="#" class="menu-item" data-page="analytics">
+      <span class="menu-icon">📊</span>
+      <span class="menu-text">Analytics</span>
+    </a>
+
+    <!-- 12. Import / Export -->
+    <a href="import-export.html" class="menu-item" data-page="import-export">
+      <span class="menu-icon">💾</span>
+      <span class="menu-text">Import / Export</span>
+    </a>
+
+    <!-- 13. Code Editor ⭐ (NEW) -->
+    <a href="code-editor.html" class="menu-item" data-page="code-editor">
+      <span class="menu-icon">💻</span>
+      <span class="menu-text">Code Editor</span>
+    </a>
+
+    <!-- 14. Settings (Drop-down) -->
+    <div class="menu-group" data-group="settings">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">⚙️</span>
+        <span class="menu-text">Settings</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="general-settings.html" class="submenu-item" data-page="general-settings">
+          <span>General</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="reading-settings">
+          <span>Reading</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="permalinks">
+          <span>Permalinks</span>
+        </a>
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- Bottom: Admin / Logout -->
+  <div class="sidebar-footer">
+    <div class="menu-group" data-group="admin">
+      <div class="menu-item menu-toggle" onclick="toggleMenu(this)">
+        <span class="menu-icon">👤</span>
+        <span class="menu-text">Admin</span>
+        <span class="menu-arrow">▸</span>
+      </div>
+      <div class="submenu">
+        <a href="#" class="submenu-item" data-page="profile">
+          <span>Profile</span>
+        </a>
+        <a href="../index.html" class="submenu-item" target="_blank">
+          <span>Visit Site ↗</span>
+        </a>
+        <a href="#" class="submenu-item" data-page="logout">
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
