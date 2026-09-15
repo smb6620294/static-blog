@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Editor - Admin</title>
+  
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  
+  <style>
+    /* Two-panel layout: File tree (left) + Editor (right) */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .editor-layout { grid-template-columns: 1fr; }
+    }
+    
+    /* File Tree Panel */
+    .file-tree-panel {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .file-tree-header {
+      background: #f6f7f7;
+      padding: 12px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #1d2327;
+      border-bottom: 1px solid #dcdcde;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .file-tree-header button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2271b1;
+    }
+    
+    /* Tree Structure */
+    .tree-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 13px;
+    }
+    .tree-list ul {
+      list-style: none;
+      padding-left: 16px;
+      margin: 0;
+      display: none;
+    }
+    .tree-list li.open > ul { display: block; }
+    
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: #2c3338;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      border-left: 3px solid transparent;
+      transition: background 0.1s;
+      user-select: none;
+    }
+    .tree-item:hover { background: #f0f0f1; color: #2271b1; }
+    .tree-item.active {
+      background: #2271b1;
+      color: #fff;
+      border-left-color: #72aee6;
+    }
+    .tree-item.folder { font-weight: 500; }
+    .tree-item .tree-icon { font-size: 13px; width: 16px; text-align: center; }
+    .tree-item .tree-arrow {
+      font-size: 10px;
+      color: #787c82;
+      transition: transform 0.15s;
+      width: 12px;
+      text-align: center;
+    }
+    .tree-list li.open > .tree-item .tree-arrow { transform: rotate(90deg); }
+    .tree-item.active .tree-arrow { color: #fff; }
+    .tree-item .tree-name { flex: 1; }
+    
+    /* Editor Panel */
+    .editor-panel { min-width: 0; }
+    
+    .editor-toolbar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 12px; padding: 12px;
+      background: #fff; border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      align-items: flex-end;
+    }
+    .editor-toolbar .form-group { margin: 0; flex: 1; min-width: 200px; }
+    .editor-toolbar label {
+      display: block; font-weight: 600;
+      margin-bottom: 5px; font-size: 12px;
+    }
+    .editor-toolbar input {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid #8c8f94; border-radius: 4px;
+      font-size: 13px; box-sizing: border-box;
+      font-family: 'Consolas', monospace;
+    }
+    
+    .code-editor-container {
+      background: #1e1e1e; border-radius: 6px;
+      overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .code-editor-header {
+      background: #252526; color: #ccc;
+      padding: 8px 15px; font-size: 12px;
+      display: flex; justify-content: space-between;
+      align-items: center; border-bottom: 1px solid #3e3e42;
+    }
+    .code-editor-header .file-info {
+      font-family: 'Consolas', monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .code-editor-header .status { font-size: 11px; color: #888; flex-shrink: 0; margin-left: 10px; }
+    
+    #codeArea {
+      width: 100%; min-height: 500px;
+      background: #1e1e1e; color: #d4d4d4;
+      border: none; outline: none;
+      padding: 15px; font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 13px; line-height: 1.6;
+      resize: vertical; box-sizing: border-box;
+      tab-size: 2;
+    }
+    
+    .action-bar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .action-bar .wp-btn { flex: 1; text-align: center; padding: 11px; }
+    
+    .info-box {
+      background: #f0f6fc; border-left: 4px solid #2271b1;
+      padding: 12px 16px; border-radius: 4px;
+      margin-bottom: 16px; font-size: 13px;
+    }
+    
+    /* Mobile toggle for tree */
+    .tree-mobile-toggle {
+      display: none;
+      width: 100%;
+      padding: 10px;
+      background: #f6f7f7;
+      border: 1px solid #8c8f94;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .tree-mobile-toggle { display: block; }
+      .file-tree-panel { display: none; position: static; max-height: 400px; }
+      .file-tree-panel.show { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
+    
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">💻 Code Editor</h1>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+      </div>
+      
+      <div class="token-warning" id="tokenWarning" style="display:none;background:#fcf9e8;border-left:4px solid #dba617;color:#614200;padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:13px;">
+        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set your token.
+      </div>
+      
+      <div class="info-box">
+        🌳 <b>File Explorer:</b> Click any file on the left to open it in the editor.
+        Edit the code, then click <b>Save to GitHub</b> or press <b>Ctrl+S</b>.
+      </div>
+      
+      <!-- Mobile tree toggle -->
+      <button class="tree-mobile-toggle" onclick="document.querySelector('.file-tree-panel').classList.toggle('show')">
+        📁 Toggle File Explorer
+      </button>
+      
+      <!-- Main editor layout -->
+      <div class="editor-layout">
+        
+        <!-- LEFT: File Tree -->
+        <aside class="file-tree-panel" id="fileTreePanel">
+          <div class="file-tree-header">
+            <span>📁 Files</span>
+            <button onclick="reloadTree()" title="Refresh">🔄</button>
+          </div>
+          <ul class="tree-list" id="treeRoot">
+            <li><div class="tree-item" style="color:#888;">Loading...</div></li>
+          </ul>
+        </aside>
+        
+        <!-- RIGHT: Editor -->
+        <section class="editor-panel">
+          
+          <div class="editor-toolbar">
+            <div class="form-group">
+              <label>📁 File Path (auto-filled from tree)</label>
+              <input type="text" id="filePath" placeholder="Click a file on the left to load it">
+            </div>
+            <div class="form-group" style="flex:0 0 auto;">
+              <label>&nbsp;</label>
+              <button class="wp-btn wp-btn-secondary" onclick="loadFileFromGitHub()" style="padding:8px 16px;">📥 Reload</button>
+            </div>
+          </div>
+          
+          <div class="code-editor-container">
+            <div class="code-editor-header">
+              <span class="file-info" id="currentFileName">No file loaded</span>
+              <span class="status" id="editorStatus">Ready</span>
+            </div>
+            <textarea id="codeArea" placeholder="// Select a file from the tree on the left to start editing..."></textarea>
+          </div>
+          
+          <div class="action-bar">
+            <button class="wp-btn wp-btn-secondary" onclick="copyCode()">📋 Copy</button>
+            <button class="wp-btn wp-btn-secondary" onclick="formatJSON()" id="formatBtn" style="display:none;">✨ Format</button>
+            <button class="wp-btn wp-btn-primary" onclick="saveFileToGitHub()" id="saveBtn">💾 Save to GitHub</button>
+          </div>
+          
+          <div id="outputBox" style="margin-top:16px;"></div>
+          
+        </section>
+      </div>
+      
+    </main>
+  </div>
+
+  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  
+  <script>
+    // ==================== FILE TREE CONFIG ====================
+    // Manually list root folders to explore (because GitHub API doesn't do deep recursion well)
+    const ROOT_FOLDERS = ['admin', 'assets', 'config', 'content', 'locales'];
+    
+    let treeData = {};
+    let currentFilePath = '';
+    let currentFileSHA = null;
+    let fileExistsOnGitHub = false;
+    
+    // ==================== BUILD FILE TREE ====================
+    async function buildFileTree() {
+      let token = getToken();
+      let root = document.getElementById('treeRoot');
+      root.innerHTML = '<li><div class="tree-item" style="color:#888;">🔄 Building tree...</div></li>';
+      
+      try {
+        // 1. Get full tree from GitHub (recursive)
+        let response = await fetch(
+          `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/git/trees/${CONFIG.GITHUB_BRANCH}?recursive=1`,
+          { headers: token ? { 'Authorization': `token ${token}` } : {} }
+        );
+        
+        if (!response.ok) throw new Error('Failed to load tree');
+        let data = await response.json();
+        
+        // 2. Filter and organize
+        let tree = data.tree.filter(item => {
+          // Skip root-level noise
+          if (item.path.startsWith('.git')) return false;
+          if (item.path === '.gitattributes') return false;
+          if (item.path === '.gitignore') return false;
+          return true;
+        });
+        
+        // 3. Build nested structure
+        treeData = {};
+        tree.forEach(item => {
+          let parts = item.path.split('/');
+          let current = treeData;
+          for (let i = 0; i < parts.length - 1; i++) {
+            if (!current[parts[i]]) current[parts[i]] = {};
+            current = current[parts[i]];
+          }
+          // Last part = file
+          if (item.type === 'blob') {
+            current['__files'] = current['__files'] || [];
+            current['__files'].push(parts[parts.length - 1]);
+          }
+        });
+        
+        // 4. Render tree
+        root.innerHTML = '';
+        renderTreeNode(root, treeData, '');
+        
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = `<li><div class="tree-item" style="color:#d63638;">❌ Error: ${err.message}</div></li>`;
+      }
+    }
+    
+    // ==================== RENDER TREE NODE ====================
+    function renderTreeNode(ul, node, pathPrefix) {
+      // Folders first
+      let folders = Object.keys(node).filter(k => k !== '__files').sort();
+      let files = (node.__files || []).sort();
+      
+      // Render folders
+      folders.forEach(folderName => {
+        let fullPath = pathPrefix ? pathPrefix + '/' + folderName : folderName;
+        let li = document.createElement('li');
+        
+        // Folder icon based on name
+        let folderIcon = '📁';
+        if (folderName === 'admin') folderIcon = '⚙️';
+        else if (folderName === 'assets') folderIcon = '🎨';
+        else if (folderName === 'config') folderIcon = '🔧';
+        else if (folderName === 'content') folderIcon = '📝';
+        else if (folderName === 'locales') folderIcon = '🌐';
+        else if (folderName === 'js') folderIcon = '📜';
+        else if (folderName === 'css') folderIcon = '🎨';
+        else if (folderName === 'components') folderIcon = '🧩';
+        else if (folderName === 'posts') folderIcon = '📄';
+        else if (folderName === 'media') folderIcon = '🖼️';
+        else if (folderName === 'images') folderIcon = '🖼️';
+        else if (folderName === 'categories') folderIcon = '📂';
+        else if (folderName === 'tags') folderIcon = '🏷️';
+        
+        li.innerHTML = `
+          <div class="tree-item folder" onclick="toggleTreeFolder(this, event)">
+            <span class="tree-arrow">▸</span>
+            <span class="tree-icon">${folderIcon}</span>
+            <span class="tree-name">${escapeHtml(folderName)}</span>
+          </div>
+          <ul></ul>
+        `;
+        
+        // Recursively render children
+        renderTreeNode(li.querySelector('ul'), node[folderName], fullPath);
+        
+        ul.appendChild(li);
+      });
+      
+      // Render files
+      files.forEach(fileName => {
+        let fullPath = pathPrefix ? pathPrefix + '/' + fileName : fileName;
+        let li = document.createElement('li');
+        
+        let fileIcon = '📄';
+        if (fileName.endsWith('.html')) fileIcon = '🌐';
+        else if (fileName.endsWith('.js')) fileIcon = '📜';
+        else if (fileName.endsWith('.css')) fileIcon = '🎨';
+        else if (fileName.endsWith('.json')) fileIcon = '📋';
+        else if (fileName.endsWith('.md')) fileIcon = '📖';
+        else if (fileName.endsWith('.svg')) fileIcon = '🖼️';
+        else if (fileName.endsWith('.toml')) fileIcon = '⚙️';
+        
+        li.innerHTML = `
+          <div class="tree-item" data-file-path="${escapeHtml(fullPath)}" onclick="loadFileFromTree(this)">
+            <span class="tree-icon">${fileIcon}</span>
+            <span class="tree-name">${escapeHtml(fileName)}</span>
+          </div>
+        `;
+        ul.appendChild(li);
+      });
+    }
+    
+    // ==================== TOGGLE FOLDER ====================
+    function toggleTreeFolder(el, event) {
+      event.stopPropagation();
+      let li = el.parentElement;
+      li.classList.toggle('open');
+    }
+    
+    // ==================== LOAD FILE FROM TREE ====================
+    function loadFileFromTree(el) {
+      // Remove active from all
+      document.querySelectorAll('.tree-item.active').forEach(i => i.classList.remove('active'));
+      // Add active to clicked
+      el.classList.add('active');
+      
+      let path = el.dataset.filePath;
+      document.getElementById('filePath').value = path;
+      loadFileFromGitHub();
+    }
+    
+    // ==================== LOAD FILE FROM GITHUB ====================
+    async function loadFileFromGitHub() {
+      let path = document.getElementById('filePath').value.trim();
+      if (!path) {
+        alert('Please enter a file path.');
+        return;
+      }
+      
+      let token = getToken();
+      if (!token) {
+        promptForToken();
+        return;
+      }
+      
+      updateStatus('Loading...', 'info');
+      showOutput('📥 Loading: ' + path, 'info');
+      
+      try {
+        let response = await fetch(
+          `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${path}?ref=${CONFIG.GITHUB_BRANCH}`,
+          { headers: { 'Authorization': `token ${token}` } }
+        );
+        
+        if (response.ok) {
+          let data = await response.json();
+          let content = decodeBase64(data.content.replace(/\n/g, ''));
+          
+          document.getElementById('codeArea').value = content;
+          document.getElementById('currentFileName').textContent = '📄 ' + path;
+          currentFilePath = path;
+          currentFileSHA = data.sha;
+          fileExistsOnGitHub = true;
+          
+          updateStatus('Loaded', 'success');
+          showOutput('✅ File loaded! Size: ' + data.size + ' bytes', 'success');
+          
+          document.getElementById('formatBtn').style.display = path.endsWith('.json') ? 'inline-block' : 'none';
+          
+        } else if (response.status === 404) {
+          document.getElementById('codeArea').value = '';
+          document.getElementById('currentFileName').textContent = '📄 ' + path + ' (new)';
+          currentFilePath = path;
+          currentFileSHA = null;
+          fileExistsOnGitHub = false;
+          
+          updateStatus('New file', 'warning');
+          showOutput('📝 File does not exist. Saving will CREATE it.', 'warning');
+        } else {
+          throw new Error('GitHub API error: ' + response.statusText);
+        }
+      } catch (err) {
+        updateStatus('Error', 'error');
+        showOutput('❌ Error: ' + err.message, 'error');
+      }
+    }
+    
+    // ==================== SAVE FILE ====================
+    async function saveFileToGitHub() {
+      let path = document.getElementById('filePath').value.trim();
+      let content = document.getElementById('codeArea').value;
+      
+      if (!path) { alert('Please enter a file path.'); return; }
+      if (!content) { alert('Please enter some content.'); return; }
+      
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      let action = fileExistsOnGitHub ? 'UPDATE' : 'CREATE';
+      if (!confirm(`⚠️ ${action} file?\n\n📄 ${path}`)) return;
+      
+      let saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '⏳ Saving...';
+      updateStatus('Saving...', 'info');
+      
+      try {
+        let contentBase64 = btoa(unescape(encodeURIComponent(content)));
+        let commitMessage = fileExistsOnGitHub 
+          ? `Update ${path} via code editor`
+          : `Create ${path} via code editor`;
+        
+        let result = await uploadFileToGitHub(path, contentBase64, commitMessage);
+        
+        currentFileSHA = result.content.sha;
+        fileExistsOnGitHub = true;
+        
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save to GitHub';
+        updateStatus('Saved!', 'success');
+        
+        showOutput(
+          `✅ File ${action}D successfully!<br>` +
+          `📄 <code>${path}</code><br>` +
+          `🔗 <a href="https://github.com/${CONFIG.GITHUB_REPO}/blob/${CONFIG.GITHUB_BRANCH}/${path}" target="_blank">View on GitHub ↗</a><br>` +
+          `⏱️ Cloudflare will redeploy in 1-2 minutes.`,
+          'success'
+        );
+        
+        showToast('✅ Saved to GitHub!', 'success');
+        
+      } catch (err) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save to GitHub';
+        updateStatus('Error', 'error');
+        showOutput('❌ ' + err.message, 'error');
+      }
+    }
+    
+    // ==================== UTILITIES ====================
+    function reloadTree() { buildFileTree(); }
+    
+    function copyCode() {
+      document.getElementById('codeArea').select();
+      document.execCommand('copy');
+      showToast('📋 Copied!', 'success');
+    }
+    
+    function formatJSON() {
+      let codeArea = document.getElementById('codeArea');
+      try {
+        let parsed = JSON.parse(codeArea.value);
+        codeArea.value = JSON.stringify(parsed, null, 2);
+        showToast('✨ Formatted!', 'success');
+      } catch (err) {
+        alert('❌ Invalid JSON: ' + err.message);
+      }
+    }
+    
+    function updateStatus(text, type) {
+      let el = document.getElementById('editorStatus');
+      el.textContent = text;
+      el.style.color = type === 'success' ? '#4ec9b0' 
+                       : type === 'error' ? '#f48771' 
+                       : type === 'warning' ? '#dcdcaa' 
+                       : '#888';
+    }
+    
+    function showOutput(html, type) {
+      let box = document.getElementById('outputBox');
+      if (!html) { box.innerHTML = ''; return; }
+      let bg = type === 'success' ? '#edfaef' : type === 'error' ? '#fcf0f1' : type === 'warning' ? '#fcf9e8' : '#f0f6fc';
+      let border = type === 'success' ? '#00a32a' : type === 'error' ? '#d63638' : type === 'warning' ? '#dba617' : '#2271b1';
+      box.innerHTML = `<div style="background:${bg};border-left:4px solid ${border};padding:12px 16px;border-radius:4px;font-size:13px;line-height:1.6;">${html}</div>`;
+    }
+    
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', function() {
+      checkToken();
+      buildFileTree();
+      
+      // Ctrl+S to save
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          e.preventDefault();
+          saveFileToGitHub();
+        }
+      });
+      
+      // Tab key inserts spaces
+      document.getElementById('codeArea').addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          let start = this.selectionStart;
+          let end = this.selectionEnd;
+          this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+          this.selectionStart = this.selectionEnd = start + 2;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
