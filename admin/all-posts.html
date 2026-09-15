@@ -279,9 +279,6 @@
     </main>
   </div>
 
-  <!-- ============================================
-       JAVASCRIPT
-       ============================================ -->
   <script src="/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/utils.js"></script>
@@ -297,80 +294,45 @@
     let currentSearch = '';
     let currentSort = { by: 'date', order: 'desc' };
     
-    // ==================== LOAD POSTS ====================
+    // ==================== LOAD ====================
     async function loadPosts() {
       let container = document.getElementById('postsContainer');
-      let refreshBtn = document.getElementById('refreshBtn');
-      
-      // Show loading state
       container.innerHTML = `
         <div class="loading-state">
           <div class="spinner"></div>
           <div>Loading posts from GitHub...</div>
         </div>`;
       
+      let refreshBtn = document.getElementById('refreshBtn');
       refreshBtn.disabled = true;
       refreshBtn.textContent = '⏳ Loading...';
-      
-      // ⚠️ STEP 1: CHECK TOKEN FIRST
-      let token = getToken();
-      if (!token) {
-        console.warn('❌ No GitHub token found');
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = '🔄 Refresh';
-        
-        // Show empty state with token button
-        container.innerHTML = `
-          <div class="empty-state">
-            <div style="font-size:48px;">🔑</div>
-            <h3>GitHub Token Required</h3>
-            <p>You need to set your GitHub Personal Access Token to load posts.</p>
-            <button class="wp-btn wp-btn-primary" onclick="promptForToken();setTimeout(()=>loadPosts(),600);" style="margin-top:15px;">🔑 Set Token</button>
-          </div>`;
-        return;
-      }
-      
-      console.log('✅ Token found, loading posts...');
       
       allPosts = [];
       
       // Load categories & tags for display names
       await loadCategoriesAndTags();
       
-      // ==================== STEP 2: LOAD FROM GITHUB ====================
+      // 1. Load from GitHub
       try {
         let files = await listFilesFromGitHub(CONFIG.POSTS_FOLDER);
-        console.log('📁 Files in content/posts/:', files);
-        
-        if (!Array.isArray(files) || files.length === 0) {
-          console.warn('⚠️ No files found in content/posts/');
-        }
         
         for (let file of files) {
           if (!file.name.endsWith('.json')) continue;
           
           let post = await fetchFileFromGitHub(CONFIG.POSTS_FOLDER + file.name);
-          console.log('📄 Loaded:', file.name, post);
-          
-          if (post && typeof post === 'object' && post.id) {
+          if (post && typeof post === 'object') {
             post._source = 'github';
             post._fileName = file.name;
             allPosts.push(post);
           }
         }
-        
-        console.log('✅ Total posts from GitHub:', allPosts.length);
-        
       } catch (err) {
-        console.error('❌ GitHub load error:', err);
-        showToast('GitHub load failed: ' + err.message, 'error');
+        console.warn('GitHub load error:', err);
       }
       
-      // ==================== STEP 3: MERGE LOCALSTORAGE ====================
+      // 2. Merge LocalStorage
       try {
         let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
-        console.log('💾 LocalStorage posts:', localPosts.length);
-        
         localPosts.forEach(post => {
           let exists = allPosts.find(p => p.id === post.id);
           if (!exists) {
@@ -382,15 +344,15 @@
         console.warn('LocalStorage error:', e);
       }
       
-      // ==================== STEP 4: SORT & RENDER ====================
+      // 3. Sort by date
       sortPosts();
+      
+      // 4. Update counts and render
       updateCounts();
       applyFiltersAndRender();
       
       refreshBtn.disabled = false;
       refreshBtn.textContent = '🔄 Refresh';
-      
-      console.log('✅ Load complete. Total posts:', allPosts.length);
     }
     
     // ==================== LOAD CATEGORIES & TAGS ====================
@@ -403,9 +365,7 @@
             categoriesMap[c.slug] = c.name;
           });
         }
-      } catch (e) {
-        console.warn('Categories load error:', e);
-      }
+      } catch (e) {}
       
       // Tags
       try {
@@ -415,9 +375,7 @@
             tagsMap[t.slug] = t.name;
           });
         }
-      } catch (e) {
-        console.warn('Tags load error:', e);
-      }
+      } catch (e) {}
     }
     
     // ==================== SORT ====================
@@ -648,12 +606,10 @@
     
     // ==================== SEARCH ====================
     const searchBox = document.getElementById('searchBox');
-    if (searchBox) {
-      searchBox.addEventListener('input', debounce(function() {
-        currentSearch = this.value.trim();
-        applyFiltersAndRender();
-      }, 300));
-    }
+    searchBox.addEventListener('input', debounce(function() {
+      currentSearch = this.value.trim();
+      applyFiltersAndRender();
+    }, 300));
     
     // ==================== INITIALIZE ====================
     window.addEventListener('load', function() {
