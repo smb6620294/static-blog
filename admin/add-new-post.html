@@ -1,123 +1,391 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Add New Post</title>
+  <title>Add New Post - Admin</title>
+  
+  <!-- WordPress-Style Admin CSS -->
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h1 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; font-family: inherit; }
-    textarea { resize: vertical; }
-    .note { font-size: 12px; color: #666; margin-top: 5px; }
-    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    .btn { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
-    .btn-primary { background: #28a745; color: #fff; }
-    .btn-primary:hover { background: #218838; }
-    .btn-secondary { background: #6c757d; color: #fff; }
+    /* ============ POST FORM SPECIFIC STYLES ============ */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1d2327; }
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group input[type="time"],
+    .form-group input[type="email"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 9px 12px;
+      border: 1px solid #8c8f94; border-radius: 4px;
+      font-size: 13.5px; box-sizing: border-box;
+      font-family: inherit; background: #fff;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: #2271b1; outline: none;
+      box-shadow: 0 0 0 1px #2271b1;
+    }
+    .note { font-size: 11.5px; color: #646970; margin-top: 4px; }
     .row { display: flex; gap: 15px; }
     .row .form-group { flex: 1; }
-    /* Category Box Style */
-    .category-box { border: 1px solid #ccc; border-radius: 5px; padding: 10px; max-height: 150px; overflow-y: auto; background: #fafafa; }
-    .category-box label { font-weight: normal; display: flex; align-items: center; margin-bottom: 5px; }
+    
+    .category-box {
+      border: 1px solid #8c8f94; border-radius: 4px;
+      padding: 10px; max-height: 150px;
+      overflow-y: auto; background: #fff;
+    }
+    .category-box label {
+      font-weight: normal; display: flex;
+      align-items: center; margin-bottom: 6px;
+      font-size: 13px; cursor: pointer;
+    }
     .category-box input[type="checkbox"] { width: auto; margin-right: 8px; }
-    .add-cat-btn { background: #e9ecef; border: 1px solid #ccc; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; margin-top: 5px; display: inline-block; }
-    .add-cat-btn:hover { background: #ddd; }
-    @media (max-width: 600px) { .row { flex-direction: column; gap: 0; } }
+    .add-cat-btn {
+      background: #f6f7f7; border: 1px solid #2271b1;
+      color: #2271b1; padding: 5px 12px;
+      font-size: 12px; border-radius: 3px;
+      cursor: pointer; margin-top: 6px; font-family: inherit;
+    }
+    .add-cat-btn:hover { background: #f0f0f1; }
+    
+    .tags-input-container {
+      border: 1px solid #8c8f94; border-radius: 4px;
+      padding: 6px 8px; background: #fff;
+      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    }
+    .tags-input-container input {
+      border: none !important; outline: none; flex: 1;
+      min-width: 120px; padding: 5px; font-size: 13px;
+      box-shadow: none !important;
+    }
+    .tag-badge {
+      background: #2271b1; color: #fff;
+      padding: 3px 8px; border-radius: 3px;
+      font-size: 12px; display: inline-flex;
+      align-items: center; gap: 5px;
+    }
+    .tag-badge span { cursor: pointer; font-weight: bold; }
+    
+    .editor-wrapper {
+      border: 1px solid #8c8f94; border-radius: 4px;
+      overflow: hidden; background: #fff;
+    }
+    .editor-tabs {
+      background: #f6f7f7; border-bottom: 1px solid #dcdcde;
+      padding: 8px 10px; display: flex; gap: 5px;
+    }
+    .editor-tab {
+      padding: 6px 14px; font-size: 13px;
+      border: 1px solid transparent; border-radius: 3px;
+      cursor: pointer; background: transparent;
+      color: #50575e; font-weight: 500; font-family: inherit;
+    }
+    .editor-tab:hover { background: #e9e9e9; }
+    .editor-tab.active {
+      background: #fff; border-color: #8c8f94;
+      border-bottom-color: #fff; color: #2271b1; font-weight: 600;
+    }
+    .editor-panel { display: none; }
+    .editor-panel.active { display: block; }
+    .code-textarea {
+      width: 100%; height: 400px; border: none;
+      padding: 15px; font-family: 'Courier New', monospace;
+      font-size: 13px; resize: vertical;
+      box-sizing: border-box; outline: none;
+    }
+    
+    .image-upload-area {
+      border: 2px dashed #8c8f94; border-radius: 6px;
+      padding: 20px; text-align: center;
+      background: #f6f7f7; cursor: pointer; transition: 0.15s;
+    }
+    .image-upload-area:hover { border-color: #2271b1; background: #f0f6fc; }
+    .image-preview {
+      max-width: 100%; max-height: 200px;
+      margin-top: 10px; border-radius: 4px; display: none;
+    }
+    .upload-status { font-size: 12px; margin-top: 6px; }
+    .upload-status.success { color: #00a32a; }
+    .upload-status.error { color: #d63638; }
+    .upload-status.info { color: #2271b1; }
+    
+    .seo-box {
+      border: 2px solid #2271b1; border-radius: 6px;
+      padding: 16px; margin-top: 20px; background: #f0f6fc;
+    }
+    .seo-box h2 {
+      margin-top: 0; color: #2271b1;
+      border-bottom: 1px solid #c3d9f0;
+      padding-bottom: 8px; font-size: 16px;
+    }
+    .seo-score-container {
+      display: flex; align-items: center;
+      gap: 20px; margin-top: 15px;
+    }
+    .seo-chart-wrapper { width: 140px; height: 140px; flex-shrink: 0; }
+    .seo-details { flex: 1; }
+    .seo-check {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12.5px; padding: 6px 0;
+      border-bottom: 1px solid #e0e8f0;
+    }
+    .seo-check.pass { color: #00a32a; }
+    .seo-check.fail { color: #d63638; }
+    .seo-check .icon { font-weight: bold; }
+    
+    .token-warning {
+      background: #fcf9e8; border-left: 4px solid #dba617;
+      color: #614200; padding: 10px 14px;
+      border-radius: 4px; margin-bottom: 16px;
+      font-size: 13px; display: none;
+    }
+    .token-warning.show { display: block; }
+    
+    .form-actions {
+      display: flex; gap: 10px;
+      margin-top: 24px; padding-top: 20px;
+      border-top: 1px solid #dcdcde;
+    }
+    .form-actions .wp-btn { flex: 1; text-align: center; padding: 11px; font-size: 14px; }
+    
+    @media (max-width: 600px) {
+      .row { flex-direction: column; gap: 0; }
+      .seo-score-container { flex-direction: column; }
+      .form-actions { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Add New Post (Admin)</h1>
+
+  <!-- ============================================
+       ADMIN WRAPPER (Sidebar + Content)
+       ============================================ -->
+  <div id="admin-wrapper">
     
-    <form id="postForm">
-      <div class="form-group">
-        <label>Post Title</label>
-        <input type="text" id="postTitle" placeholder="Enter post title" required>
+    <!-- Sidebar (auto-loaded by load-sidebar.js) -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <main id="admin-content">
+      
+      <!-- Page Header -->
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">📝 Add New Post</h1>
+        <a href="all-posts.html" class="wp-btn wp-btn-secondary">← Back to All Posts</a>
       </div>
+      
+      <!-- Token Warning -->
+      <div class="token-warning" id="tokenWarning">
+        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set your token.
+      </div>
+      
+      <!-- Main Form Card -->
+      <div class="admin-card">
+        <form id="postForm">
+          
+          <!-- Title -->
+          <div class="form-group">
+            <label>Post Title</label>
+            <input type="text" id="postTitle" placeholder="Enter post title" required oninput="updateSEO()">
+          </div>
 
-      <div class="row">
-        <div class="form-group">
-          <label>Author</label>
-          <input type="text" id="postAuthor" value="Admin">
-        </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="postDate">
-        </div>
-      </div>
+          <!-- Permalink -->
+          <div class="form-group">
+            <label>Permalink</label>
+            <input type="text" id="postPermalink" placeholder="auto-generated-from-title">
+            <div class="note">This will be the URL slug for the post.</div>
+          </div>
 
-      <!-- Updated Category Section -->
-      <div class="form-group">
-        <label>Categories</label>
-        <div class="category-box" id="categoryCheckboxes">
-          <!-- Existing categories will load here dynamically later -->
-          <label><input type="checkbox" value="tech"> Technology</label>
-          <label><input type="checkbox" value="news"> News</label>
-          <label><input type="checkbox" value="lifestyle"> Lifestyle</label>
-        </div>
-        <button type="button" class="add-cat-btn" onclick="addNewCategory()">+ Add New Category</button>
-      </div>
+          <!-- Author + Date -->
+          <div class="row">
+            <div class="form-group">
+              <label>Author</label>
+              <input type="text" id="postAuthor" value="Admin">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="postDate">
+            </div>
+          </div>
 
-      <!-- Updated Tags Section -->
-      <div class="form-group">
-        <label>Tags</label>
-        <textarea id="postTags" rows="2" placeholder="Enter tags separated by commas (e.g., javascript, netlify, static)"></textarea>
-        <div class="note">All tags entered here will be submitted together and automatically linked to this post.</div>
-      </div>
+          <!-- Time + Timezone -->
+          <div class="row">
+            <div class="form-group">
+              <label>Time (Server)</label>
+              <input type="time" id="postTime" readonly style="background:#f6f7f7;">
+            </div>
+            <div class="form-group">
+              <label>Timezone</label>
+              <input type="text" id="postTimezone" readonly style="background:#f6f7f7;">
+            </div>
+          </div>
 
-      <div class="form-group">
-        <label>Featured Image URL</label>
-        <input type="text" id="postImage" placeholder="https://example.com/image.jpg">
-      </div>
+          <!-- Categories -->
+          <div class="form-group">
+            <label>Categories</label>
+            <div class="category-box" id="categoryCheckboxes">
+              <div class="note">Loading categories...</div>
+            </div>
+            <button type="button" class="add-cat-btn" onclick="addNewCategory()">+ Add New Category</button>
+          </div>
 
-      <div class="form-group">
-        <label>Content</label>
-        <textarea id="postContent" rows="12" placeholder="Write your post content here..." required></textarea>
-      </div>
+          <!-- Tags -->
+          <div class="form-group">
+            <label>Tags</label>
+            <div class="tags-input-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
+              <input type="text" id="tagInput" placeholder="hi, we, you (comma separated)">
+            </div>
+            <button type="button" class="add-cat-btn" onclick="addTagsFromInput()" style="background:#2271b1;color:#fff;border-color:#2271b1;">+ Add Tags</button>
+            <div class="note">Type tags separated by commas and click <b>+ Add Tags</b>.</div>
+          </div>
 
-      <div class="form-group">
-        <label>Custom Excerpt / Teaser (Optional)</label>
-        <textarea id="postExcerpt" rows="3" placeholder="Leave blank to auto-generate from the first paragraph"></textarea>
-        <div class="note">If left blank, the system will automatically use the first paragraph as the teaser.</div>
-      </div>
+          <!-- Post Image -->
+          <div class="form-group">
+            <label>Post Image</label>
+            <div class="image-upload-area" onclick="document.getElementById('postImageFile').click()">
+              <div style="font-size:32px;">📷</div>
+              <div style="font-weight:600; margin-top:8px;">Click to Upload Image</div>
+              <div class="note">JPG, PNG, GIF, WebP — will be uploaded to GitHub as SVG</div>
+              <input type="file" id="postImageFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+            </div>
+            <img id="imagePreview" class="image-preview" alt="Preview">
+            <div id="uploadStatus" class="upload-status"></div>
+            <input type="hidden" id="postImage" value="">
+            <input type="hidden" id="postImageBase64" value="">
+          </div>
 
-      <div class="btn-group">
-        <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
-        <button type="button" class="btn btn-primary" onclick="publishPost()">Publish</button>
+          <!-- Content Editor -->
+          <div class="form-group">
+            <label>Content</label>
+            <div class="editor-wrapper">
+              <div class="editor-tabs">
+                <button type="button" class="editor-tab active" id="tabVisual" onclick="switchEditorTab('visual')">Visual</button>
+                <button type="button" class="editor-tab" id="tabCode" onclick="switchEditorTab('code')">Code</button>
+              </div>
+              <div class="editor-panel active" id="panelVisual">
+                <textarea id="postContentVisual"></textarea>
+              </div>
+              <div class="editor-panel" id="panelCode">
+                <textarea id="postContentCode" class="code-textarea" placeholder="Paste HTML here..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Excerpt -->
+          <div class="form-group">
+            <label>Custom Excerpt / Teaser (Optional)</label>
+            <textarea id="postExcerpt" rows="3" placeholder="Leave blank to auto-generate"></textarea>
+          </div>
+
+          <!-- SEO SECTION -->
+          <div class="seo-box">
+            <h2>🔍 SEO Settings</h2>
+            
+            <div class="form-group">
+              <label>SEO Title</label>
+              <input type="text" id="seoTitle" placeholder="SEO optimized title" oninput="updateSEO()">
+              <div class="note">Recommended: 50-60 chars. Current: <span id="seoTitleCount">0</span></div>
+            </div>
+
+            <div class="form-group">
+              <label>SEO Meta Description</label>
+              <textarea id="seoDescription" rows="3" placeholder="Write a compelling meta description..." oninput="updateSEO()"></textarea>
+              <div class="note">Recommended: 150-160 chars. Current: <span id="seoDescCount">0</span></div>
+            </div>
+
+            <div class="form-group">
+              <label>SEO Focus Keyword</label>
+              <input type="text" id="seoKeyword" placeholder="e.g., static blog" oninput="updateSEO()">
+            </div>
+
+            <div class="seo-score-container">
+              <div class="seo-chart-wrapper">
+                <canvas id="seoChart"></canvas>
+              </div>
+              <div class="seo-details" id="seoChecks"></div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="wp-btn wp-btn-secondary" onclick="saveDraft()">Save Draft</button>
+            <button type="button" class="wp-btn wp-btn-primary" id="publishBtn" onclick="publishPost()">Publish to GitHub</button>
+          </div>
+          
+        </form>
       </div>
-    </form>
+      
+    </main>
   </div>
 
+  <!-- ============================================
+       JAVASCRIPT MODULES (Order matters!)
+       ============================================ -->
+  
+  <!-- 1. Sidebar Loader (must be first) -->
+  <script src="/assets/js/load-sidebar.js"></script>
+  
+  <!-- 2. Core Modules -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  
+  <!-- 3. Form Modules -->
+  <script src="/assets/js/editor.js"></script>
+  <script src="/assets/js/tags.js"></script>
+  <script src="/assets/js/categories.js"></script>
+  <script src="/assets/js/image-upload.js"></script>
+  <script src="/assets/js/seo.js"></script>
+  <script src="/assets/js/post-form.js"></script>
+  
+  <!-- 4. Page-Specific Init -->
   <script>
-    // Set today's date by default
-    document.getElementById('postDate').valueAsDate = new Date();
-
-    // Function to add a new category at runtime
-    function addNewCategory() {
-      let newCat = prompt("Enter new category name:");
-      if (newCat) {
-        let container = document.getElementById('categoryCheckboxes');
-        let label = document.createElement('label');
-        // Check the newly added category by default
-        label.innerHTML = `<input type="checkbox" value="${newCat.toLowerCase()}" checked> ${newCat}`;
-        container.appendChild(label);
-        alert(newCat + " has been added to the list!");
-      }
-    }
-
-    function publishPost() {
-      // یہاں ہم آگے چل کر ڈیٹا کو محفوظ کرنے کا کوڈ لکھیں گے
-      alert('Post published! (Demo only. Data saving will be implemented later.)');
-    }
-
-    function saveDraft() {
-      alert('Draft saved locally! (Demo only)');
-    }
+    // ==================== PAGE INITIALIZATION ====================
+    window.addEventListener('load', async function() {
+      
+      // 1. Set today's date & time
+      let now = new Date();
+      document.getElementById('postDate').valueAsDate = now;
+      document.getElementById('postTime').value = formatTime(now);
+      document.getElementById('postTimezone').value = getTimezone();
+      
+      // 2. Initialize Rich Editor
+      initRichEditor('#postContentVisual');
+      
+      // 3. Initialize Tags system
+      initTags();
+      
+      // 4. Load categories from GitHub
+      await loadCategoriesList();
+      
+      // 5. Initialize SEO chart
+      initSeoChart();
+      updateSEO();
+      
+      // 6. Auto-generate permalink on title input
+      document.getElementById('postTitle').addEventListener('input', function() {
+        let slug = generateSlug(this.value);
+        let permalinkEl = document.getElementById('postPermalink');
+        if (!permalinkEl.dataset.manual) {
+          permalinkEl.value = slug;
+        }
+      });
+      
+      document.getElementById('postPermalink').addEventListener('input', function() {
+        this.dataset.manual = 'true';
+      });
+      
+      // 7. Check GitHub token
+      checkToken();
+    });
   </script>
 </body>
 </html>
