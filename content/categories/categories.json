@@ -26,6 +26,13 @@
       "parent": null,
       "count": 0,
       "createdAt": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id": "cat_1789499285683",
+      "title": "apple",
+      "slug": "apple",
+      "description": "",
+      "createdAt": "2026-09-15T19:08:05.683Z"
     }
   ]
 }
