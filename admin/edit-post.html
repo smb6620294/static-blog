@@ -161,7 +161,6 @@
     }
     .form-actions .wp-btn { flex: 1; text-align: center; padding: 11px; font-size: 14px; min-width: 120px; }
     
-    /* Loading overlay */
     .loading-overlay {
       position: fixed; inset: 0;
       background: rgba(255,255,255,0.9);
@@ -214,7 +213,6 @@
           <div class="form-group">
             <label>Post ID (Read-only)</label>
             <input type="text" id="postId" readonly>
-            <div class="note">This ID uniquely identifies this post.</div>
           </div>
 
           <div class="form-group">
@@ -379,11 +377,45 @@
       document.getElementById('displayPostId').textContent = postId;
       
       try {
-        // 3. Initialize editor first
+        // 3. Initialize editor
         initRichEditor('#postContentVisual');
         
         // 4. Initialize tags system
         initTags();
         
         // 5. Load categories list from GitHub
-        await loadCategories
+        await loadCategoriesList();
+        
+        // 6. Initialize SEO chart
+        initSeoChart();
+        
+        // 7. Load post data
+        await loadPostData(postId);
+        
+        // 8. Setup permalink auto-generate
+        document.getElementById('postTitle').addEventListener('input', function() {
+          let permalinkEl = document.getElementById('postPermalink');
+          if (!permalinkEl.dataset.manual) {
+            permalinkEl.value = generateSlug(this.value);
+          }
+        });
+        
+        document.getElementById('postPermalink').addEventListener('input', function() {
+          this.dataset.manual = 'true';
+        });
+        
+        // 9. Update SEO
+        updateSEO();
+        
+        console.log('✅ Edit Post page loaded');
+        
+      } catch (err) {
+        console.error('Load error:', err);
+        alert('❌ Error loading post:\n\n' + err.message);
+      } finally {
+        document.getElementById('loadingOverlay').classList.remove('show');
+      }
+    });
+  </script>
+</body>
+</html>
