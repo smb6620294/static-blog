@@ -33,6 +33,13 @@
       "slug": "apple",
       "description": "",
       "createdAt": "2026-09-15T19:08:05.683Z"
+    },
+    {
+      "id": "cat_1789500131448",
+      "title": "iPhone 16 Plus",
+      "slug": "iphone-16-plus",
+      "description": "",
+      "createdAt": "2026-09-15T19:22:11.448Z"
     }
   ]
 }
