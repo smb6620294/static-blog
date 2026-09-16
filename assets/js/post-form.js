@@ -7,6 +7,11 @@
  * Collect all form data into a post object
  */
 function collectPostData() {
+  // Flush pending tag first
+  if (typeof flushPendingTag === 'function') {
+    flushPendingTag();
+  }
+  
   let titleEl = document.getElementById('postTitle');
   let permalinkEl = document.getElementById('postPermalink');
   
@@ -45,26 +50,14 @@ function collectPostData() {
 async function publishPost() {
   let post = collectPostData();
   
-  if (!post.content) {
-    alert('Please write some content.');
-    return;
-  }
-  if (!post.title) {
-    alert('Please enter a post title.');
-    return;
-  }
+  if (!post.content) { alert('Please write some content.'); return; }
+  if (!post.title) { alert('Please enter a post title.'); return; }
   
   let token = getToken();
-  if (!token) {
-    promptForToken();
-    return;
-  }
+  if (!token) { promptForToken(); return; }
   
   let btn = document.getElementById('publishBtn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Publishing to GitHub...';
-  }
+  if (btn) { btn.disabled = true; btn.textContent = 'Publishing to GitHub...'; }
   
   try {
     // Step 1: Upload image (if any)
@@ -86,7 +79,12 @@ async function publishPost() {
     await uploadFileToGitHub(postPath, postBase64, `New post: ${post.title}`);
     
     // Step 3: Save to LocalStorage (for instant preview)
-    let existingPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
+    let existingPosts = [];
+    try {
+      existingPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
+    } catch (e) {
+      existingPosts = [];
+    }
     existingPosts.push(post);
     localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(existingPosts));
     
@@ -99,10 +97,7 @@ async function publishPost() {
   } catch (error) {
     console.error(error);
     alert('❌ Error publishing:\n\n' + error.message);
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Publish to GitHub';
-    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Publish to GitHub'; }
   }
 }
 
@@ -112,31 +107,19 @@ async function publishPost() {
 async function updatePost() {
   let post = collectPostData();
   
-  if (!post.content) {
-    alert('Please write some content.');
-    return;
-  }
-  if (!post.title) {
-    alert('Please enter a post title.');
-    return;
-  }
+  if (!post.content) { alert('Please write some content.'); return; }
+  if (!post.title) { alert('Please enter a post title.'); return; }
   
   let token = getToken();
-  if (!token) {
-    promptForToken();
-    return;
-  }
+  if (!token) { promptForToken(); return; }
   
   let btn = document.getElementById('updateBtn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Updating...';
-  }
+  if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
   
   try {
     post.updatedAt = new Date().toISOString();
     
-    // Step 1: Upload new image if any
+    // Step 1: Upload new image (if any)
     let imageBase64 = getUploadedImageBase64();
     let imagePath = post.image;
     
@@ -155,7 +138,12 @@ async function updatePost() {
     await uploadFileToGitHub(postPath, postBase64, `Update post: ${post.title}`);
     
     // Step 3: Update LocalStorage
-    let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
+    let localPosts = [];
+    try {
+      localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
+    } catch (e) {
+      localPosts = [];
+    }
     let index = localPosts.findIndex(p => p.id === post.id);
     if (index !== -1) {
       localPosts[index] = post;
@@ -173,10 +161,7 @@ async function updatePost() {
   } catch (error) {
     console.error(error);
     alert('❌ Error updating:\n\n' + error.message);
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Update Post';
-    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Update Post'; }
   }
 }
 
@@ -186,15 +171,17 @@ async function updatePost() {
 function saveDraft() {
   let post = collectPostData();
   
-  if (!post.title) {
-    alert('Please enter a title to save draft.');
-    return;
-  }
+  if (!post.title) { alert('Please enter a title to save draft.'); return; }
   
   post.id = 'draft_' + Date.now();
   post.status = 'draft';
   
-  let drafts = JSON.parse(localStorage.getItem(CONFIG.DRAFTS_KEY) || '[]');
+  let drafts = [];
+  try {
+    drafts = JSON.parse(localStorage.getItem(CONFIG.DRAFTS_KEY) || '[]');
+  } catch (e) {
+    drafts = [];
+  }
   drafts.push(post);
   localStorage.setItem(CONFIG.DRAFTS_KEY, JSON.stringify(drafts));
   
@@ -203,6 +190,7 @@ function saveDraft() {
 
 /**
  * Load post data into form (for edit page)
+ * @param {string} postId - Post ID (optional, falls back to URL parameter)
  */
 async function loadPostData(postId) {
   if (!postId) {
@@ -215,21 +203,30 @@ async function loadPostData(postId) {
     return;
   }
   
-  // 1. Try LocalStorage first
   let post = null;
-  let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
-  post = localPosts.find(p => p.id === postId);
+  
+  // 1. Try LocalStorage first (safely)
+  try {
+    let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
+    post = localPosts.find(p => p.id === postId);
+  } catch (e) {
+    console.warn('LocalStorage read error:', e);
+  }
   
   // 2. Try GitHub if not in LocalStorage
   if (!post) {
-    let files = await listFilesFromGitHub(CONFIG.POSTS_FOLDER);
-    for (let file of files) {
-      if (!file.name.endsWith('.json')) continue;
-      let fetchedPost = await fetchFileFromGitHub(CONFIG.POSTS_FOLDER + file.name);
-      if (fetchedPost && fetchedPost.id === postId) {
-        post = fetchedPost;
-        break;
+    try {
+      let files = await listFilesFromGitHub(CONFIG.POSTS_FOLDER);
+      for (let file of files) {
+        if (!file.name.endsWith('.json')) continue;
+        let fetchedPost = await fetchFileFromGitHub(CONFIG.POSTS_FOLDER + file.name);
+        if (fetchedPost && typeof fetchedPost === 'object' && fetchedPost.id === postId) {
+          post = fetchedPost;
+          break;
+        }
       }
+    } catch (err) {
+      console.warn('GitHub fetch error:', err);
     }
   }
   
@@ -240,25 +237,47 @@ async function loadPostData(postId) {
   }
   
   // Fill form fields
-  document.getElementById('postId').value = post.id || '';
+  let postIdEl = document.getElementById('postId');
+  if (postIdEl) postIdEl.value = post.id || '';
+  
   let displayId = document.getElementById('displayPostId');
   if (displayId) displayId.textContent = post.id || '-';
   
-  document.getElementById('postTitle').value = post.title || '';
-  document.getElementById('postPermalink').value = post.permalink || '';
-  document.getElementById('postAuthor').value = post.author || 'Admin';
-  document.getElementById('postDate').value = post.date || '';
-  document.getElementById('postTime').value = post.time || '';
-  document.getElementById('postTimezone').value = post.timezone || getTimezone();
-  document.getElementById('postExcerpt').value = post.excerpt || '';
-  document.getElementById('postImage').value = post.image || '';
-  
-  document.getElementById('seoTitle').value = post.seoTitle || '';
-  document.getElementById('seoDescription').value = post.seoDescription || '';
-  document.getElementById('seoKeyword').value = post.seoKeyword || '';
+  let titleEl = document.getElementById('postTitle');
+  if (titleEl) titleEl.value = post.title || '';
   
   let permalinkEl = document.getElementById('postPermalink');
-  if (permalinkEl) permalinkEl.dataset.manual = 'true';
+  if (permalinkEl) {
+    permalinkEl.value = post.permalink || '';
+    permalinkEl.dataset.manual = 'true';
+  }
+  
+  let authorEl = document.getElementById('postAuthor');
+  if (authorEl) authorEl.value = post.author || 'Admin';
+  
+  let dateEl = document.getElementById('postDate');
+  if (dateEl) dateEl.value = post.date || '';
+  
+  let timeEl = document.getElementById('postTime');
+  if (timeEl) timeEl.value = post.time || '';
+  
+  let tzEl = document.getElementById('postTimezone');
+  if (tzEl) tzEl.value = post.timezone || getTimezone();
+  
+  let excerptEl = document.getElementById('postExcerpt');
+  if (excerptEl) excerptEl.value = post.excerpt || '';
+  
+  let imageEl = document.getElementById('postImage');
+  if (imageEl) imageEl.value = post.image || '';
+  
+  let seoTitleEl = document.getElementById('seoTitle');
+  if (seoTitleEl) seoTitleEl.value = post.seoTitle || '';
+  
+  let seoDescEl = document.getElementById('seoDescription');
+  if (seoDescEl) seoDescEl.value = post.seoDescription || '';
+  
+  let seoKwEl = document.getElementById('seoKeyword');
+  if (seoKwEl) seoKwEl.value = post.seoKeyword || '';
   
   // Set categories
   if (typeof setSelectedCategories === 'function') {
@@ -280,7 +299,12 @@ async function loadPostData(postId) {
     showExistingImage(post.image);
   }
   
-  if (typeof updateSEO === 'function') updateSEO();
+  // Update SEO
+  if (typeof updateSEO === 'function') {
+    setTimeout(updateSEO, 100);
+  }
+  
+  console.log('✅ Post loaded:', post.title);
 }
 
 /**
@@ -293,46 +317,4 @@ function viewPost() {
     return;
   }
   window.open('../posts/' + permalink + '.html', '_blank');
-}
-
-/**
- * Delete a post (GitHub + LocalStorage)
- */
-async function deletePost(postId, fileName, source) {
-  if (!confirm('Are you sure you want to delete this post?\n\nID: ' + postId)) {
-    return;
-  }
-  
-  let token = getToken();
-  
-  // 1. Delete from LocalStorage
-  let posts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
-  let originalLength = posts.length;
-  posts = posts.filter(p => p.id !== postId);
-  if (posts.length < originalLength) {
-    localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(posts));
-  }
-  
-  // 2. Delete from GitHub (if token available and file exists)
-  if (token && fileName) {
-    try {
-      await deleteFileFromGitHub(
-        CONFIG.POSTS_FOLDER + fileName,
-        `Delete post: ${fileName}`
-      );
-      showToast('✅ Post deleted from GitHub!', 'success');
-    } catch (err) {
-      console.warn('GitHub delete failed:', err);
-      showToast('⚠️ Deleted locally, but GitHub delete failed', 'warning');
-    }
-  } else {
-    showToast('✅ Post deleted locally!', 'success');
-  }
-  
-  // Refresh list
-  if (typeof loadPosts === 'function') {
-    loadPosts();
-  } else {
-    location.reload();
-  }
 }
