@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Update - Admin</title>
+  
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  
+  <style>
+    .bulk-container {
+      background: #fff;
+      border-radius: 6px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+    
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .file-list {
+      border: 1px solid #dcdcde;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f1;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+    
+    .file-item:last-child { border-bottom: none; }
+    .file-item:hover { background: #f6f7f7; }
+    
+    .file-name {
+      font-family: 'Consolas', monospace;
+      color: #1d2327;
+      font-weight: 500;
+      flex: 1;
+    }
+    
+    .file-status {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 10px;
+      min-width: 100px;
+      text-align: center;
+    }
+    
+    .status-pending { background: #f0f0f1; color: #646970; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-success { background: #d4edda; color: #155724; }
+    .status-skipped { background: #fff3cd; color: #856404; }
+    .status-error { background: #f8d7da; color: #721c24; }
+    
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .action-bar button {
+      flex: 1;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      min-width: 150px;
+      transition: all 0.15s;
+    }
+    
+    .btn-run {
+      background: #2271b1;
+      color: #fff;
+    }
+    .btn-run:hover:not(:disabled) { background: #135e96; }
+    .btn-run:disabled { background: #94a3b8; cursor: not-allowed; }
+    
+    .btn-reset {
+      background: #f6f7f7;
+      color: #2271b1;
+      border: 1px solid #2271b1;
+    }
+    .btn-reset:hover { background: #f0f6fc; }
+    
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f1;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+      display: none;
+    }
+    
+    .progress-bar.show { display: block; }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2271b1, #72aee6);
+      width: 0%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .summary {
+      background: #edfaef;
+      border-left: 4px solid #00a32a;
+      padding: 16px;
+      border-radius: 4px;
+      margin-top: 20px;
+      display: none;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    
+    .summary.show { display: block; }
+    
+    .summary h3 { margin: 0 0 10px; color: #00a32a; font-size: 15px; }
+    .summary .stat { display: flex; justify-content: space-between; padding: 3px 0; }
+    .summary .stat span:first-child { color: #646970; }
+    .summary .stat span:last-child { font-weight: 600; color: #1d2327; }
+  </style>
+</head>
+<body>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
+    
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">⚡ Bulk Update Tool</h1>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+      </div>
+      
+      <div class="token-warning" id="tokenWarning" style="display:none;background:#fcf9e8;border-left:4px solid #dba617;color:#614200;padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:13px;">
+        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set your token.
+      </div>
+      
+      <div class="bulk-container">
+        
+        <div class="info-box">
+          <b>📋 What this tool does:</b><br>
+          This tool automatically adds <code>&lt;script src="/assets/js/transliterate.js"&gt;&lt;/script&gt;</code> 
+          to all admin HTML files that don't already have it. It will update them on GitHub automatically.
+        </div>
+        
+        <h3 style="margin-top: 0;">📁 Files to Process (11 total)</h3>
+        
+        <div class="file-list" id="fileList">
+          <!-- Files will be populated by JS -->
+        </div>
+        
+        <div class="action-bar">
+          <button class="btn-run" id="runBtn" onclick="runBulkUpdate()">
+            🚀 Run Bulk Update
+          </button>
+          <button class="btn-reset" onclick="resetAll()">
+            🔄 Reset
+          </button>
+        </div>
+        
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+        
+        <div class="summary" id="summary">
+          <h3>✅ Bulk Update Complete!</h3>
+          <div class="stat"><span>Total files:</span><span id="sumTotal">0</span></div>
+          <div class="stat"><span>Updated:</span><span id="sumUpdated" style="color:#00a32a;">0</span></div>
+          <div class="stat"><span>Skipped (already had it):</span><span id="sumSkipped" style="color:#856404;">0</span></div>
+          <div class="stat"><span>Errors:</span><span id="sumErrors" style="color:#d63638;">0</span></div>
+        </div>
+        
+      </div>
+      
+    </main>
+  </div>
+
+  <script src="/assets/js/transliterate.js"></script>
+  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  
+  <script>
+    // ==================== CONFIG ====================
+    const FILES_TO_UPDATE = [
+      'admin/add-new-post.html',
+      'admin/edit-post.html',
+      'admin/all-posts.html',
+      'admin/add-new-category.html',
+      'admin/edit-category.html',
+      'admin/add-new-tag.html',
+      'admin/edit-tag.html',
+      'admin/general-settings.html',
+      'admin/import-export.html',
+      'admin/index.html'
+    ];
+    
+    const SCRIPT_TAG = '<script src="/assets/js/transliterate.js"></script>';
+    const ANCHOR_TAG = '<script src="/assets/js/load-sidebar.js"></script>';
+    
+    // ==================== STATE ====================
+    let fileStates = {};
+    let isRunning = false;
+    
+    // ==================== INITIALIZE UI ====================
+    function initFileList() {
+      let list = document.getElementById('fileList');
+      list.innerHTML = '';
+      
+      FILES_TO_UPDATE.forEach(file => {
+        fileStates[file] = 'pending';
+        
+        let item = document.createElement('div');
+        item.className = 'file-item';
+        item.id = 'file-' + file.replace(/[^a-z0-9]/gi, '-');
+        item.innerHTML = `
+          <span class="file-name">${file}</span>
+          <span class="file-status status-pending">⏳ Pending</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+    
+    // ==================== UPDATE FILE STATUS ====================
+    function setFileStatus(file, status, message) {
+      fileStates[file] = status;
+      
+      let item = document.getElementById('file-' + file.replace(/[^a-z0-9]/gi, '-'));
+      if (!item) return;
+      
+      let statusEl = item.querySelector('.file-status');
+      let statusMap = {
+        'pending': { class: 'status-pending', text: '⏳ Pending' },
+        'processing': { class: 'status-processing', text: '🔄 Processing...' },
+        'success': { class: 'status-success', text: '✅ Updated' },
+        'skipped': { class: 'status-skipped', text: '⏭️ Skipped' },
+        'error': { class: 'status-error', text: '❌ Error' }
+      };
+      
+      let s = statusMap[status] || statusMap.pending;
+      statusEl.className = 'file-status ' + s.class;
+      statusEl.textContent = message || s.text;
+    }
+    
+    // ==================== UPDATE PROGRESS ====================
+    function updateProgress(current, total) {
+      let percent = Math.round((current / total) * 100);
+      let bar = document.getElementById('progressBar');
+      let fill = document.getElementById('progressFill');
+      
+      bar.classList.add('show');
+      fill.style.width = percent + '%';
+      fill.textContent = percent + '% (' + current + '/' + total + ')';
+    }
+    
+    // ==================== MAIN: RUN BULK UPDATE ====================
+    async function runBulkUpdate() {
+      if (isRunning) return;
+      
+      let token = getToken();
+      if (!token) {
+        promptForToken();
+        return;
+      }
+      
+      if (!confirm('This will update ' + FILES_TO_UPDATE.length + ' files on GitHub.\n\nContinue?')) {
+        return;
+      }
+      
+      isRunning = true;
+      document.getElementById('runBtn').disabled = true;
+      document.getElementById('summary').classList.remove('show');
+      
+      let stats = { updated: 0, skipped: 0, errors: 0, total: FILES_TO_UPDATE.length };
+      let total = FILES_TO_UPDATE.length;
+      let current = 0;
+      
+      for (let file of FILES_TO_UPDATE) {
+        setFileStatus(file, 'processing');
+        
+        try {
+          // 1. Fetch current content from GitHub
+          let response = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file}?ref=${CONFIG.GITHUB_BRANCH}`,
+            { headers: { 'Authorization': `token ${token}` } }
+          );
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch: ' + response.statusText);
+          }
+          
+          let data = await response.json();
+          let content = decodeBase64(data.content.replace(/\n/g, ''));
+          let sha = data.sha;
+          
+          // 2. Check if transliterate.js is already included
+          if (content.includes('transliterate.js')) {
+            console.log('⏭️ Skipped (already has transliterate.js):', file);
+            setFileStatus(file, 'skipped', '⏭️ Already has it');
+            stats.skipped++;
+            current++;
+            updateProgress(current, total);
+            continue;
+          }
+          
+          // 3. Check if anchor exists
+          if (!content.includes(ANCHOR_TAG)) {
+            console.warn('⚠️ No anchor found in:', file);
+            setFileStatus(file, 'error', '❌ No anchor');
+            stats.errors++;
+            current++;
+            updateProgress(current, total);
+            continue;
+          }
+          
+          // 4. Insert transliterate.js BEFORE load-sidebar.js
+          let newContent = content.replace(
+            ANCHOR_TAG,
+            '  ' + SCRIPT_TAG + '\n  ' + ANCHOR_TAG
+          );
+          
+          // 5. Upload to GitHub
+          let contentBase64 = encodeBase64(newContent);
+          
+          let uploadResponse = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file}`,
+            {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Add transliterate.js to ${file}`,
+                content: contentBase64,
+                sha: sha,
+                branch: CONFIG.GITHUB_BRANCH
+              })
+            }
+          );
+          
+          if (!uploadResponse.ok) {
+            let err = await uploadResponse.json();
+            throw new Error(err.message || 'Upload failed');
+          }
+          
+          console.log('✅ Updated:', file);
+          setFileStatus(file, 'success', '✅ Updated');
+          stats.updated++;
+          
+        } catch (err) {
+          console.error('❌ Error:', file, err);
+          setFileStatus(file, 'error', '❌ ' + (err.message || 'Error'));
+          stats.errors++;
+        }
+        
+        current++;
+        updateProgress(current, total);
+        
+        // Small delay between files
+        await sleep(500);
+      }
+      
+      // Show summary
+      document.getElementById('sumTotal').textContent = stats.total;
+      document.getElementById('sumUpdated').textContent = stats.updated;
+      document.getElementById('sumSkipped').textContent = stats.skipped;
+      document.getElementById('sumErrors').textContent = stats.errors;
+      document.getElementById('summary').classList.add('show');
+      
+      showToast('✅ Bulk update complete!', 'success');
+      
+      isRunning = false;
+      document.getElementById('runBtn').disabled = false;
+    }
+    
+    // ==================== RESET ====================
+    function resetAll() {
+      if (isRunning) {
+        alert('Cannot reset while running.');
+        return;
+      }
+      
+      if (!confirm('Reset all statuses?')) return;
+      
+      initFileList();
+      document.getElementById('summary').classList.remove('show');
+      document.getElementById('progressBar').classList.remove('show');
+      document.getElementById('progressFill').style.width = '0%';
+    }
+    
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', function() {
+      checkToken();
+      initFileList();
+    });
+  </script>
+</body>
+</html>
