@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add New Post - Admin</title>
   
-  <!-- WordPress-Style Admin CSS -->
   <link rel="stylesheet" href="/assets/css/admin.css">
   
-  <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
@@ -32,13 +30,14 @@
       border-color: #2271b1; outline: none;
       box-shadow: 0 0 0 1px #2271b1;
     }
+    .form-group input[readonly] { background: #f6f7f7; cursor: not-allowed; }
     .note { font-size: 11.5px; color: #646970; margin-top: 4px; }
     .row { display: flex; gap: 15px; }
     .row .form-group { flex: 1; }
     
     .category-box {
       border: 1px solid #8c8f94; border-radius: 4px;
-      padding: 10px; max-height: 150px;
+      padding: 10px; max-height: 200px;
       overflow-y: auto; background: #fff;
     }
     .category-box label {
@@ -152,8 +151,9 @@
       display: flex; gap: 10px;
       margin-top: 24px; padding-top: 20px;
       border-top: 1px solid #dcdcde;
+      flex-wrap: wrap;
     }
-    .form-actions .wp-btn { flex: 1; text-align: center; padding: 11px; font-size: 14px; }
+    .form-actions .wp-btn { flex: 1; text-align: center; padding: 11px; font-size: 14px; min-width: 120px; }
     
     @media (max-width: 600px) {
       .row { flex-direction: column; gap: 0; }
@@ -164,46 +164,34 @@
 </head>
 <body>
 
-  <!-- ============================================
-       ADMIN WRAPPER (Sidebar + Content)
-       ============================================ -->
   <div id="admin-wrapper">
-    
-    <!-- Sidebar (auto-loaded by load-sidebar.js) -->
     <div id="sidebar-container"></div>
     
-    <!-- Main Content -->
     <main id="admin-content">
       
-      <!-- Page Header -->
       <div class="admin-page-header">
         <h1 class="admin-page-title">📝 Add New Post</h1>
-        <a href="all-posts.html" class="wp-btn wp-btn-secondary">← Back to All Posts</a>
+        <a href="all-posts.html" class="wp-btn wp-btn-secondary">← All Posts</a>
       </div>
       
-      <!-- Token Warning -->
       <div class="token-warning" id="tokenWarning">
-        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set your token.
+        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set it.
       </div>
       
-      <!-- Main Form Card -->
       <div class="admin-card">
         <form id="postForm">
           
-          <!-- Title -->
           <div class="form-group">
             <label>Post Title</label>
             <input type="text" id="postTitle" placeholder="Enter post title" required oninput="updateSEO()">
           </div>
 
-          <!-- Permalink -->
           <div class="form-group">
             <label>Permalink</label>
             <input type="text" id="postPermalink" placeholder="auto-generated-from-title">
-            <div class="note">This will be the URL slug for the post.</div>
+            <div class="note">Auto-generated from title. Changes filename on GitHub.</div>
           </div>
 
-          <!-- Author + Date -->
           <div class="row">
             <div class="form-group">
               <label>Author</label>
@@ -215,7 +203,6 @@
             </div>
           </div>
 
-          <!-- Time + Timezone -->
           <div class="row">
             <div class="form-group">
               <label>Time (Server)</label>
@@ -227,16 +214,14 @@
             </div>
           </div>
 
-          <!-- Categories -->
           <div class="form-group">
             <label>Categories</label>
             <div class="category-box" id="categoryCheckboxes">
-              <div class="note">Loading categories...</div>
+              <div class="note">⏳ Loading categories...</div>
             </div>
             <button type="button" class="add-cat-btn" onclick="addNewCategory()">+ Add New Category</button>
           </div>
 
-          <!-- Tags -->
           <div class="form-group">
             <label>Tags</label>
             <div class="tags-input-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
@@ -246,13 +231,12 @@
             <div class="note">Type tags separated by commas and click <b>+ Add Tags</b>.</div>
           </div>
 
-          <!-- Post Image -->
           <div class="form-group">
             <label>Post Image</label>
             <div class="image-upload-area" onclick="document.getElementById('postImageFile').click()">
               <div style="font-size:32px;">📷</div>
               <div style="font-weight:600; margin-top:8px;">Click to Upload Image</div>
-              <div class="note">JPG, PNG, GIF, WebP — will be uploaded to GitHub as SVG</div>
+              <div class="note">JPG, PNG, GIF, WebP — auto-compressed to ≤ 100 KB</div>
               <input type="file" id="postImageFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
             </div>
             <img id="imagePreview" class="image-preview" alt="Preview">
@@ -261,7 +245,6 @@
             <input type="hidden" id="postImageBase64" value="">
           </div>
 
-          <!-- Content Editor -->
           <div class="form-group">
             <label>Content</label>
             <div class="editor-wrapper">
@@ -278,13 +261,11 @@
             </div>
           </div>
 
-          <!-- Excerpt -->
           <div class="form-group">
             <label>Custom Excerpt / Teaser (Optional)</label>
             <textarea id="postExcerpt" rows="3" placeholder="Leave blank to auto-generate"></textarea>
           </div>
 
-          <!-- SEO SECTION -->
           <div class="seo-box">
             <h2>🔍 SEO Settings</h2>
             
@@ -313,10 +294,9 @@
             </div>
           </div>
 
-          <!-- Form Actions -->
           <div class="form-actions">
-            <button type="button" class="wp-btn wp-btn-secondary" onclick="saveDraft()">Save Draft</button>
-            <button type="button" class="wp-btn wp-btn-primary" id="publishBtn" onclick="publishPost()">Publish to GitHub</button>
+            <button type="button" class="wp-btn wp-btn-secondary" onclick="saveDraft()">💾 Save Draft</button>
+            <button type="button" class="wp-btn wp-btn-primary" id="publishBtn" onclick="publishPost()">🚀 Publish to GitHub</button>
           </div>
           
         </form>
@@ -326,20 +306,14 @@
   </div>
 
   <!-- ============================================
-       JAVASCRIPT MODULES (Order matters!)
+       JAVASCRIPT MODULES (ORDER MATTERS!)
        ============================================ -->
-  
-  <!-- 1. Sidebar Loader (must be first) -->
-    <script src="/assets/js/transliterate.js"></script>
+  <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/load-sidebar.js"></script>
-  
-  <!-- 2. Core Modules -->
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/token.js"></script>
   <script src="/assets/js/github-api.js"></script>
-  
-  <!-- 3. Form Modules -->
   <script src="/assets/js/editor.js"></script>
   <script src="/assets/js/tags.js"></script>
   <script src="/assets/js/categories.js"></script>
@@ -347,31 +321,35 @@
   <script src="/assets/js/seo.js"></script>
   <script src="/assets/js/post-form.js"></script>
   
-  <!-- 4. Page-Specific Init -->
+  <!-- ============================================
+       PAGE INITIALIZATION
+       ============================================ -->
   <script>
-    // ==================== PAGE INITIALIZATION ====================
     window.addEventListener('load', async function() {
       
-      // 1. Set today's date & time
+      // 1. Check token
+      checkToken();
+      
+      // 2. Set today's date & time
       let now = new Date();
       document.getElementById('postDate').valueAsDate = now;
       document.getElementById('postTime').value = formatTime(now);
       document.getElementById('postTimezone').value = getTimezone();
       
-      // 2. Initialize Rich Editor
+      // 3. Initialize Rich Editor
       initRichEditor('#postContentVisual');
       
-      // 3. Initialize Tags system
+      // 4. Initialize Tags system
       initTags();
       
-      // 4. Load categories from GitHub
+      // 5. Load Categories from GitHub
       await loadCategoriesList();
       
-      // 5. Initialize SEO chart
+      // 6. Initialize SEO chart
       initSeoChart();
       updateSEO();
       
-      // 6. Auto-generate permalink on title input
+      // 7. Auto-generate permalink on title input
       document.getElementById('postTitle').addEventListener('input', function() {
         let slug = generateSlug(this.value);
         let permalinkEl = document.getElementById('postPermalink');
@@ -384,8 +362,7 @@
         this.dataset.manual = 'true';
       });
       
-      // 7. Check GitHub token
-      checkToken();
+      console.log('✅ Add New Post page loaded');
     });
   </script>
 </body>
