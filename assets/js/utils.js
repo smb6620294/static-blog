@@ -1,6 +1,7 @@
 /* ============================================
    UTILS.JS - Utility Functions
    Used by: All admin pages
+   Depends on: transliterate.js (loaded before this file)
    ============================================ */
 
 /**
@@ -17,10 +18,19 @@ function escapeHtml(str) {
 }
 
 /**
- * Generate URL-friendly slug from text
+ * Generate URL-friendly slug from text (any language)
+ * Uses smartSlugify() from transliterate.js
+ * Falls back to English-only if transliterate not loaded
  */
 function generateSlug(text) {
   if (!text) return '';
+  
+  // Use smartSlugify if available (supports Russian, Urdu, Arabic, etc.)
+  if (typeof smartSlugify === 'function') {
+    return smartSlugify(text, { maxLength: 80, separator: '-' });
+  }
+  
+  // Fallback: English-only slug (old behavior)
   return String(text)
     .toLowerCase()
     .trim()
@@ -62,6 +72,7 @@ function getTimezone() {
 
 /**
  * Base64 encode a string (UTF-8 safe)
+ * Handles Unicode (Russian, Urdu, Arabic) correctly
  */
 function encodeBase64(str) {
   return btoa(unescape(encodeURIComponent(str)));
@@ -69,6 +80,7 @@ function encodeBase64(str) {
 
 /**
  * Base64 decode a string (UTF-8 safe)
+ * Handles Unicode (Russian, Urdu, Arabic) correctly
  */
 function decodeBase64(base64) {
   return decodeURIComponent(escape(atob(base64)));
@@ -153,7 +165,106 @@ function loadScript(src) {
   });
 }
 
-// Add CSS animation for toast
+/**
+ * Truncate text to a maximum length
+ */
+function truncate(text, maxLength = 100) {
+  if (!text) return '';
+  let str = String(text);
+  if (str.length <= maxLength) return str;
+  return str.substring(0, maxLength).trim() + '...';
+}
+
+/**
+ * Get plain text from HTML
+ */
+function stripHtml(html) {
+  if (!html) return '';
+  let tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return (tmp.textContent || tmp.innerText || '').trim();
+}
+
+/**
+ * Capitalize first letter
+ */
+function capitalize(str) {
+  if (!str) return '';
+  return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+}
+
+/**
+ * Deep clone an object (JSON-safe)
+ */
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+/**
+ * Format number with thousands separator
+ */
+function formatNumber(num) {
+  if (num === null || num === undefined) return '0';
+  return Number(num).toLocaleString();
+}
+
+/**
+ * Get file extension from a path
+ */
+function getFileExtension(path) {
+  if (!path) return '';
+  let parts = path.split('.');
+  return parts.length > 1 ? parts.pop().toLowerCase() : '';
+}
+
+/**
+ * Get file name from a path
+ */
+function getFileName(path) {
+  if (!path) return '';
+  return path.split('/').pop();
+}
+
+/**
+ * Get file icon (emoji) based on extension
+ */
+function getFileIcon(path) {
+  let ext = getFileExtension(path);
+  let icons = {
+    'html': '🌐',
+    'js': '📜',
+    'css': '🎨',
+    'json': '📋',
+    'md': '📖',
+    'svg': '🖼️',
+    'png': '🖼️',
+    'jpg': '🖼️',
+    'jpeg': '🖼️',
+    'gif': '🖼️',
+    'webp': '🖼️',
+    'toml': '⚙️',
+    'xml': '📄',
+    'txt': '📄'
+  };
+  return icons[ext] || '📄';
+}
+
+/**
+ * Check if a file is an image
+ */
+function isImage(path) {
+  let ext = getFileExtension(path);
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'].includes(ext);
+}
+
+/**
+ * Sleep/delay (async)
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ==================== ADD TOAST ANIMATION CSS ====================
 (function addToastAnimation() {
   if (document.getElementById('toast-animation-style')) return;
   let style = document.createElement('style');
@@ -166,3 +277,6 @@ function loadScript(src) {
   `;
   document.head.appendChild(style);
 })();
+
+// ==================== LOG ON LOAD ====================
+console.log('✅ utils.js loaded — generateSlug() now supports multi-language');
