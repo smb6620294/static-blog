@@ -6,9 +6,10 @@
   "date": "2026-09-15",
   "time": "23:31",
   "timezone": "Asia/Karachi",
-  "categories": [],
+  "categories": [
+    "apple"
+  ],
   "tags": [
-    "iPhone 16 Plus",
     "батарея iPhone",
     "автономность работы",
     "зарядка iPhone",
@@ -23,6 +24,6 @@
   "seoTitle": "Батарея iPhone 16 Plus: ёмкость, автономность и скорость зарядки 2026",
   "seoDescription": "Батарея iPhone 16 Plus: реальная ёмкость, автономность в тестах, скорость зарядки и советы по продлению срока службы.",
   "seoKeyword": "батарея iphone 16 plus",
-  "createdAt": "2026-09-15T19:09:20.272Z",
-  "updatedAt": "2026-09-15T19:09:20.272Z"
+  "createdAt": "2026-09-15T19:11:26.014Z",
+  "updatedAt": "2026-09-15T19:11:26.014Z"
 }
