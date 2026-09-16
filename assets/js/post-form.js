@@ -1,6 +1,7 @@
 /* ============================================
    POST-FORM.JS - Post Publish/Update/Load Logic
    Includes: Categories sync, Tags sync, Content load
+   Fixed: Tags/Categories format (name + slug)
    Used by: add-new-post, edit-post
    ============================================ */
 
@@ -59,22 +60,28 @@ async function syncTagsToGitHub(newTags) {
       tagsList = existing.tags;
     }
     
+    console.log('📋 Existing tags:', tagsList.length);
+    
     // 2. Add new tags (skip if already exists)
     let added = 0;
     newTags.forEach(tagName => {
       let slug = generateSlug(tagName);
       if (!slug) return;
       
-      let exists = tagsList.find(t => t.slug === slug);
+      // Check if exists (by slug OR by name)
+      let exists = tagsList.find(t => t.slug === slug || t.name === tagName);
       if (!exists) {
         tagsList.push({
           id: 'tag_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-          title: tagName,
+          name: tagName,           // ← name (پرانی فائل جیسا)
+          title: tagName,          // ← title (مستقبل کے لیے)
           slug: slug,
           description: '',
+          count: 0,
           createdAt: new Date().toISOString()
         });
         added++;
+        console.log('➕ Added tag:', tagName, '→', slug);
       }
     });
     
@@ -93,7 +100,7 @@ async function syncTagsToGitHub(newTags) {
       `Sync tags: added ${added} new tag(s)`
     );
     
-    console.log('✅ Tags synced:', added);
+    console.log('✅ Tags synced to GitHub:', added, 'new tag(s)');
     
   } catch (err) {
     console.warn('⚠️ Could not sync tags:', err);
@@ -116,6 +123,8 @@ async function syncCategoriesToGitHub(newCategories) {
       catsList = existing.categories;
     }
     
+    console.log('📋 Existing categories:', catsList.length);
+    
     // 2. Add new categories (skip if already exists)
     let added = 0;
     newCategories.forEach(catSlug => {
@@ -123,14 +132,23 @@ async function syncCategoriesToGitHub(newCategories) {
       
       let exists = catsList.find(c => c.slug === catSlug);
       if (!exists) {
+        // Convert slug to readable title
+        let title = catSlug.split('-').map(w => 
+          w.charAt(0).toUpperCase() + w.slice(1)
+        ).join(' ');
+        
         catsList.push({
           id: 'cat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-          title: catSlug,
+          name: title,             // ← name (پرانی فائل جیسا)
+          title: title,            // ← title
           slug: catSlug,
           description: '',
+          parent: null,
+          count: 0,
           createdAt: new Date().toISOString()
         });
         added++;
+        console.log('➕ Added category:', title, '→', catSlug);
       }
     });
     
@@ -149,7 +167,7 @@ async function syncCategoriesToGitHub(newCategories) {
       `Sync categories: added ${added} new category(ies)`
     );
     
-    console.log('✅ Categories synced:', added);
+    console.log('✅ Categories synced to GitHub:', added, 'new');
     
   } catch (err) {
     console.warn('⚠️ Could not sync categories:', err);
@@ -182,7 +200,7 @@ async function publishPost() {
   }
   
   try {
-    // ========== STEP 1: Upload Image (if any) ==========
+    // ========== STEP 1: Upload Image ==========
     let imageBase64 = getUploadedImageBase64();
     let imagePath = post.image;
     
@@ -190,7 +208,6 @@ async function publishPost() {
       if (btn) btn.textContent = '⏳ Uploading image...';
       let imageGithubPath = imagePath.replace(/^\//, '');
       await uploadFileToGitHub(imageGithubPath, imageBase64, `Upload image: ${imagePath}`);
-      console.log('✅ Image uploaded:', imagePath);
     }
     
     // ========== STEP 2: Sync Categories ==========
@@ -213,16 +230,14 @@ async function publishPost() {
     
     await uploadFileToGitHub(postPath, postBase64, `New post: ${post.title}`);
     
-    // ========== STEP 5: Save to LocalStorage ==========
+    // ========== STEP 5: LocalStorage ==========
     try {
       let existingPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
       existingPosts.push(post);
       localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(existingPosts));
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
+    } catch (e) {}
     
-    showToast('✅ Post published to GitHub!', 'success');
+    showToast('✅ Post published!', 'success');
     
     setTimeout(() => {
       window.location.href = 'all-posts.html';
@@ -266,7 +281,7 @@ async function updatePost() {
   try {
     post.updatedAt = new Date().toISOString();
     
-    // ========== STEP 1: Upload New Image (if changed) ==========
+    // STEP 1: Upload New Image
     let imageBase64 = getUploadedImageBase64();
     let imagePath = post.image;
     
@@ -276,19 +291,19 @@ async function updatePost() {
       await uploadFileToGitHub(imageGithubPath, imageBase64, `Update image: ${imagePath}`);
     }
     
-    // ========== STEP 2: Sync Categories ==========
+    // STEP 2: Sync Categories
     if (post.categories && post.categories.length > 0) {
       if (btn) btn.textContent = '⏳ Syncing categories...';
       await syncCategoriesToGitHub(post.categories);
     }
     
-    // ========== STEP 3: Sync Tags ==========
+    // STEP 3: Sync Tags
     if (post.tags && post.tags.length > 0) {
       if (btn) btn.textContent = '⏳ Syncing tags...';
       await syncTagsToGitHub(post.tags);
     }
     
-    // ========== STEP 4: Upload Post JSON ==========
+    // STEP 4: Upload Post JSON
     if (btn) btn.textContent = '⏳ Updating post...';
     let postPath = CONFIG.POSTS_FOLDER + post.permalink + '.json';
     let postJson = JSON.stringify(post, null, 2);
@@ -296,7 +311,7 @@ async function updatePost() {
     
     await uploadFileToGitHub(postPath, postBase64, `Update post: ${post.title}`);
     
-    // ========== STEP 5: Update LocalStorage ==========
+    // STEP 5: LocalStorage
     try {
       let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
       let index = localPosts.findIndex(p => p.id === post.id);
@@ -306,9 +321,7 @@ async function updatePost() {
         localPosts.push(post);
       }
       localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(localPosts));
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
+    } catch (e) {}
     
     showToast('✅ Post updated!', 'success');
     
@@ -329,11 +342,7 @@ async function updatePost() {
 // ==================== SAVE DRAFT ====================
 function saveDraft() {
   let post = collectPostData();
-  
-  if (!post.title) {
-    alert('Please enter a title to save draft.');
-    return;
-  }
+  if (!post.title) { alert('Please enter a title to save draft.'); return; }
   
   post.id = 'draft_' + Date.now();
   post.status = 'draft';
@@ -345,31 +354,28 @@ function saveDraft() {
   showToast('📝 Draft saved locally!', 'success');
 }
 
-// ==================== LOAD POST DATA (for Edit Post) ====================
+// ==================== LOAD POST DATA ====================
 async function loadPostData(postId) {
-  if (!postId) {
-    postId = getQueryParam('id');
-  }
+  if (!postId) postId = getQueryParam('id');
   
   if (!postId) {
-    alert('No post ID provided. Redirecting to All Posts.');
+    alert('No post ID provided.');
     window.location.href = 'all-posts.html';
     return;
   }
   
   console.log('🔄 Loading post:', postId);
   
-  // 1. Try LocalStorage first
   let post = null;
+  
+  // Try LocalStorage
   try {
     let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
     post = localPosts.find(p => p.id === postId);
     if (post) console.log('✅ Found in LocalStorage');
-  } catch (e) {
-    console.warn('LocalStorage error:', e);
-  }
+  } catch (e) {}
   
-  // 2. Try GitHub if not found locally
+  // Try GitHub
   if (!post) {
     console.log('🔍 Searching GitHub...');
     try {
@@ -383,20 +389,16 @@ async function loadPostData(postId) {
           break;
         }
       }
-    } catch (err) {
-      console.warn('GitHub search error:', err);
-    }
+    } catch (err) {}
   }
   
   if (!post) {
-    alert('Post with ID "' + postId + '" not found.');
+    alert('Post not found.');
     window.location.href = 'all-posts.html';
     return;
   }
   
-  // ========== FILL FORM FIELDS ==========
-  
-  // ID & Basic info
+  // Fill fields
   document.getElementById('postId').value = post.id || '';
   let displayId = document.getElementById('displayPostId');
   if (displayId) displayId.textContent = post.id || '-';
@@ -410,127 +412,72 @@ async function loadPostData(postId) {
   document.getElementById('postExcerpt').value = post.excerpt || '';
   document.getElementById('postImage').value = post.image || '';
   
-  // Mark permalink as manually set (prevent auto-overwrite)
   let permalinkEl = document.getElementById('postPermalink');
   if (permalinkEl) permalinkEl.dataset.manual = 'true';
   
-  // SEO fields
   document.getElementById('seoTitle').value = post.seoTitle || '';
   document.getElementById('seoDescription').value = post.seoDescription || '';
   document.getElementById('seoKeyword').value = post.seoKeyword || '';
   
-  // ========== SET CATEGORIES ==========
+  // Categories
   if (typeof setSelectedCategories === 'function') {
     setSelectedCategories(post.categories || []);
-    console.log('✅ Categories set:', post.categories);
   }
   
-  // ========== SET TAGS ==========
+  // Tags
   if (typeof setTags === 'function') {
     setTags(post.tags || []);
-    console.log('✅ Tags set:', post.tags);
   }
   
-  // ========== SET CONTENT IN EDITOR (مهم!) ==========
+  // Content
   if (post.content) {
-    console.log('📝 Setting content, length:', post.content.length);
-    
-    // Wait a bit for TinyMCE to be ready
     await sleep(300);
-    
     if (typeof setEditorContent === 'function') {
       setEditorContent(post.content);
-      console.log('✅ Content set via setEditorContent()');
-    } else {
-      // Fallback: direct set
-      if (tinymce.get('postContentVisual')) {
-        tinymce.get('postContentVisual').setContent(post.content);
-        console.log('✅ Content set directly in TinyMCE');
-      }
-      let codeArea = document.getElementById('postContentCode');
-      if (codeArea) codeArea.value = post.content;
+    } else if (tinymce.get('postContentVisual')) {
+      tinymce.get('postContentVisual').setContent(post.content);
     }
-  } else {
-    console.log('⚠️ No content in post');
   }
   
-  // ========== SHOW EXISTING IMAGE ==========
-  if (post.image) {
-    if (typeof showExistingImage === 'function') {
-      showExistingImage(post.image);
-    } else {
-      let preview = document.getElementById('imagePreview');
-      if (preview) {
-        preview.src = post.image;
-        preview.style.display = 'block';
-      }
-    }
-    console.log('✅ Image set:', post.image);
+  // Image
+  if (post.image && typeof showExistingImage === 'function') {
+    showExistingImage(post.image);
   }
   
-  // ========== UPDATE SEO ANALYSIS ==========
-  if (typeof updateSEO === 'function') {
-    updateSEO();
-  }
+  if (typeof updateSEO === 'function') updateSEO();
   
-  console.log('✅ Post loaded successfully');
+  console.log('✅ Post loaded');
 }
 
 // ==================== VIEW POST ====================
 function viewPost() {
   let permalink = document.getElementById('postPermalink')?.value;
-  if (!permalink) {
-    alert('No permalink set.');
-    return;
-  }
+  if (!permalink) { alert('No permalink.'); return; }
   window.open('../posts/' + permalink + '.html', '_blank');
 }
 
 // ==================== DELETE POST ====================
 async function deletePost(postId, fileName, source, title) {
-  if (!confirm('Are you sure you want to delete this post?\n\n"' + title + '"\n\nThis will remove it from GitHub.')) {
-    return;
-  }
+  if (!confirm('Delete this post?\n\n"' + title + '"')) return;
   
   let token = getToken();
-  if (!token) {
-    promptForToken();
-    return;
-  }
+  if (!token) { promptForToken(); return; }
   
   try {
-    // 1. Remove from LocalStorage
     let localPosts = JSON.parse(localStorage.getItem(CONFIG.POSTS_CACHE_KEY) || '[]');
-    let originalLength = localPosts.length;
     localPosts = localPosts.filter(p => p.id !== postId);
-    if (localPosts.length < originalLength) {
-      localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(localPosts));
-    }
+    localStorage.setItem(CONFIG.POSTS_CACHE_KEY, JSON.stringify(localPosts));
     
-    // 2. Delete from GitHub
     if (source === 'github' && fileName) {
-      await deleteFileFromGitHub(
-        CONFIG.POSTS_FOLDER + fileName,
-        `Delete post: ${title}`
-      );
-      console.log('✅ Post deleted from GitHub:', fileName);
+      await deleteFileFromGitHub(CONFIG.POSTS_FOLDER + fileName, `Delete: ${title}`);
     }
     
     showToast('✅ Post deleted!', 'success');
-    
-    setTimeout(() => {
-      if (typeof loadPosts === 'function') {
-        loadPosts();
-      } else {
-        window.location.reload();
-      }
-    }, 800);
+    setTimeout(() => { if (typeof loadPosts === 'function') loadPosts(); else location.reload(); }, 800);
     
   } catch (err) {
-    console.error(err);
     alert('❌ Delete failed:\n\n' + err.message);
   }
 }
 
-// ==================== LOG ON LOAD ====================
-console.log('✅ post-form.js loaded — includes content load + tags/categories sync');
+console.log('✅ post-form.js loaded — with tags/categories sync fixed');
