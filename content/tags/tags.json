@@ -23,6 +23,60 @@
       "description": "Posts related to static site generation.",
       "count": 0,
       "createdAt": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id": "tag_1789506900151_lql55",
+      "name": "батарея iPhone",
+      "title": "батарея iPhone",
+      "slug": "batareya-iphone",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-15T21:15:00.151Z"
+    },
+    {
+      "id": "tag_1789506900151_mugnc",
+      "name": "автономность работы",
+      "title": "автономность работы",
+      "slug": "avtonomnost-raboty",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-15T21:15:00.151Z"
+    },
+    {
+      "id": "tag_1789506900152_5hu5l",
+      "name": "зарядка iPhone",
+      "title": "зарядка iPhone",
+      "slug": "zaryadka-iphone",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-15T21:15:00.152Z"
+    },
+    {
+      "id": "tag_1789506900153_5dcyu",
+      "name": "состояние аккумулятора",
+      "title": "состояние аккумулятора",
+      "slug": "sostoyanye-akkumulyatora",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-15T21:15:00.153Z"
+    },
+    {
+      "id": "tag_1789506900153_0m12n",
+      "name": "ёмкость батареи",
+      "title": "ёмкость батареи",
+      "slug": "yomkost-batarey",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-15T21:15:00.153Z"
+    },
+    {
+      "id": "tag_1789506900154_u1hvp",
+      "name": "MagSafe",
+      "title": "MagSafe",
+      "slug": "magsafe",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-15T21:15:00.154Z"
     }
   ]
 }
