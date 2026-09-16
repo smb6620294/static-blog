@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bulk Update - Admin</title>
   <link rel="stylesheet" href="/assets/css/admin.css">
   <style>
@@ -25,7 +24,7 @@
     .btn-reset { background:#f6f7f7; color:#2271b1; border:1px solid #2271b1; }
     .progress-bar { width:100%; height:20px; background:#f0f0f1; border-radius:10px; overflow:hidden; margin-top:15px; display:none; }
     .progress-bar.show { display:block; }
-    .progress-fill { height:100%; background:linear-gradient(90deg,#2271b1,#72aee6); width:0%; transition:width 0.3s; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:600; }
+    .progress-fill { height:100%; background:#2271b1; width:0%; transition:width 0.3s; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:600; }
     .summary { background:#edfaef; border-left:4px solid #00a32a; padding:16px; border-radius:4px; margin-top:20px; display:none; font-size:13px; }
     .summary.show { display:block; }
     .summary h3 { margin:0 0 10px; color:#00a32a; font-size:15px; }
@@ -44,14 +43,10 @@
         <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
       </div>
       
-      <div class="token-warning" id="tokenWarning" style="display:none;background:#fcf9e8;border-left:4px solid #dba617;color:#614200;padding:10px 14px;border-radius:4px;margin-bottom:16px;font-size:13px;">
-        ⚠️ <b>GitHub Token not found!</b> Click <a href="#" onclick="promptForToken();return false;" style="color:#2271b1;">here</a> to set it.
-      </div>
-      
       <div class="bulk-box">
         <div class="info-box">
           <b>📋 What this tool does:</b><br>
-          Adds <code>&lt;script src="/assets/js/transliterate.js"&gt;&lt;/script&gt;</code> to all admin HTML files that don't have it.
+          Adds transliterate.js to all admin HTML files that don't have it.
         </div>
         
         <h3>📁 Files to Process (10 total)</h3>
@@ -78,180 +73,11 @@
     </main>
   </div>
 
-  <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/token.js"></script>
   <script src="/assets/js/github-api.js"></script>
-  
-  <script>
-    var FILES_TO_UPDATE = [
-      'admin/add-new-post.html',
-      'admin/edit-post.html',
-      'admin/all-posts.html',
-      'admin/add-new-category.html',
-      'admin/edit-category.html',
-      'admin/add-new-tag.html',
-      'admin/edit-tag.html',
-      'admin/general-settings.html',
-      'admin/import-export.html',
-      'admin/index.html'
-    ];
-    
-    var SCRIPT_TAG = '<script src="/assets/js/transliterate.js"></script>';
-    var ANCHOR_TAG = '<script src="/assets/js/load-sidebar.js"></script>';
-    var fileStates = {};
-    var isRunning = false;
-    
-    function initFileList() {
-      var list = document.getElementById('fileList');
-      list.innerHTML = '';
-      FILES_TO_UPDATE.forEach(function(file) {
-        fileStates[file] = 'pending';
-        var item = document.createElement('div');
-        item.className = 'file-item';
-        item.id = 'file-' + file.replace(/[^a-z0-9]/gi, '-');
-        item.innerHTML = '<span class="file-name">' + file + '</span>' +
-                        '<span class="file-status status-pending">⏳ Pending</span>';
-        list.appendChild(item);
-      });
-    }
-    
-    function setFileStatus(file, status, message) {
-      fileStates[file] = status;
-      var item = document.getElementById('file-' + file.replace(/[^a-z0-9]/gi, '-'));
-      if (!item) return;
-      var statusEl = item.querySelector('.file-status');
-      var map = {
-        'pending': ['status-pending', '⏳ Pending'],
-        'processing': ['status-processing', '🔄 Processing...'],
-        'success': ['status-success', '✅ Updated'],
-        'skipped': ['status-skipped', '⏭️ Skipped'],
-        'error': ['status-error', '❌ Error']
-      };
-      var s = map[status] || map.pending;
-      statusEl.className = 'file-status ' + s[0];
-      statusEl.textContent = message || s[1];
-    }
-    
-    function updateProgress(cur, total) {
-      var pct = Math.round((cur / total) * 100);
-      document.getElementById('progressBar').classList.add('show');
-      var fill = document.getElementById('progressFill');
-      fill.style.width = pct + '%';
-      fill.textContent = pct + '% (' + cur + '/' + total + ')';
-    }
-    
-    async function runBulkUpdate() {
-      if (isRunning) return;
-      var token = getToken();
-      if (!token) { promptForToken(); return; }
-      if (!confirm('Update ' + FILES_TO_UPDATE.length + ' files on GitHub?')) return;
-      
-      isRunning = true;
-      document.getElementById('runBtn').disabled = true;
-      document.getElementById('summary').classList.remove('show');
-      
-      var stats = { updated: 0, skipped: 0, errors: 0 };
-      var total = FILES_TO_UPDATE.length;
-      var current = 0;
-      
-      for (var i = 0; i < FILES_TO_UPDATE.length; i++) {
-        var file = FILES_TO_UPDATE[i];
-        setFileStatus(file, 'processing');
-        
-        try {
-          var resp = await fetch(
-            CONFIG.GITHUB_API + '/repos/' + CONFIG.GITHUB_REPO + '/contents/' + file + '?ref=' + CONFIG.GITHUB_BRANCH,
-            { headers: { 'Authorization': 'token ' + token } }
-          );
-          
-          if (!resp.ok) throw new Error('Fetch failed: ' + resp.status);
-          
-          var data = await resp.json();
-          var content = decodeBase64(data.content.replace(/\n/g, ''));
-          var sha = data.sha;
-          
-          if (content.indexOf('transliterate.js') !== -1) {
-            setFileStatus(file, 'skipped', '⏭️ Already has it');
-            stats.skipped++;
-            current++;
-            updateProgress(current, total);
-            continue;
-          }
-          
-          if (content.indexOf(ANCHOR_TAG) === -1) {
-            setFileStatus(file, 'error', '❌ No anchor');
-            stats.errors++;
-            current++;
-            updateProgress(current, total);
-            continue;
-          }
-          
-          var newContent = content.replace(ANCHOR_TAG, '  ' + SCRIPT_TAG + '\n  ' + ANCHOR_TAG);
-          var b64 = encodeBase64(newContent);
-          
-          var upResp = await fetch(
-            CONFIG.GITHUB_API + '/repos/' + CONFIG.GITHUB_REPO + '/contents/' + file,
-            {
-              method: 'PUT',
-              headers: {
-                'Authorization': 'token ' + token,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                message: 'Add transliterate.js to ' + file,
-                content: b64,
-                sha: sha,
-                branch: CONFIG.GITHUB_BRANCH
-              })
-            }
-          );
-          
-          if (!upResp.ok) {
-            var err = await upResp.json();
-            throw new Error(err.message || 'Upload failed');
-          }
-          
-          setFileStatus(file, 'success', '✅ Updated');
-          stats.updated++;
-          
-        } catch (err) {
-          console.error('Error:', file, err);
-          setFileStatus(file, 'error', '❌ ' + (err.message || 'Error'));
-          stats.errors++;
-        }
-        
-        current++;
-        updateProgress(current, total);
-        await new Promise(function(r) { setTimeout(r, 500); });
-      }
-      
-      document.getElementById('sumTotal').textContent = total;
-      document.getElementById('sumUpdated').textContent = stats.updated;
-      document.getElementById('sumSkipped').textContent = stats.skipped;
-      document.getElementById('sumErrors').textContent = stats.errors;
-      document.getElementById('summary').classList.add('show');
-      
-      isRunning = false;
-      document.getElementById('runBtn').disabled = false;
-    }
-    
-    function resetAll() {
-      if (isRunning) { alert('Running...'); return; }
-      if (!confirm('Reset?')) return;
-      initFileList();
-      document.getElementById('summary').classList.remove('show');
-      document.getElementById('progressBar').classList.remove('show');
-      document.getElementById('progressFill').style.width = '0%';
-    }
-    
-    window.addEventListener('load', function() {
-      checkToken();
-      initFileList();
-    });
-  </script>
+  <script src="/assets/js/bulk-update.js"></script>
 </body>
 </html>
