@@ -1,4 +1,4 @@
-/* ============================================
+/* ============================================ 
    CATEGORIES.JS - Categories Management with Auto-Load & Auto-Save
    Loads categories from GitHub, saves new ones automatically
    Used by: add-new-post, edit-post
