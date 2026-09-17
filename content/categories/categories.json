@@ -54,6 +54,13 @@
       "slug": "iphone-17-pro",
       "description": "",
       "createdAt": "2026-09-17T05:53:48.787Z"
+    },
+    {
+      "id": "cat_1789624796385",
+      "title": "iPhone 12 mini",
+      "slug": "iphone-12-mini",
+      "description": "",
+      "createdAt": "2026-09-17T05:59:56.385Z"
     }
   ]
 }
