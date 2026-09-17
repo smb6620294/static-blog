@@ -38,7 +38,7 @@
   },
   "single_post": {
     "show_related_posts": true,
-    "related_posts_count": 1,
+    "related_posts_count": 2,
     "related_posts_based_on": "both",
     "show_comments": true,
     "show_author_box": true
@@ -47,5 +47,5 @@
     "show_widgets": true,
     "widgets_position": "right"
   },
-  "updated_at": "2026-09-17T05:34:36.792Z"
+  "updated_at": "2026-09-17T05:35:43.279Z"
 }
