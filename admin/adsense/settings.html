@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdSense Settings - Admin</title>
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  <style>
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1d2327; }
+    .form-group input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #8c8f94; border-radius: 4px; font-size: 14px; box-sizing: border-box; font-family: 'Consolas', monospace; }
+    .form-group input:focus { border-color: #2271b1; outline: none; box-shadow: 0 0 0 1px #2271b1; }
+    .form-group .note { font-size: 12px; color: #646970; margin-top: 6px; }
+    
+    .toggle-row { display: flex; align-items: center; gap: 12px; padding: 14px; background: #f6f7f7; border-radius: 6px; margin-bottom: 18px; }
+    .toggle-row label { font-weight: 600; margin: 0; cursor: pointer; flex: 1; }
+    .toggle-switch { position: relative; width: 50px; height: 26px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; transition: 0.3s; border-radius: 34px; }
+    .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; transition: 0.3s; border-radius: 50%; }
+    input:checked + .toggle-slider { background: #00a32a; }
+    input:checked + .toggle-slider:before { transform: translateX(24px); }
+    
+    .info-box { background: #f0f6fc; border-left: 4px solid #2271b1; padding: 14px 18px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; line-height: 1.7; }
+    .info-box code { background: #fff; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+    
+    .form-actions { margin-top: 25px; padding-top: 20px; border-top: 1px solid #dcdcde; }
+    
+    .status-message { padding: 12px 16px; border-radius: 4px; margin-top: 16px; font-size: 13px; display: none; }
+    .status-message.success { background: #edfaef; color: #00a32a; border-left: 4px solid #00a32a; display: block; }
+    .status-message.error { background: #fcf0f1; color: #d63638; border-left: 4px solid #d63638; display: block; }
+    
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #dcdcde; flex-wrap: wrap; }
+    .nav-tab { padding: 10px 18px; font-size: 13px; color: #50575e; text-decoration: none; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; background: transparent; font-family: inherit; }
+    .nav-tab:hover { background: #f6f7f7; color: #2271b1; }
+    .nav-tab.active { background: #fff; border-color: #dcdcde; border-bottom-color: #fff; color: #2271b1; font-weight: 600; margin-bottom: -1px; }
+  </style>
+</head>
+<body>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
+    
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">💰 AdSense Settings</h1>
+        <a href="../index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+      </div>
+      
+      <!-- Nav Tabs -->
+      <div class="nav-tabs">
+        <a href="index.html" class="nav-tab">📊 Dashboard</a>
+        <a href="settings.html" class="nav-tab active">⚙️ Settings</a>
+        <a href="units.html" class="nav-tab">📦 Ad Units</a>
+        <a href="pages.html" class="nav-tab">📄 Pages</a>
+      </div>
+      
+      <div class="info-box">
+        ℹ️ <b>AdSense Configuration:</b> یہاں اپنا AdSense Publisher ID ڈالیں اور AdSense کو Enable/Disable کریں۔<br>
+        اپنا Publisher ID <code>https://adsense.google.com</code> سے حاصل کریں۔
+      </div>
+      
+      <div class="admin-card">
+        
+        <!-- Master Toggle -->
+        <div class="toggle-row">
+          <label for="adsenseEnabled">AdSense Enabled</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="adsenseEnabled">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <!-- Publisher ID -->
+        <div class="form-group">
+          <label>Publisher ID</label>
+          <input type="text" id="publisherId" placeholder="ca-pub-XXXXXXXXXXXXXXXX">
+          <div class="note">یہ ID تمام Ad Units کے لیے استعمال ہوگی</div>
+        </div>
+        
+        <!-- Auto Ads -->
+        <div class="toggle-row">
+          <label for="autoAds">Auto Ads (Google خودکار Ads لگائے)</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoAds">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <!-- Actions -->
+        <div class="form-actions">
+          <button class="wp-btn wp-btn-primary" id="saveBtn" onclick="saveSettings()" style="padding: 12px 30px;">💾 Save Settings</button>
+          <button class="wp-btn wp-btn-secondary" onclick="loadSettings()" style="padding: 12px 20px; margin-left: 10px;">🔄 Reload</button>
+        </div>
+        
+        <div class="status-message" id="statusMessage"></div>
+        
+      </div>
+      
+    </main>
+  </div>
+
+  <script src="/assets/js/transliterate.js"></script>
+  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  
+  <script>
+    const CONFIG_FILE = 'admin/adsense/config/config.json';
+    
+    // ==================== LOAD SETTINGS ====================
+    async function loadSettings() {
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      console.log('📥 Loading AdSense settings...');
+      
+      try {
+        let data = await fetchFileFromGitHub(CONFIG_FILE);
+        
+        if (data) {
+          document.getElementById('adsenseEnabled').checked = data.enabled || false;
+          document.getElementById('publisherId').value = data.publisher_id || '';
+          document.getElementById('autoAds').checked = data.auto_ads || false;
+          console.log('✅ Settings loaded:', data);
+        } else {
+          console.log('ℹ️ No settings found, using defaults');
+        }
+      } catch (err) {
+        console.warn('Could not load settings:', err);
+      }
+    }
+    
+    // ==================== SAVE SETTINGS ====================
+    async function saveSettings() {
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      let enabled = document.getElementById('adsenseEnabled').checked;
+      let publisherId = document.getElementById('publisherId').value.trim();
+      let autoAds = document.getElementById('autoAds').checked;
+      
+      // Validate Publisher ID if enabled
+      if (enabled && !publisherId) {
+        showStatus('⚠️ Publisher ID ضروری ہے جب AdSense Enabled ہو', 'error');
+        return;
+      }
+      
+      if (enabled && !publisherId.startsWith('ca-pub-')) {
+        showStatus('⚠️ Publisher ID "ca-pub-" سے شروع ہونی چاہیے', 'error');
+        return;
+      }
+      
+      let btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Saving...';
+      
+      try {
+        let configData = {
+          enabled: enabled,
+          publisher_id: publisherId,
+          auto_ads: autoAds,
+          updated_at: new Date().toISOString()
+        };
+        
+        let jsonContent = JSON.stringify(configData, null, 2);
+        let contentBase64 = encodeBase64(jsonContent);
+        
+        await uploadFileToGitHub(
+          CONFIG_FILE,
+          contentBase64,
+          `Update AdSense settings`
+        );
+        
+        showStatus('✅ Settings saved successfully!', 'success');
+        showToast('✅ AdSense settings saved!', 'success');
+        console.log('✅ Settings saved:', configData);
+        
+      } catch (err) {
+        console.error('Save error:', err);
+        showStatus('❌ Error: ' + err.message, 'error');
+      }
+      
+      btn.disabled = false;
+      btn.textContent = '💾 Save Settings';
+    }
+    
+    // ==================== STATUS MESSAGE ====================
+    function showStatus(message, type) {
+      let el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = 'status-message ' + type;
+      
+      setTimeout(() => {
+        el.className = 'status-message';
+      }, 5000);
+    }
+    
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', async function() {
+      checkToken();
+      await loadSettings();
+    });
+  </script>
+</body>
+</html>
