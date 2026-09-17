@@ -47,6 +47,13 @@
       "slug": "iphone-17",
       "description": "",
       "createdAt": "2026-09-15T19:32:34.741Z"
+    },
+    {
+      "id": "cat_1789624428787",
+      "title": "iPhone 17 Pro",
+      "slug": "iphone-17-pro",
+      "description": "",
+      "createdAt": "2026-09-17T05:53:48.787Z"
     }
   ]
 }
