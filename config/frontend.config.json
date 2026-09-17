@@ -16,7 +16,7 @@
     ]
   },
   "homepage": {
-    "posts_per_page": 5,
+    "posts_per_page": 1,
     "excerpt_length": 200,
     "pagination_type": "numbered",
     "pagination_pages_shown": 5,
@@ -30,7 +30,7 @@
   },
   "rss": {
     "enabled": true,
-    "posts_count": 10,
+    "posts_count": 2,
     "language": "en",
     "include_full_content": false,
     "include_featured_image": true,
@@ -38,7 +38,7 @@
   },
   "single_post": {
     "show_related_posts": true,
-    "related_posts_count": 2,
+    "related_posts_count": 3,
     "related_posts_based_on": "both",
     "show_comments": true,
     "show_author_box": true
@@ -47,5 +47,5 @@
     "show_widgets": true,
     "widgets_position": "right"
   },
-  "updated_at": "2026-09-17T05:35:43.279Z"
+  "updated_at": "2026-09-17T05:36:44.511Z"
 }
