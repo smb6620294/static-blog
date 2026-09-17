@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bulk Path Updater - Admin</title>
-  <link rel="stylesheet" href="/admin/assets/css/admin.css">
+  <link rel="stylesheet" href="/admin/admin/assets/css/admin.css">
   <style>
     .info-box {
       background: #f0f6fc;
@@ -113,8 +113,8 @@
         تمام <b>Admin HTML فائلوں</b> میں پرانے paths کو نئے paths سے تبدیل کرے گا۔
         <br><br>
         <b>مثال:</b><br>
-        <code>/assets/css/admin.css</code> → <code>/admin/assets/css/admin.css</code><br>
-        <code>/assets/js/token.js</code> → <code>/admin/assets/js/token.js</code>
+        <code>/admin/assets/css/admin.css</code> → <code>/admin/admin/assets/css/admin.css</code><br>
+        <code>/admin/assets/js/token.js</code> → <code>/admin/admin/assets/js/token.js</code>
       </div>
       
       <div class="info-box">
@@ -160,11 +160,11 @@
 
   <!-- Modules (Admin path — نئی جگہ سے) -->
   <script src="/assets/js/transliterate.js"></script>
-  <script src="/admin/assets/js/load-sidebar.js"></script>
+  <script src="/admin/admin/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/utils.js"></script>
-  <script src="/admin/assets/js/token.js"></script>
-  <script src="/admin/assets/js/github-api.js"></script>
+  <script src="/admin/admin/assets/js/token.js"></script>
+  <script src="/admin/admin/assets/js/github-api.js"></script>
   
   <script>
     // ==================== CONFIG ====================
@@ -193,22 +193,22 @@
     // Path replacements (ترتیب اہم ہے!)
     const PATH_REPLACEMENTS = [
       // CSS
-      { from: /\/assets\/css\/admin\.css/g, to: '/admin/assets/css/admin.css' },
+      { from: /\/assets\/css\/admin\.css/g, to: '/admin/admin/assets/css/admin.css' },
       
       // JS files (Admin)
-      { from: /\/assets\/js\/token\.js/g, to: '/admin/assets/js/token.js' },
-      { from: /\/assets\/js\/github-api\.js/g, to: '/admin/assets/js/github-api.js' },
-      { from: /\/assets\/js\/editor\.js/g, to: '/admin/assets/js/editor.js' },
-      { from: /\/assets\/js\/tags\.js/g, to: '/admin/assets/js/tags.js' },
-      { from: /\/assets\/js\/categories\.js/g, to: '/admin/assets/js/categories.js' },
-      { from: /\/assets\/js\/image-upload\.js/g, to: '/admin/assets/js/image-upload.js' },
-      { from: /\/assets\/js\/seo\.js/g, to: '/admin/assets/js/seo.js' },
-      { from: /\/assets\/js\/post-form\.js/g, to: '/admin/assets/js/post-form.js' },
-      { from: /\/assets\/js\/load-sidebar\.js/g, to: '/admin/assets/js/load-sidebar.js' },
-      { from: /\/assets\/js\/bulk-update\.js/g, to: '/admin/assets/js/bulk-update.js' },
+      { from: /\/assets\/js\/token\.js/g, to: '/admin/admin/assets/js/token.js' },
+      { from: /\/assets\/js\/github-api\.js/g, to: '/admin/admin/assets/js/github-api.js' },
+      { from: /\/assets\/js\/editor\.js/g, to: '/admin/admin/assets/js/editor.js' },
+      { from: /\/assets\/js\/tags\.js/g, to: '/admin/admin/assets/js/tags.js' },
+      { from: /\/assets\/js\/categories\.js/g, to: '/admin/admin/assets/js/categories.js' },
+      { from: /\/assets\/js\/image-upload\.js/g, to: '/admin/admin/assets/js/image-upload.js' },
+      { from: /\/assets\/js\/seo\.js/g, to: '/admin/admin/assets/js/seo.js' },
+      { from: /\/assets\/js\/post-form\.js/g, to: '/admin/admin/assets/js/post-form.js' },
+      { from: /\/assets\/js\/load-sidebar\.js/g, to: '/admin/admin/assets/js/load-sidebar.js' },
+      { from: /\/assets\/js\/bulk-update\.js/g, to: '/admin/admin/assets/js/bulk-update.js' },
       
       // Components
-      { from: /\/assets\/components\/sidebar\.html/g, to: '/admin/assets/components/sidebar.html' }
+      { from: /\/assets\/components\/sidebar\.html/g, to: '/admin/admin/assets/components/sidebar.html' }
     ];
     
     // ==================== STATE ====================
