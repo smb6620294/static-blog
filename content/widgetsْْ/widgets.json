@@ -1,0 +1,74 @@
+{
+  "widgets": [
+    {
+      "id": "w_search",
+      "type": "search",
+      "title": "🔍 Search",
+      "position": "sidebar",
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "w_adsense_1",
+      "type": "adsense",
+      "title": "AdSense Block",
+      "slot_name": "sidebar-top",
+      "position": "sidebar",
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "id": "w_about",
+      "type": "html",
+      "title": "ℹ️ About",
+      "content": "<p>Welcome to my blog! Here I share my thoughts on technology, news, and lifestyle.</p>",
+      "position": "sidebar",
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "id": "w_categories",
+      "type": "categories",
+      "title": "📂 Categories",
+      "position": "sidebar",
+      "order": 4,
+      "enabled": true
+    },
+    {
+      "id": "w_recent",
+      "type": "recent-posts",
+      "title": "📝 Recent Posts",
+      "count": 5,
+      "position": "sidebar",
+      "order": 5,
+      "enabled": true
+    },
+    {
+      "id": "w_adsense_2",
+      "type": "adsense",
+      "title": "AdSense Block",
+      "slot_name": "sidebar-bottom",
+      "position": "sidebar",
+      "order": 6,
+      "enabled": true
+    },
+    {
+      "id": "w_tags",
+      "type": "tags",
+      "title": "🏷️ Tags",
+      "count": 20,
+      "position": "sidebar",
+      "order": 7,
+      "enabled": true
+    },
+    {
+      "id": "w_html_custom",
+      "type": "html",
+      "title": "📢 Follow Us",
+      "content": "<p style='text-align:center;'>Follow us on social media!</p><div style='display:flex;justify-content:center;gap:10px;margin-top:10px;font-size:24px;'><a href='#' style='text-decoration:none;'>📘</a><a href='#' style='text-decoration:none;'>📷</a><a href='#' style='text-decoration:none;'>🐦</a></div>",
+      "position": "sidebar",
+      "order": 8,
+      "enabled": true
+    }
+  ]
+}
