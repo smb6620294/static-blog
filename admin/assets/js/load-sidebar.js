@@ -1,5 +1,7 @@
 /* ============================================
    LOAD SIDEBAR + HIGHLIGHT ACTIVE ITEM
+   Admin Panel Sidebar Loader
+   Path: /admin/assets/components/sidebar.html
    ============================================ */
 
 (function() {
@@ -8,10 +10,13 @@
   // ---- 1. Load sidebar.html into #sidebar-container ----
   async function loadSidebar() {
     let container = document.getElementById('sidebar-container');
-    if (!container) return;
+    if (!container) {
+      console.warn('⚠️ sidebar-container not found');
+      return;
+    }
 
     try {
-           let response = await fetch('/admin/assets/components/sidebar.html');
+      let response = await fetch('/admin/assets/components/sidebar.html');
       if (!response.ok) throw new Error('Sidebar not found');
       let html = await response.text();
       container.innerHTML = html;
@@ -53,13 +58,13 @@
     if (page === '' || page === '/') page = 'index';
 
     // Find matching submenu item
-    let activeItem = document.querySelector(`.submenu-item[data-page="${page}"]`);
+    let activeItem = document.querySelector('.submenu-item[data-page="' + page + '"]');
     
     if (activeItem) {
       activeItem.classList.add('active');
     } else {
       // Check top-level items
-      let activeTop = document.querySelector(`.menu-item[data-page="${page}"]`);
+      let activeTop = document.querySelector('.menu-item[data-page="' + page + '"]');
       if (activeTop) activeTop.classList.add('active');
     }
   }
@@ -119,3 +124,5 @@
   }
 
 })();
+
+console.log('✅ load-sidebar.js loaded — path: /admin/assets/components/sidebar.html');
