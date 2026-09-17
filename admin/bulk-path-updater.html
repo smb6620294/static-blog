@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Path Updater - Admin</title>
+  <link rel="stylesheet" href="/admin/assets/css/admin.css">
+  <style>
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 14px 18px; border-radius: 4px;
+      margin-bottom: 20px; font-size: 13px; line-height: 1.8;
+    }
+    .info-box.warning {
+      background: #fff8e5;
+      border-left-color: #dba617;
+    }
+    .info-box code {
+      background: #fff; padding: 2px 6px; border-radius: 3px;
+      font-size: 12px; color: #d63638;
+    }
+    .file-list {
+      border: 1px solid #dcdcde; border-radius: 4px;
+      overflow: hidden; margin-bottom: 20px;
+      max-height: 500px; overflow-y: auto;
+      background: #fff;
+    }
+    .file-item {
+      padding: 12px 16px; border-bottom: 1px solid #f0f0f1;
+      font-size: 13px;
+    }
+    .file-item:last-child { border-bottom: none; }
+    .file-item:hover { background: #f6f7f7; }
+    .file-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      flex-wrap: wrap;
+    }
+    .file-name {
+      font-family: 'Consolas', monospace;
+      color: #1d2327; flex: 1;
+    }
+    .file-status {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 10px;
+      min-width: 110px; text-align: center;
+    }
+    .status-pending { background: #f0f0f1; color: #646970; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-success { background: #d4edda; color: #155724; }
+    .status-skipped { background: #fff3cd; color: #856404; }
+    .status-error { background: #f8d7da; color: #721c24; }
+    .action-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .action-bar button {
+      flex: 1; padding: 12px; font-size: 14px;
+      font-weight: 600; border-radius: 4px;
+      border: none; cursor: pointer; font-family: inherit;
+      min-width: 150px;
+    }
+    .btn-run { background: #2271b1; color: #fff; }
+    .btn-run:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-reset { background: #f6f7f7; color: #2271b1; border: 1px solid #2271b1 !important; }
+    .progress-bar {
+      width: 100%; height: 20px;
+      background: #f0f0f1; border-radius: 10px;
+      overflow: hidden; margin-top: 15px; display: none;
+    }
+    .progress-bar.show { display: block; }
+    .progress-fill {
+      height: 100%; background: #2271b1; width: 0%;
+      transition: width 0.3s; display: flex;
+      align-items: center; justify-content: center;
+      color: #fff; font-size: 11px; font-weight: 600;
+    }
+    .summary {
+      background: #edfaef; border-left: 4px solid #00a32a;
+      padding: 16px; border-radius: 4px;
+      margin-top: 20px; display: none; font-size: 13px;
+    }
+    .summary.show { display: block; }
+    .summary h3 { margin: 0 0 10px; color: #00a32a; font-size: 15px; }
+    .stat { display: flex; justify-content: space-between; padding: 3px 0; }
+    .stat span:last-child { font-weight: 600; }
+    .status-message {
+      padding: 12px 16px; border-radius: 4px;
+      margin-top: 16px; font-size: 13px; display: none;
+    }
+    .status-message.success {
+      background: #edfaef; color: #00a32a;
+      border-left: 4px solid #00a32a; display: block;
+    }
+    .status-message.error {
+      background: #fcf0f1; color: #d63638;
+      border-left: 4px solid #d63638; display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
+    
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">🔄 Bulk Path Updater</h1>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+      </div>
+      
+      <div class="info-box warning">
+        ⚠️ <b>یہ tool کیا کرے گا:</b><br>
+        تمام <b>Admin HTML فائلوں</b> میں پرانے paths کو نئے paths سے تبدیل کرے گا۔
+        <br><br>
+        <b>مثال:</b><br>
+        <code>/assets/css/admin.css</code> → <code>/admin/assets/css/admin.css</code><br>
+        <code>/assets/js/token.js</code> → <code>/admin/assets/js/token.js</code>
+      </div>
+      
+      <div class="info-box">
+        ℹ️ <b>نوٹ:</b> یہ <b>3 مشترکہ فائلیں</b> ویسے ہی رہیں گی (نہیں بدلیں گی):<br>
+        • <code>/assets/js/config.js</code><br>
+        • <code>/assets/js/utils.js</code><br>
+        • <code>/assets/js/transliterate.js</code>
+      </div>
+      
+      <div class="admin-card">
+        
+        <h3 style="margin-top: 0;">📁 Admin HTML Files (13)</h3>
+        
+        <div class="file-list" id="fileList"></div>
+        
+        <div class="action-bar">
+          <button class="btn-run" id="runBtn" onclick="runBulkUpdate()">
+            🚀 Run Path Update
+          </button>
+          <button class="btn-reset" onclick="resetAll()">
+            🔄 Reset
+          </button>
+        </div>
+        
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+        
+        <div class="summary" id="summary">
+          <h3>✅ Path Update Complete!</h3>
+          <div class="stat"><span>Total files:</span><span id="sumTotal">0</span></div>
+          <div class="stat"><span>Updated:</span><span id="sumUpdated" style="color:#00a32a;">0</span></div>
+          <div class="stat"><span>Skipped (no changes):</span><span id="sumSkipped" style="color:#856404;">0</span></div>
+          <div class="stat"><span>Errors:</span><span id="sumErrors" style="color:#d63638;">0</span></div>
+        </div>
+        
+        <div class="status-message" id="statusMessage"></div>
+        
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Modules (Admin path — نئی جگہ سے) -->
+  <script src="/assets/js/transliterate.js"></script>
+  <script src="/admin/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/admin/assets/js/token.js"></script>
+  <script src="/admin/assets/js/github-api.js"></script>
+  
+  <script>
+    // ==================== CONFIG ====================
+    // تمام Admin HTML فائلیں (adsense کے ساتھ)
+    const FILES_TO_UPDATE = [
+      'admin/index.html',
+      'admin/add-new-post.html',
+      'admin/edit-post.html',
+      'admin/all-posts.html',
+      'admin/add-new-category.html',
+      'admin/edit-category.html',
+      'admin/add-new-tag.html',
+      'admin/edit-tag.html',
+      'admin/general-settings.html',
+      'admin/import-export.html',
+      'admin/code-editor.html',
+      'admin/bulk-update.html',
+      'admin/bulk-file-mover.html',
+      'admin/bulk-path-updater.html',
+      'admin/adsense/index.html',
+      'admin/adsense/settings.html',
+      'admin/adsense/units.html',
+      'admin/adsense/pages.html'
+    ];
+    
+    // Path replacements (ترتیب اہم ہے!)
+    const PATH_REPLACEMENTS = [
+      // CSS
+      { from: /\/assets\/css\/admin\.css/g, to: '/admin/assets/css/admin.css' },
+      
+      // JS files (Admin)
+      { from: /\/assets\/js\/token\.js/g, to: '/admin/assets/js/token.js' },
+      { from: /\/assets\/js\/github-api\.js/g, to: '/admin/assets/js/github-api.js' },
+      { from: /\/assets\/js\/editor\.js/g, to: '/admin/assets/js/editor.js' },
+      { from: /\/assets\/js\/tags\.js/g, to: '/admin/assets/js/tags.js' },
+      { from: /\/assets\/js\/categories\.js/g, to: '/admin/assets/js/categories.js' },
+      { from: /\/assets\/js\/image-upload\.js/g, to: '/admin/assets/js/image-upload.js' },
+      { from: /\/assets\/js\/seo\.js/g, to: '/admin/assets/js/seo.js' },
+      { from: /\/assets\/js\/post-form\.js/g, to: '/admin/assets/js/post-form.js' },
+      { from: /\/assets\/js\/load-sidebar\.js/g, to: '/admin/assets/js/load-sidebar.js' },
+      { from: /\/assets\/js\/bulk-update\.js/g, to: '/admin/assets/js/bulk-update.js' },
+      
+      // Components
+      { from: /\/assets\/components\/sidebar\.html/g, to: '/admin/assets/components/sidebar.html' }
+    ];
+    
+    // ==================== STATE ====================
+    let fileStates = {};
+    let isRunning = false;
+    
+    // ==================== INIT FILE LIST ====================
+    function initFileList() {
+      let list = document.getElementById('fileList');
+      list.innerHTML = '';
+      
+      FILES_TO_UPDATE.forEach(file => {
+        fileStates[file] = 'pending';
+        
+        let item = document.createElement('div');
+        item.className = 'file-item';
+        item.id = 'file-' + file.replace(/[^a-z0-9]/gi, '-');
+        item.innerHTML = `
+          <div class="file-row">
+            <span class="file-name">${file}</span>
+            <span class="file-status status-pending">⏳ Pending</span>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+    
+    // ==================== SET FILE STATUS ====================
+    function setFileStatus(file, status, message) {
+      fileStates[file] = status;
+      
+      let item = document.getElementById('file-' + file.replace(/[^a-z0-9]/gi, '-'));
+      if (!item) return;
+      
+      let statusEl = item.querySelector('.file-status');
+      let map = {
+        'pending': ['status-pending', '⏳ Pending'],
+        'processing': ['status-processing', '🔄 Processing...'],
+        'success': ['status-success', '✅ Updated'],
+        'skipped': ['status-skipped', '⏭️ No change'],
+        'error': ['status-error', '❌ Error']
+      };
+      let s = map[status] || map.pending;
+      statusEl.className = 'file-status ' + s[0];
+      statusEl.textContent = message || s[1];
+    }
+    
+    // ==================== UPDATE PROGRESS ====================
+    function updateProgress(current, total) {
+      let percent = Math.round((current / total) * 100);
+      document.getElementById('progressBar').classList.add('show');
+      let fill = document.getElementById('progressFill');
+      fill.style.width = percent + '%';
+      fill.textContent = percent + '% (' + current + '/' + total + ')';
+    }
+    
+    // ==================== REPLACE PATHS ====================
+    function replacePaths(content) {
+      let newContent = content;
+      let changes = 0;
+      
+      PATH_REPLACEMENTS.forEach(rule => {
+        let before = newContent;
+        newContent = newContent.replace(rule.from, rule.to);
+        if (before !== newContent) changes++;
+      });
+      
+      return { content: newContent, changed: changes > 0, changeCount: changes };
+    }
+    
+    // ==================== MAIN: RUN BULK UPDATE ====================
+    async function runBulkUpdate() {
+      if (isRunning) return;
+      
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      if (!confirm('یہ tool ' + FILES_TO_UPDATE.length + ' فائلوں میں paths اپڈیٹ کرے گا۔\n\nجاری رکھیں؟')) {
+        return;
+      }
+      
+      isRunning = true;
+      document.getElementById('runBtn').disabled = true;
+      document.getElementById('summary').classList.remove('show');
+      document.getElementById('statusMessage').className = 'status-message';
+      
+      let stats = { updated: 0, skipped: 0, errors: 0, total: FILES_TO_UPDATE.length };
+      let total = FILES_TO_UPDATE.length;
+      let current = 0;
+      
+      for (let file of FILES_TO_UPDATE) {
+        setFileStatus(file, 'processing');
+        
+        try {
+          // 1. Fetch current content from GitHub
+          let response = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file}?ref=${CONFIG.GITHUB_BRANCH}`,
+            { headers: { 'Authorization': `token ${token}` } }
+          );
+          
+          if (!response.ok) {
+            console.warn('⏭️ File not found:', file);
+            setFileStatus(file, 'skipped', '⏭️ Not found');
+            stats.skipped++;
+            current++;
+            updateProgress(current, total);
+            continue;
+          }
+          
+          let data = await response.json();
+          let content = decodeBase64(data.content.replace(/\n/g, ''));
+          let sha = data.sha;
+          
+          // 2. Replace paths
+          let result = replacePaths(content);
+          
+          if (!result.changed) {
+            console.log('⏭️ No changes needed:', file);
+            setFileStatus(file, 'skipped', '⏭️ No change');
+            stats.skipped++;
+            current++;
+            updateProgress(current, total);
+            continue;
+          }
+          
+          // 3. Upload updated content
+          let contentBase64 = encodeBase64(result.content);
+          
+          let uploadResponse = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file}`,
+            {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Update paths in ${file} (${result.changeCount} changes)`,
+                content: contentBase64,
+                sha: sha,
+                branch: CONFIG.GITHUB_BRANCH
+              })
+            }
+          );
+          
+          if (!uploadResponse.ok) {
+            let err = await uploadResponse.json();
+            throw new Error(err.message || 'Upload failed');
+          }
+          
+          console.log('✅ Updated:', file, '(' + result.changeCount + ' changes)');
+          setFileStatus(file, 'success', '✅ ' + result.changeCount + ' changes');
+          stats.updated++;
+          
+        } catch (err) {
+          console.error('❌ Error:', file, err);
+          setFileStatus(file, 'error', '❌ ' + (err.message || 'Error'));
+          stats.errors++;
+        }
+        
+        current++;
+        updateProgress(current, total);
+        await new Promise(r => setTimeout(r, 600));
+      }
+      
+      // Summary
+      document.getElementById('sumTotal').textContent = stats.total;
+      document.getElementById('sumUpdated').textContent = stats.updated;
+      document.getElementById('sumSkipped').textContent = stats.skipped;
+      document.getElementById('sumErrors').textContent = stats.errors;
+      document.getElementById('summary').classList.add('show');
+      
+      showStatus('✅ Bulk path update complete!', 'success');
+      showToast('✅ Done!', 'success');
+      
+      isRunning = false;
+      document.getElementById('runBtn').disabled = false;
+    }
+    
+    // ==================== RESET ====================
+    function resetAll() {
+      if (isRunning) { alert('Running...'); return; }
+      if (!confirm('Reset?')) return;
+      initFileList();
+      document.getElementById('summary').classList.remove('show');
+      document.getElementById('progressBar').classList.remove('show');
+      document.getElementById('progressFill').style.width = '0%';
+    }
+    
+    // ==================== STATUS ====================
+    function showStatus(message, type) {
+      let el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = 'status-message ' + type;
+      setTimeout(() => el.className = 'status-message', 5000);
+    }
+    
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', function() {
+      checkToken();
+      initFileList();
+    });
+  </script>
+</body>
+</html>
