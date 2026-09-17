@@ -1,7 +1,7 @@
 /* ============================================
    FRONTEND.CSS - Public Site Styles
    30% Sidebar (sticky) + 70% Main Content
-   Path: /assets/frontend/css/frontend.css
+   Empty fields → empty space (no shifts)
    ============================================ */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -221,7 +221,7 @@ a:hover { text-decoration: underline; }
   gap: 20px;
 }
 
-/* Post Card */
+/* ============ POST CARD ============ */
 .post-card {
   background: #fff;
   border-radius: 8px;
@@ -265,30 +265,38 @@ a:hover { text-decoration: underline; }
 
 .post-meta span { display: flex; align-items: center; gap: 4px; }
 
+/* ============ POST BODY (Image + Excerpt) ============ */
 .post-body {
   padding: 20px 24px;
   display: grid;
-  grid-template-columns: 200px 1fr;
   gap: 20px;
   align-items: start;
 }
 
+/* جب image دکھانی ہو (چاہے خالی ہو) — 200px خالی رہے */
+.post-body.with-image {
+  grid-template-columns: 200px 1fr;
+}
+
+/* جب image بالکل نہ دکھانی ہو — پوری چوڑائی */
 .post-body.no-image {
   grid-template-columns: 1fr;
 }
 
+/* ============ POST IMAGE ============ */
 .post-image {
   width: 100%;
   height: 150px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f0f0f1;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #999;
   font-size: 40px;
   background-size: cover;
   background-position: center;
+  border: 1px solid #e0e0e0;
 }
 
 .post-excerpt {
@@ -297,6 +305,7 @@ a:hover { text-decoration: underline; }
   line-height: 1.7;
 }
 
+/* ============ POST FOOTER ============ */
 .post-footer {
   padding: 12px 24px 20px;
   display: flex;
@@ -336,7 +345,7 @@ a:hover { text-decoration: underline; }
 
 .read-more:hover { text-decoration: underline; }
 
-/* ============ ADSENSE PLACEHOLDER (Test Mode) ============ */
+/* ============ ADSENSE PLACEHOLDER ============ */
 .adsense-placeholder {
   background: #f9f9f9;
   border: 2px dashed #ccc;
@@ -513,6 +522,10 @@ a:hover { text-decoration: underline; }
     grid-template-columns: 1fr;
   }
   
+  .post-body.with-image {
+    grid-template-columns: 1fr;
+  }
+  
   .post-image {
     height: 200px;
   }
@@ -522,7 +535,7 @@ a:hover { text-decoration: underline; }
   .site-nav {
     display: none;
     width: 100%;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: flex-start;
     padding-top: 15px;
     border-top: 1px solid #eee;
