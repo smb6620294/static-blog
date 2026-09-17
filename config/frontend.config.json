@@ -16,7 +16,7 @@
     ]
   },
   "homepage": {
-    "posts_per_page": 10,
+    "posts_per_page": 5,
     "excerpt_length": 200,
     "pagination_type": "numbered",
     "pagination_pages_shown": 5,
@@ -47,5 +47,5 @@
     "show_widgets": true,
     "widgets_position": "right"
   },
-  "updated_at": "2026-09-17T05:27:36.922Z"
+  "updated_at": "2026-09-17T05:32:17.112Z"
 }
