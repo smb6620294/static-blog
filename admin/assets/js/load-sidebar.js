@@ -11,7 +11,7 @@
     if (!container) return;
 
     try {
-      let response = await fetch('/assets/components/sidebar.html');
+           let response = await fetch('/admin/assets/components/sidebar.html');
       if (!response.ok) throw new Error('Sidebar not found');
       let html = await response.text();
       container.innerHTML = html;
