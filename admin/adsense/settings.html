@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,32 +8,112 @@
   <style>
     .form-group { margin-bottom: 18px; }
     .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1d2327; }
-    .form-group input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #8c8f94; border-radius: 4px; font-size: 14px; box-sizing: border-box; font-family: 'Consolas', monospace; }
-    .form-group input:focus { border-color: #2271b1; outline: none; box-shadow: 0 0 0 1px #2271b1; }
-    .form-group .note { font-size: 12px; color: #646970; margin-top: 6px; }
+    .form-group input[type="text"] {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #8c8f94; border-radius: 4px;
+      font-size: 14px; box-sizing: border-box;
+      font-family: 'Consolas', monospace;
+    }
+    .form-group input:focus {
+      border-color: #2271b1; outline: none;
+      box-shadow: 0 0 0 1px #2271b1;
+    }
+    .form-group .note { font-size: 12px; color: #646970; margin-top: 6px; line-height: 1.5; }
     
-    .toggle-row { display: flex; align-items: center; gap: 12px; padding: 14px; background: #f6f7f7; border-radius: 6px; margin-bottom: 18px; }
-    .toggle-row label { font-weight: 600; margin: 0; cursor: pointer; flex: 1; }
-    .toggle-switch { position: relative; width: 50px; height: 26px; }
+    .toggle-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; background: #f6f7f7;
+      border-radius: 6px; margin-bottom: 14px;
+      border: 1px solid #e0e0e0;
+    }
+    .toggle-row.highlight {
+      background: #fff8e5;
+      border-color: #dba617;
+    }
+    .toggle-row label { font-weight: 600; margin: 0; cursor: pointer; flex: 1; font-size: 14px; }
+    .toggle-row .subtitle { font-size: 12px; color: #646970; font-weight: normal; margin-top: 3px; }
+    
+    .toggle-switch { position: relative; width: 50px; height: 26px; flex-shrink: 0; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; transition: 0.3s; border-radius: 34px; }
-    .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; transition: 0.3s; border-radius: 50%; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #ccc; transition: 0.3s; border-radius: 34px;
+    }
+    .toggle-slider:before {
+      position: absolute; content: ""; height: 20px; width: 20px;
+      left: 3px; bottom: 3px; background: #fff;
+      transition: 0.3s; border-radius: 50%;
+    }
     input:checked + .toggle-slider { background: #00a32a; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
     
-    .info-box { background: #f0f6fc; border-left: 4px solid #2271b1; padding: 14px 18px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; line-height: 1.7; }
-    .info-box code { background: #fff; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 14px 18px; border-radius: 4px;
+      margin-bottom: 20px; font-size: 13px; line-height: 1.8;
+    }
+    .info-box.warning {
+      background: #fff8e5;
+      border-left-color: #dba617;
+    }
+    .info-box code {
+      background: #fff; padding: 2px 6px; border-radius: 3px;
+      font-size: 12px; color: #d63638;
+    }
     
     .form-actions { margin-top: 25px; padding-top: 20px; border-top: 1px solid #dcdcde; }
     
-    .status-message { padding: 12px 16px; border-radius: 4px; margin-top: 16px; font-size: 13px; display: none; }
-    .status-message.success { background: #edfaef; color: #00a32a; border-left: 4px solid #00a32a; display: block; }
-    .status-message.error { background: #fcf0f1; color: #d63638; border-left: 4px solid #d63638; display: block; }
+    .status-message {
+      padding: 12px 16px; border-radius: 4px;
+      margin-top: 16px; font-size: 13px; display: none;
+    }
+    .status-message.success {
+      background: #edfaef; color: #00a32a;
+      border-left: 4px solid #00a32a; display: block;
+    }
+    .status-message.error {
+      background: #fcf0f1; color: #d63638;
+      border-left: 4px solid #d63638; display: block;
+    }
+    .status-message.info {
+      background: #f0f6fc; color: #2271b1;
+      border-left: 4px solid #2271b1; display: block;
+    }
     
-    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #dcdcde; flex-wrap: wrap; }
-    .nav-tab { padding: 10px 18px; font-size: 13px; color: #50575e; text-decoration: none; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; background: transparent; font-family: inherit; }
+    .nav-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px;
+      border-bottom: 1px solid #dcdcde; flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 10px 18px; font-size: 13px;
+      color: #50575e; text-decoration: none;
+      border: 1px solid transparent; border-bottom: none;
+      border-radius: 4px 4px 0 0; cursor: pointer;
+      background: transparent; font-family: inherit;
+    }
     .nav-tab:hover { background: #f6f7f7; color: #2271b1; }
-    .nav-tab.active { background: #fff; border-color: #dcdcde; border-bottom-color: #fff; color: #2271b1; font-weight: 600; margin-bottom: -1px; }
+    .nav-tab.active {
+      background: #fff; border-color: #dcdcde;
+      border-bottom-color: #fff; color: #2271b1;
+      font-weight: 600; margin-bottom: -1px;
+    }
+    
+    .test-mode-banner {
+      background: linear-gradient(135deg, #fff8e5 0%, #fef3c7 100%);
+      border: 2px dashed #dba617;
+      border-radius: 8px; padding: 16px 20px;
+      margin-bottom: 20px; display: none;
+    }
+    .test-mode-banner.show { display: block; }
+    .test-mode-banner h3 {
+      margin: 0 0 8px; color: #92400e;
+      font-size: 15px; display: flex; align-items: center; gap: 8px;
+    }
+    .test-mode-banner p {
+      margin: 0; color: #78350f;
+      font-size: 13px; line-height: 1.6;
+    }
   </style>
 </head>
 <body>
@@ -57,17 +137,30 @@
       </div>
       
       <div class="info-box">
-        ℹ️ <b>AdSense Configuration:</b> یہاں اپنا AdSense Publisher ID ڈالیں اور AdSense کو Enable/Disable کریں۔<br>
+        ℹ️ <b>AdSense Configuration</b><br>
+        یہاں اپنا <b>AdSense Publisher ID</b> ڈالیں اور AdSense کو Enable/Disable کریں۔<br>
         اپنا Publisher ID <code>https://adsense.google.com</code> سے حاصل کریں۔
+      </div>
+      
+      <!-- Test Mode Banner (shown when test mode is ON) -->
+      <div class="test-mode-banner" id="testModeBanner">
+        <h3>🧪 Test Mode Active</h3>
+        <p>
+          AdSense کی جگہ <b>Placeholder Boxes</b> دکھ رہے ہیں۔ یہ ڈھانچہ ٹیسٹ کرنے کے لیے ہے۔<br>
+          جب آپ کا AdSense account اپروو ہو جائے، تو Test Mode بند کر کے اصل Publisher ID ڈالیں۔
+        </p>
       </div>
       
       <div class="admin-card">
         
         <!-- Master Toggle -->
         <div class="toggle-row">
-          <label for="adsenseEnabled">AdSense Enabled</label>
+          <label for="adsenseEnabled">
+            💰 AdSense Enabled
+            <div class="subtitle">پوری ویب سائٹ پر AdSense کو ON/OFF کریں</div>
+          </label>
           <label class="toggle-switch">
-            <input type="checkbox" id="adsenseEnabled">
+            <input type="checkbox" id="adsenseEnabled" onchange="onMasterToggle()">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -76,12 +169,32 @@
         <div class="form-group">
           <label>Publisher ID</label>
           <input type="text" id="publisherId" placeholder="ca-pub-XXXXXXXXXXXXXXXX">
-          <div class="note">یہ ID تمام Ad Units کے لیے استعمال ہوگی</div>
+          <div class="note">
+            یہ ID تمام Ad Units کے لیے استعمال ہوگی۔<br>
+            ⚠️ فارمیٹ: <b>ca-pub-</b> سے شروع ہونی چاہیے
+          </div>
+        </div>
+        
+        <!-- Test Mode (Highlighted) -->
+        <div class="toggle-row highlight">
+          <label for="testMode">
+            🧪 Test Mode (دکھاوے کے Ads)
+            <div class="subtitle">
+              ON کرنے سے AdSense کی جگہ <b>Placeholder Boxes</b> دکھیں گے — تاکہ آپ ڈھانچہ ٹیسٹ کر سکیں۔
+            </div>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="testMode" onchange="onTestModeToggle()">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
         
         <!-- Auto Ads -->
         <div class="toggle-row">
-          <label for="autoAds">Auto Ads (Google خودکار Ads لگائے)</label>
+          <label for="autoAds">
+            🤖 Auto Ads
+            <div class="subtitle">Google خودکار Ads لگائے گا (تجویز کردہ نہیں)</div>
+          </label>
           <label class="toggle-switch">
             <input type="checkbox" id="autoAds">
             <span class="toggle-slider"></span>
@@ -90,8 +203,12 @@
         
         <!-- Actions -->
         <div class="form-actions">
-          <button class="wp-btn wp-btn-primary" id="saveBtn" onclick="saveSettings()" style="padding: 12px 30px;">💾 Save Settings</button>
-          <button class="wp-btn wp-btn-secondary" onclick="loadSettings()" style="padding: 12px 20px; margin-left: 10px;">🔄 Reload</button>
+          <button class="wp-btn wp-btn-primary" id="saveBtn" onclick="saveSettings()" style="padding: 12px 30px; font-size: 14px;">
+            💾 Save Settings
+          </button>
+          <button class="wp-btn wp-btn-secondary" onclick="loadSettings()" style="padding: 12px 20px; margin-left: 10px;">
+            🔄 Reload
+          </button>
         </div>
         
         <div class="status-message" id="statusMessage"></div>
@@ -101,6 +218,9 @@
     </main>
   </div>
 
+  <!-- ============================================
+       JAVASCRIPT MODULES
+       ============================================ -->
   <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
@@ -117,20 +237,28 @@
       if (!token) { promptForToken(); return; }
       
       console.log('📥 Loading AdSense settings...');
+      showStatus('⏳ Loading...', 'info');
       
       try {
         let data = await fetchFileFromGitHub(CONFIG_FILE);
         
-        if (data) {
+        if (data && typeof data === 'object') {
           document.getElementById('adsenseEnabled').checked = data.enabled || false;
           document.getElementById('publisherId').value = data.publisher_id || '';
           document.getElementById('autoAds').checked = data.auto_ads || false;
+          document.getElementById('testMode').checked = data.test_mode || false;
+          
           console.log('✅ Settings loaded:', data);
+          showStatus('✅ Settings loaded', 'success');
+          
+          updateTestModeBanner();
         } else {
-          console.log('ℹ️ No settings found, using defaults');
+          console.log('ℹ️ No settings file found, using defaults');
+          showStatus('ℹ️ No settings found — defaults loaded', 'info');
         }
       } catch (err) {
         console.warn('Could not load settings:', err);
+        showStatus('⚠️ Could not load: ' + err.message, 'error');
       }
     }
     
@@ -142,18 +270,36 @@
       let enabled = document.getElementById('adsenseEnabled').checked;
       let publisherId = document.getElementById('publisherId').value.trim();
       let autoAds = document.getElementById('autoAds').checked;
+      let testMode = document.getElementById('testMode').checked;
       
-      // Validate Publisher ID if enabled
-      if (enabled && !publisherId) {
-        showStatus('⚠️ Publisher ID ضروری ہے جب AdSense Enabled ہو', 'error');
-        return;
+      // ========== VALIDATION ==========
+      
+      // If AdSense is enabled AND test mode is OFF, Publisher ID is required
+      if (enabled && !testMode) {
+        if (!publisherId) {
+          showStatus('⚠️ Publisher ID ضروری ہے جب AdSense Enabled ہو (یا Test Mode ON کریں)', 'error');
+          return;
+        }
+        
+        if (!publisherId.startsWith('ca-pub-')) {
+          showStatus('⚠️ Publisher ID "ca-pub-" سے شروع ہونی چاہیے', 'error');
+          return;
+        }
+        
+        if (publisherId.length < 20) {
+          showStatus('⚠️ Publisher ID مکمل نہیں ہے', 'error');
+          return;
+        }
       }
       
-      if (enabled && !publisherId.startsWith('ca-pub-')) {
-        showStatus('⚠️ Publisher ID "ca-pub-" سے شروع ہونی چاہیے', 'error');
-        return;
+      // If test mode is ON, warn but allow
+      if (testMode && enabled) {
+        if (!confirm('⚠️ Test Mode ON ہے۔\n\nاس سے AdSense کی جگہ Placeholder Boxes دکھیں گے۔\n\nکیا آپ جاری رکھنا چاہتے ہیں؟')) {
+          return;
+        }
       }
       
+      // ========== SAVE ==========
       let btn = document.getElementById('saveBtn');
       btn.disabled = true;
       btn.textContent = '⏳ Saving...';
@@ -163,6 +309,7 @@
           enabled: enabled,
           publisher_id: publisherId,
           auto_ads: autoAds,
+          test_mode: testMode,
           updated_at: new Date().toISOString()
         };
         
@@ -172,12 +319,14 @@
         await uploadFileToGitHub(
           CONFIG_FILE,
           contentBase64,
-          `Update AdSense settings`
+          `Update AdSense settings${testMode ? ' (test mode)' : ''}`
         );
         
         showStatus('✅ Settings saved successfully!', 'success');
         showToast('✅ AdSense settings saved!', 'success');
         console.log('✅ Settings saved:', configData);
+        
+        updateTestModeBanner();
         
       } catch (err) {
         console.error('Save error:', err);
@@ -186,6 +335,51 @@
       
       btn.disabled = false;
       btn.textContent = '💾 Save Settings';
+    }
+    
+    // ==================== TOGGLE HANDLERS ====================
+    function onMasterToggle() {
+      let enabled = document.getElementById('adsenseEnabled').checked;
+      let testMode = document.getElementById('testMode').checked;
+      
+      if (enabled && !testMode) {
+        // Check if publisher ID is empty
+        let pubId = document.getElementById('publisherId').value.trim();
+        if (!pubId) {
+          // Suggest enabling test mode
+          setTimeout(() => {
+            if (confirm('💰 Publisher ID ابھی خالی ہے۔\n\nکیا آپ Test Mode ON کرنا چاہتے ہیں تاکہ ڈھانچہ ٹیسٹ ہو سکے؟')) {
+              document.getElementById('testMode').checked = true;
+              updateTestModeBanner();
+            }
+          }, 100);
+        }
+      }
+    }
+    
+    function onTestModeToggle() {
+      let testMode = document.getElementById('testMode').checked;
+      
+      if (testMode) {
+        // Auto-enable AdSense if test mode is on
+        if (!document.getElementById('adsenseEnabled').checked) {
+          document.getElementById('adsenseEnabled').checked = true;
+        }
+      }
+      
+      updateTestModeBanner();
+    }
+    
+    // ==================== UPDATE TEST MODE BANNER ====================
+    function updateTestModeBanner() {
+      let testMode = document.getElementById('testMode').checked;
+      let banner = document.getElementById('testModeBanner');
+      
+      if (testMode) {
+        banner.classList.add('show');
+      } else {
+        banner.classList.remove('show');
+      }
     }
     
     // ==================== STATUS MESSAGE ====================
