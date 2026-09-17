@@ -3,80 +3,521 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - General Settings</title>
+  <title>General Settings - Admin</title>
+  <link rel="stylesheet" href="/admin/assets/css/admin.css">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h1 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
-    .btn { background: #007bff; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
-    .btn:hover { background: #0056b3; }
-    .note { font-size: 12px; color: #666; margin-top: 5px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #1d2327; }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #8c8f94; border-radius: 4px;
+      font-size: 14px; box-sizing: border-box;
+      font-family: inherit; background: #fff;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: #2271b1; outline: none;
+      box-shadow: 0 0 0 1px #2271b1;
+    }
+    .form-group .note { font-size: 12px; color: #646970; margin-top: 5px; line-height: 1.5; }
+    
+    .row { display: flex; gap: 15px; }
+    .row .form-group { flex: 1; }
+    
+    .section-title {
+      font-size: 15px; font-weight: 700; color: #1d2327;
+      margin: 25px 0 15px; padding-bottom: 8px;
+      border-bottom: 2px solid #2271b1;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    
+    .toggle-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; background: #f6f7f7;
+      border-radius: 6px; margin-bottom: 10px;
+      border: 1px solid #e0e0e0;
+    }
+    .toggle-row label { font-weight: 600; margin: 0; cursor: pointer; flex: 1; font-size: 13px; }
+    .toggle-switch { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #ccc; transition: 0.3s; border-radius: 24px;
+    }
+    .toggle-slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px;
+      left: 3px; bottom: 3px; background: #fff;
+      transition: 0.3s; border-radius: 50%;
+    }
+    input:checked + .toggle-slider { background: #00a32a; }
+    input:checked + .toggle-slider:before { transform: translateX(22px); }
+    
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 12px 16px; border-radius: 4px;
+      margin-bottom: 20px; font-size: 13px; line-height: 1.7;
+    }
+    .info-box code {
+      background: #fff; padding: 2px 6px;
+      border-radius: 3px; font-size: 12px;
+      color: #d63638;
+    }
+    
+    .form-actions {
+      margin-top: 25px; padding-top: 20px;
+      border-top: 1px solid #dcdcde;
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    
+    .status-message {
+      padding: 12px 16px; border-radius: 4px;
+      margin-top: 16px; font-size: 13px; display: none;
+    }
+    .status-message.success {
+      background: #edfaef; color: #00a32a;
+      border-left: 4px solid #00a32a; display: block;
+    }
+    .status-message.error {
+      background: #fcf0f1; color: #d63638;
+      border-left: 4px solid #d63638; display: block;
+    }
+    .status-message.info {
+      background: #f0f6fc; color: #2271b1;
+      border-left: 4px solid #2271b1; display: block;
+    }
+    
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #dcdcde; flex-wrap: wrap; }
+    .nav-tab { padding: 10px 18px; font-size: 13px; color: #50575e; text-decoration: none; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; background: transparent; font-family: inherit; }
+    .nav-tab:hover { background: #f6f7f7; color: #2271b1; }
+    .nav-tab.active { background: #fff; border-color: #dcdcde; border-bottom-color: #fff; color: #2271b1; font-weight: 600; margin-bottom: -1px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>General Settings (Admin)</h1>
-    <p class="note">Admin panel is strictly in English.</p>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
     
-    <div class="form-group">
-      <label>Site Title</label>
-      <input type="text" id="siteTitle" value="My Static Blog">
-    </div>
-
-    <div class="form-group">
-      <label>Tagline</label>
-      <input type="text" id="tagline" value="Fast, Modern, Netlify-ready">
-    </div>
-
-    <div class="form-group">
-      <label>Site URL</label>
-      <input type="text" id="siteUrl" value="https://example.netlify.app">
-    </div>
-
-    <div class="form-group">
-      <label>Admin Email Address</label>
-      <input type="email" id="adminEmail" value="admin@example.com">
-    </div>
-
-    <div class="form-group">
-      <label>Timezone</label>
-      <select id="timezone">
-        <option value="Europe/Moscow">Europe/Moscow</option>
-        <option value="Asia/Karachi">Asia/Karachi</option>
-        <option value="UTC">UTC</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Date Format</label>
-      <select id="dateFormat">
-        <option value="DD.MM.YYYY">DD.MM.YYYY</option>
-        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Public Language (Frontend Only)</label>
-      <select id="publicLanguage">
-        <option value="ru">Russian (Primary)</option>
-        <option value="ur">Urdu</option>
-        <option value="ar">Arabic</option>
-        <option value="en">English</option>
-      </select>
-    </div>
-
-    <button class="btn" onclick="saveSettings()">Save Settings</button>
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">⚙️ General Settings</h1>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+      </div>
+      
+      <div class="info-box">
+        ℹ️ یہاں سے اپنی ویب سائٹ کی <b>Homepage display</b>، <b>Pagination</b>، <b>RSS Feed</b>، اور <b>Site metadata</b> کنٹرول کریں۔
+      </div>
+      
+      <div class="admin-card">
+        
+        <!-- ============ SITE METADATA ============ -->
+        <h2 class="section-title">🌐 Site Information</h2>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Site Title</label>
+            <input type="text" id="siteTitle" placeholder="My Static Blog">
+          </div>
+          <div class="form-group">
+            <label>Tagline</label>
+            <input type="text" id="siteTagline" placeholder="Fast, Modern, Netlify-ready">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Site URL</label>
+          <input type="text" id="siteUrl" placeholder="https://links.kakproveritiphone.ru">
+          <div class="note">یہ URL تمام RSS, Sitemap, اور Schema میں استعمال ہوگی۔</div>
+        </div>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Admin Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@example.com">
+          </div>
+          <div class="form-group">
+            <label>Timezone</label>
+            <select id="siteTimezone">
+              <option value="Asia/Karachi">Asia/Karachi (PKT)</option>
+              <option value="Europe/Moscow">Europe/Moscow (MSK)</option>
+              <option value="UTC">UTC</option>
+              <option value="America/New_York">America/New_York (EST)</option>
+              <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Date Format</label>
+            <select id="dateFormat">
+              <option value="YYYY-MM-DD">YYYY-MM-DD (2026-09-17)</option>
+              <option value="DD/MM/YYYY">DD/MM/YYYY (17/09/2026)</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY (09/17/2026)</option>
+              <option value="DD.MM.YYYY">DD.MM.YYYY (17.09.2026)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Time Format</label>
+            <select id="timeFormat">
+              <option value="24h">24-hour</option>
+              <option value="12h">12-hour (AM/PM)</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- ============ HOMEPAGE DISPLAY ============ -->
+        <h2 class="section-title">🏠 Homepage Display</h2>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Posts per Page</label>
+            <input type="number" id="postsPerPage" min="1" max="50" value="10">
+            <div class="note">ایک صفحے پر کتنی پوسٹس دکھائیں (1-50)</div>
+          </div>
+          <div class="form-group">
+            <label>Excerpt Length (words)</label>
+            <input type="number" id="excerptLength" min="20" max="500" value="200">
+            <div class="note">خلاصے کی زیادہ سے زیادہ لمبائی</div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Pagination Type</label>
+            <select id="paginationType">
+              <option value="numbered">Numbered (1, 2, 3...)</option>
+              <option value="prev-next">Previous / Next</option>
+              <option value="load-more">Load More Button</option>
+              <option value="infinite">Infinite Scroll</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pagination Pages Shown</label>
+            <input type="number" id="paginationPages" min="3" max="10" value="5">
+            <div class="note">پیجینیشن میں کتنے نمبر دکھائیں</div>
+          </div>
+        </div>
+        
+        <!-- Homepage toggles -->
+        <div class="toggle-row">
+          <label for="showFeaturedImage">🖼️ Show Featured Image in List</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showFeaturedImage" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showExcerpt">📄 Show Excerpt</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showExcerpt" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showAuthor">👤 Show Author</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showAuthor" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showDate">📅 Show Date</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showDate" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showCategories">📂 Show Categories on Posts</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showCategories" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showTags">🏷️ Show Tags on Posts</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showTags" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="form-group">
+          <label>Read More Button Text</label>
+          <input type="text" id="readMoreText" value="Read More →" placeholder="Read More →">
+        </div>
+        
+        <!-- ============ RSS FEED ============ -->
+        <h2 class="section-title">📡 RSS Feed</h2>
+        
+        <div class="toggle-row">
+          <label for="rssEnabled">📡 Enable RSS Feed</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="rssEnabled" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Posts in RSS Feed</label>
+            <input type="number" id="rssPostsCount" min="1" max="50" value="10">
+            <div class="note">RSS میں کتنی پوسٹس دکھائیں</div>
+          </div>
+          <div class="form-group">
+            <label>RSS Language</label>
+            <select id="rssLanguage">
+              <option value="ru">Russian (ru)</option>
+              <option value="ur">Urdu (ur)</option>
+              <option value="ar">Arabic (ar)</option>
+              <option value="en">English (en)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="rssFullContent">📰 Full Content in RSS</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="rssFullContent">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="rssFeaturedImage">🖼️ Featured Image in RSS</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="rssFeaturedImage" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <!-- ============ SINGLE POST ============ -->
+        <h2 class="section-title">📝 Single Post</h2>
+        
+        <div class="toggle-row">
+          <label for="showRelatedPosts">🔗 Show Related Posts</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showRelatedPosts" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="row">
+          <div class="form-group">
+            <label>Related Posts Count</label>
+            <input type="number" id="relatedPostsCount" min="1" max="6" value="3">
+          </div>
+          <div class="form-group">
+            <label>Related Posts Based On</label>
+            <select id="relatedPostsBasedOn">
+              <option value="both">Categories + Tags</option>
+              <option value="categories">Only Categories</option>
+              <option value="tags">Only Tags</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showComments">💬 Show Comments Section</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showComments" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <label for="showAuthorBox">👤 Show Author Box</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showAuthorBox" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <!-- ============ SAVE BUTTON ============ -->
+        <div class="form-actions">
+          <button class="wp-btn wp-btn-primary" id="saveBtn" onclick="saveSettings()" style="padding: 12px 30px; font-size: 14px;">
+            💾 Save Settings
+          </button>
+          <button class="wp-btn wp-btn-secondary" onclick="loadSettings()" style="padding: 12px 20px;">
+            🔄 Reload
+          </button>
+        </div>
+        
+        <div class="status-message" id="statusMessage"></div>
+        
+      </div>
+      
+    </main>
   </div>
 
+  <!-- Admin Modules -->
+  <script src="/assets/js/transliterate.js"></script>
+  <script src="/admin/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/admin/assets/js/token.js"></script>
+  <script src="/admin/assets/js/github-api.js"></script>
+  
   <script>
-    function saveSettings() {
-      alert('Settings saved locally (Demo only). To save to GitHub, we will need a backend later.');
-      // Yahan hum baad mein GitHub API ya Netlify Function connect karenge
+    const CONFIG_FILE = 'config/frontend.config.json';
+    
+    // ==================== LOAD SETTINGS ====================
+    async function loadSettings() {
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      showStatus('⏳ Loading...', 'info');
+      
+      try {
+        let data = await fetchFileFromGitHub(CONFIG_FILE);
+        
+        if (data) {
+          // Site metadata
+          let meta = data.site_metadata || {};
+          document.getElementById('siteTitle').value = meta.site_title || '';
+          document.getElementById('siteTagline').value = meta.site_tagline || '';
+          document.getElementById('siteUrl').value = meta.site_url || '';
+          document.getElementById('adminEmail').value = meta.admin_email || '';
+          document.getElementById('siteTimezone').value = meta.timezone || 'Asia/Karachi';
+          document.getElementById('dateFormat').value = meta.date_format || 'YYYY-MM-DD';
+          document.getElementById('timeFormat').value = meta.time_format || '24h';
+          
+          // Homepage
+          let hp = data.homepage || {};
+          document.getElementById('postsPerPage').value = hp.posts_per_page || 10;
+          document.getElementById('excerptLength').value = hp.excerpt_length || 200;
+          document.getElementById('paginationType').value = hp.pagination_type || 'numbered';
+          document.getElementById('paginationPages').value = hp.pagination_pages_shown || 5;
+          document.getElementById('showFeaturedImage').checked = hp.show_featured_image !== false;
+          document.getElementById('showExcerpt').checked = hp.show_excerpt !== false;
+          document.getElementById('showAuthor').checked = hp.show_author !== false;
+          document.getElementById('showDate').checked = hp.show_date !== false;
+          document.getElementById('showCategories').checked = hp.show_categories !== false;
+          document.getElementById('showTags').checked = hp.show_tags !== false;
+          document.getElementById('readMoreText').value = hp.read_more_text || 'Read More →';
+          
+          // RSS
+          let rss = data.rss || {};
+          document.getElementById('rssEnabled').checked = rss.enabled !== false;
+          document.getElementById('rssPostsCount').value = rss.posts_count || 10;
+          document.getElementById('rssLanguage').value = rss.language || 'ru';
+          document.getElementById('rssFullContent').checked = rss.include_full_content || false;
+          document.getElementById('rssFeaturedImage').checked = rss.include_featured_image !== false;
+          
+          // Single post
+          let sp = data.single_post || {};
+          document.getElementById('showRelatedPosts').checked = sp.show_related_posts !== false;
+          document.getElementById('relatedPostsCount').value = sp.related_posts_count || 3;
+          document.getElementById('relatedPostsBasedOn').value = sp.related_posts_based_on || 'both';
+          document.getElementById('showComments').checked = sp.show_comments !== false;
+          document.getElementById('showAuthorBox').checked = sp.show_author_box !== false;
+          
+          showStatus('✅ Settings loaded', 'success');
+        } else {
+          showStatus('ℹ️ No settings found — defaults loaded', 'info');
+        }
+      } catch (err) {
+        showStatus('⚠️ ' + err.message, 'error');
+      }
     }
+    
+    // ==================== SAVE SETTINGS ====================
+    async function saveSettings() {
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      let btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Saving...';
+      
+      try {
+        let configData = {
+          site_metadata: {
+            site_title: document.getElementById('siteTitle').value.trim(),
+            site_tagline: document.getElementById('siteTagline').value.trim(),
+            site_url: document.getElementById('siteUrl').value.trim(),
+            admin_email: document.getElementById('adminEmail').value.trim(),
+            timezone: document.getElementById('siteTimezone').value,
+            date_format: document.getElementById('dateFormat').value,
+            time_format: document.getElementById('timeFormat').value,
+            public_language: 'ru',
+            available_languages: ['ru', 'ur', 'ar', 'en']
+          },
+          homepage: {
+            posts_per_page: parseInt(document.getElementById('postsPerPage').value) || 10,
+            excerpt_length: parseInt(document.getElementById('excerptLength').value) || 200,
+            pagination_type: document.getElementById('paginationType').value,
+            pagination_pages_shown: parseInt(document.getElementById('paginationPages').value) || 5,
+            show_featured_image: document.getElementById('showFeaturedImage').checked,
+            show_excerpt: document.getElementById('showExcerpt').checked,
+            show_author: document.getElementById('showAuthor').checked,
+            show_date: document.getElementById('showDate').checked,
+            show_categories: document.getElementById('showCategories').checked,
+            show_tags: document.getElementById('showTags').checked,
+            read_more_text: document.getElementById('readMoreText').value.trim()
+          },
+          rss: {
+            enabled: document.getElementById('rssEnabled').checked,
+            posts_count: parseInt(document.getElementById('rssPostsCount').value) || 10,
+            language: document.getElementById('rssLanguage').value,
+            include_full_content: document.getElementById('rssFullContent').checked,
+            include_featured_image: document.getElementById('rssFeaturedImage').checked,
+            copyright: '© 2026 My Static Blog'
+          },
+          single_post: {
+            show_related_posts: document.getElementById('showRelatedPosts').checked,
+            related_posts_count: parseInt(document.getElementById('relatedPostsCount').value) || 3,
+            related_posts_based_on: document.getElementById('relatedPostsBasedOn').value,
+            show_comments: document.getElementById('showComments').checked,
+            show_author_box: document.getElementById('showAuthorBox').checked
+          },
+          sidebar: {
+            show_widgets: true,
+            widgets_position: 'right'
+          },
+          updated_at: new Date().toISOString()
+        };
+        
+        let jsonContent = JSON.stringify(configData, null, 2);
+        let contentBase64 = encodeBase64(jsonContent);
+        
+        await uploadFileToGitHub(CONFIG_FILE, contentBase64, 'Update frontend settings');
+        
+        showStatus('✅ Settings saved successfully!', 'success');
+        showToast('✅ Settings saved!', 'success');
+        
+      } catch (err) {
+        showStatus('❌ ' + err.message, 'error');
+      }
+      
+      btn.disabled = false;
+      btn.textContent = '💾 Save Settings';
+    }
+    
+    // ==================== STATUS ====================
+    function showStatus(message, type) {
+      let el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = 'status-message ' + type;
+      setTimeout(() => el.className = 'status-message', 5000);
+    }
+    
+    // ==================== INIT ====================
+    window.addEventListener('load', function() {
+      checkToken();
+      loadSettings();
+    });
   </script>
 </body>
-</html> 
+</html>
