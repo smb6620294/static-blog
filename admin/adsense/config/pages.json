@@ -2,31 +2,69 @@
   "pages": {
     "index.html": {
       "enabled": true,
-      "units": ["index-top-banner", "after-post-title", "between-posts", "index-bottom-banner", "sidebar-top", "sidebar-bottom"]
+      "units": [
+        "index-top-banner",
+        "after-post-title",
+        "between-posts",
+        "index-bottom-banner",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "single-post.html": {
       "enabled": true,
-      "units": ["single-top", "single-in-content", "single-before-comments", "sidebar-top", "sidebar-bottom"]
+      "units": [
+        "single-top",
+        "single-in-content",
+        "single-before-comments",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "category.html": {
       "enabled": true,
-      "units": ["category-top", "after-post-title", "sidebar-top", "sidebar-bottom"]
+      "units": [
+        "category-top",
+        "after-post-title",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "tag.html": {
       "enabled": true,
-      "units": ["tag-top", "after-post-title", "sidebar-top", "sidebar-bottom"]
+      "units": [
+        "tag-top",
+        "after-post-title",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "search.html": {
-      "enabled": true,
-      "units": ["search-top", "after-post-title", "sidebar-top", "sidebar-bottom"]
+      "enabled": false,
+      "units": [
+        "search-top",
+        "after-post-title",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "about.html": {
       "enabled": true,
-      "units": ["page-top", "page-middle", "sidebar-top", "sidebar-bottom"]
+      "units": [
+        "page-top",
+        "page-middle",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "contact.html": {
       "enabled": true,
-      "units": ["page-top", "page-middle", "sidebar-top", "sidebar-bottom"]
+      "units": [
+        "page-top",
+        "page-middle",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
     },
     "404.html": {
       "enabled": false,
