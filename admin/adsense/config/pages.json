@@ -1,7 +1,7 @@
 {
   "pages": {
     "index.html": {
-      "enabled": false,
+      "enabled": true,
       "units": [
         "index-top-banner",
         "after-post-title",
