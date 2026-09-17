@@ -125,7 +125,6 @@ function loadAdSenseScript(publisherId) {
 }
 
 // ==================== INITIALIZE ====================
-// Auto-load when DOM is ready (after widgets/posts loaded)
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(loadAdSenseBlocks, 500);
