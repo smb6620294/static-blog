@@ -1,6 +1,7 @@
 /* ============================================
    FRONTEND.CSS - Public Site Styles
    30% Sidebar (sticky) + 70% Main Content
+   Path: /assets/frontend/css/frontend.css
    ============================================ */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -340,13 +341,13 @@ a:hover { text-decoration: underline; }
   background: #f9f9f9;
   border: 2px dashed #ccc;
   border-radius: 8px;
-  padding: 30px 20px;
+  padding: 20px;
   text-align: center;
   color: #999;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 1px;
-  min-height: 90px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -361,7 +362,7 @@ a:hover { text-decoration: underline; }
   display: block;
   font-weight: 700;
   color: #666;
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 2px;
 }
 
