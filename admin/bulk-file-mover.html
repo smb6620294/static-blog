@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk File Mover - Admin</title>
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  <style>
+    .form-group { margin-bottom: 18px; }
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 14px 18px; border-radius: 4px;
+      margin-bottom: 20px; font-size: 13px; line-height: 1.8;
+    }
+    .info-box.warning {
+      background: #fff8e5;
+      border-left-color: #dba617;
+    }
+    .file-list {
+      border: 1px solid #dcdcde; border-radius: 4px;
+      overflow: hidden; margin-bottom: 20px;
+      max-height: 500px; overflow-y: auto;
+      background: #fff;
+    }
+    .file-item {
+      padding: 12px 16px; border-bottom: 1px solid #f0f0f1;
+      font-size: 13px;
+    }
+    .file-item:last-child { border-bottom: none; }
+    .file-item:hover { background: #f6f7f7; }
+    .file-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      flex-wrap: wrap;
+    }
+    .file-paths { flex: 1; min-width: 300px; }
+    .file-from {
+      font-family: 'Consolas', monospace;
+      color: #d63638; font-size: 12px;
+      text-decoration: line-through;
+    }
+    .file-to {
+      font-family: 'Consolas', monospace;
+      color: #00a32a; font-size: 12px;
+      margin-top: 3px;
+    }
+    .file-arrow {
+      color: #646970; font-size: 11px; margin: 2px 0;
+    }
+    .file-status {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 10px;
+      min-width: 110px; text-align: center;
+      flex-shrink: 0;
+    }
+    .status-pending { background: #f0f0f1; color: #646970; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-success { background: #d4edda; color: #155724; }
+    .status-skipped { background: #fff3cd; color: #856404; }
+    .status-error { background: #f8d7da; color: #721c24; }
+    .action-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .action-bar button {
+      flex: 1; padding: 12px; font-size: 14px;
+      font-weight: 600; border-radius: 4px;
+      border: none; cursor: pointer; font-family: inherit;
+      min-width: 150px;
+    }
+    .btn-run { background: #2271b1; color: #fff; }
+    .btn-run:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-reset { background: #f6f7f7; color: #2271b1; border: 1px solid #2271b1 !important; }
+    .progress-bar {
+      width: 100%; height: 20px;
+      background: #f0f0f1; border-radius: 10px;
+      overflow: hidden; margin-top: 15px; display: none;
+    }
+    .progress-bar.show { display: block; }
+    .progress-fill {
+      height: 100%; background: #2271b1; width: 0%;
+      transition: width 0.3s; display: flex;
+      align-items: center; justify-content: center;
+      color: #fff; font-size: 11px; font-weight: 600;
+    }
+    .summary {
+      background: #edfaef; border-left: 4px solid #00a32a;
+      padding: 16px; border-radius: 4px;
+      margin-top: 20px; display: none; font-size: 13px;
+    }
+    .summary.show { display: block; }
+    .summary h3 { margin: 0 0 10px; color: #00a32a; font-size: 15px; }
+    .stat { display: flex; justify-content: space-between; padding: 3px 0; }
+    .stat span:last-child { font-weight: 600; }
+    .status-message {
+      padding: 12px 16px; border-radius: 4px;
+      margin-top: 16px; font-size: 13px; display: none;
+    }
+    .status-message.success {
+      background: #edfaef; color: #00a32a;
+      border-left: 4px solid #00a32a; display: block;
+    }
+    .status-message.error {
+      background: #fcf0f1; color: #d63638;
+      border-left: 4px solid #d63638; display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="admin-wrapper">
+    <div id="sidebar-container"></div>
+    
+    <main id="admin-content">
+      
+      <div class="admin-page-header">
+        <h1 class="admin-page-title">📦 Bulk File Mover</h1>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+      </div>
+      
+      <div class="info-box warning">
+        ⚠️ <b>یہ tool کیا کرے گا:</b><br>
+        <ol style="margin: 10px 0 0 20px;">
+          <li>پرانی فائل GitHub سے پڑھے گا</li>
+          <li><b>نئی جگہ پر نئی فائل بنائے گا</b> (اگر فولڈر نہیں ہے تو GitHub خودکار بنا دے گا)</li>
+          <li>پرانی فائل ڈیلیٹ کرے گا</li>
+        </ol>
+      </div>
+      
+      <div class="info-box">
+        ℹ️ <b>GitHub خودکار فولڈر بناتا ہے!</b> جب آپ نئی فائل بناتے ہیں تو GitHub خود راستے میں موجود تمام فولڈرز بنا دیتا ہے۔
+      </div>
+      
+      <div class="admin-card">
+        
+        <h3 style="margin-top: 0;">📁 Files to Move (11)</h3>
+        
+        <div class="file-list" id="fileList"></div>
+        
+        <div class="action-bar">
+          <button class="btn-run" id="runBtn" onclick="runBulkMove()">
+            🚀 Run File Mover
+          </button>
+          <button class="btn-reset" onclick="resetAll()">
+            🔄 Reset
+          </button>
+        </div>
+        
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+        
+        <div class="summary" id="summary">
+          <h3>✅ File Move Complete!</h3>
+          <div class="stat"><span>Total files:</span><span id="sumTotal">0</span></div>
+          <div class="stat"><span>Moved:</span><span id="sumMoved" style="color:#00a32a;">0</span></div>
+          <div class="stat"><span>Skipped (source not found):</span><span id="sumSkipped" style="color:#856404;">0</span></div>
+          <div class="stat"><span>Errors:</span><span id="sumErrors" style="color:#d63638;">0</span></div>
+        </div>
+        
+        <div class="status-message" id="statusMessage"></div>
+        
+      </div>
+      
+    </main>
+  </div>
+
+  <script src="/assets/js/transliterate.js"></script>
+  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/token.js"></script>
+  <script src="/assets/js/github-api.js"></script>
+  
+  <script>
+    // ==================== FILES TO MOVE ====================
+    const FILES_TO_MOVE = [
+      { from: 'assets/css/admin.css', to: 'admin/assets/css/admin.css' },
+      { from: 'assets/js/token.js', to: 'admin/assets/js/token.js' },
+      { from: 'assets/js/github-api.js', to: 'admin/assets/js/github-api.js' },
+      { from: 'assets/js/editor.js', to: 'admin/assets/js/editor.js' },
+      { from: 'assets/js/tags.js', to: 'admin/assets/js/tags.js' },
+      { from: 'assets/js/categories.js', to: 'admin/assets/js/categories.js' },
+      { from: 'assets/js/image-upload.js', to: 'admin/assets/js/image-upload.js' },
+      { from: 'assets/js/seo.js', to: 'admin/assets/js/seo.js' },
+      { from: 'assets/js/post-form.js', to: 'admin/assets/js/post-form.js' },
+      { from: 'assets/js/load-sidebar.js', to: 'admin/assets/js/load-sidebar.js' },
+      { from: 'assets/js/bulk-update.js', to: 'admin/assets/js/bulk-update.js' },
+      { from: 'assets/components/sidebar.html', to: 'admin/assets/components/sidebar.html' }
+    ];
+    
+    let isRunning = false;
+    
+    // ==================== INIT FILE LIST ====================
+    function initFileList() {
+      let list = document.getElementById('fileList');
+      list.innerHTML = '';
+      
+      FILES_TO_MOVE.forEach((file, index) => {
+        let item = document.createElement('div');
+        item.className = 'file-item';
+        item.id = 'file-' + index;
+        item.innerHTML = `
+          <div class="file-row">
+            <div class="file-paths">
+              <div class="file-from">❌ ${file.from}</div>
+              <div class="file-arrow">↓ move to ↓</div>
+              <div class="file-to">✅ ${file.to}</div>
+            </div>
+            <span class="file-status status-pending">⏳ Pending</span>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+    
+    // ==================== SET FILE STATUS ====================
+    function setFileStatus(index, status, message) {
+      let item = document.getElementById('file-' + index);
+      if (!item) return;
+      
+      let statusEl = item.querySelector('.file-status');
+      let map = {
+        'pending': ['status-pending', '⏳ Pending'],
+        'processing': ['status-processing', '🔄 Processing...'],
+        'success': ['status-success', '✅ Moved'],
+        'skipped': ['status-skipped', '⏭️ Not Found'],
+        'error': ['status-error', '❌ Error']
+      };
+      let s = map[status] || map.pending;
+      statusEl.className = 'file-status ' + s[0];
+      statusEl.textContent = message || s[1];
+    }
+    
+    // ==================== UPDATE PROGRESS ====================
+    function updateProgress(current, total) {
+      let percent = Math.round((current / total) * 100);
+      document.getElementById('progressBar').classList.add('show');
+      let fill = document.getElementById('progressFill');
+      fill.style.width = percent + '%';
+      fill.textContent = percent + '% (' + current + '/' + total + ')';
+    }
+    
+    // ==================== MAIN: RUN BULK MOVE ====================
+    async function runBulkMove() {
+      if (isRunning) return;
+      
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      if (!confirm('یہ tool ' + FILES_TO_MOVE.length + ' فائلوں کو منتقل کرے گا۔\n\nجاری رکھیں؟')) {
+        return;
+      }
+      
+      isRunning = true;
+      document.getElementById('runBtn').disabled = true;
+      document.getElementById('summary').classList.remove('show');
+      
+      let stats = { moved: 0, skipped: 0, errors: 0, total: FILES_TO_MOVE.length };
+      let total = FILES_TO_MOVE.length;
+      let current = 0;
+      
+      for (let i = 0; i < FILES_TO_MOVE.length; i++) {
+        let file = FILES_TO_MOVE[i];
+        setFileStatus(i, 'processing');
+        
+        try {
+          // STEP 1: FETCH SOURCE
+          console.log('📥 Fetching:', file.from);
+          
+          let srcResponse = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file.from}?ref=${CONFIG.GITHUB_BRANCH}`,
+            { headers: { 'Authorization': `token ${token}` } }
+          );
+          
+          if (!srcResponse.ok) {
+            console.warn('⏭️ Source not found:', file.from);
+            setFileStatus(i, 'skipped', '⏭️ Not Found');
+            stats.skipped++;
+            current++;
+            updateProgress(current, total);
+            continue;
+          }
+          
+          let srcData = await srcResponse.json();
+          let content = srcData.content;
+          
+          // STEP 2: CHECK IF DESTINATION EXISTS
+          let destSha = null;
+          try {
+            let destResponse = await fetch(
+              `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file.to}?ref=${CONFIG.GITHUB_BRANCH}`,
+              { headers: { 'Authorization': `token ${token}` } }
+            );
+            if (destResponse.ok) {
+              let destData = await destResponse.json();
+              destSha = destData.sha;
+            }
+          } catch (e) {}
+          
+          // STEP 3: CREATE DESTINATION (GitHub auto-creates folders)
+          console.log('📤 Creating:', file.to);
+          
+          let createBody = {
+            message: `Move: ${file.from} → ${file.to}`,
+            content: content,
+            branch: CONFIG.GITHUB_BRANCH
+          };
+          if (destSha) createBody.sha = destSha;
+          
+          let createResponse = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file.to}`,
+            {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(createBody)
+            }
+          );
+          
+          if (!createResponse.ok) {
+            let err = await createResponse.json();
+            throw new Error('Create failed: ' + (err.message || createResponse.status));
+          }
+          
+          // STEP 4: DELETE SOURCE
+          console.log('🗑️ Deleting:', file.from);
+          
+          let delResponse = await fetch(
+            `${CONFIG.GITHUB_API}/repos/${CONFIG.GITHUB_REPO}/contents/${file.from}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Delete old: ${file.from}`,
+                sha: srcData.sha,
+                branch: CONFIG.GITHUB_BRANCH
+              })
+            }
+          );
+          
+          if (!delResponse.ok) {
+            let err = await delResponse.json();
+            throw new Error('Delete failed: ' + (err.message || delResponse.status));
+          }
+          
+          setFileStatus(i, 'success', '✅ Moved');
+          stats.moved++;
+          
+        } catch (err) {
+          console.error('❌ Error:', file.from, err);
+          setFileStatus(i, 'error', '❌ ' + (err.message || 'Error'));
+          stats.errors++;
+        }
+        
+        current++;
+        updateProgress(current, total);
+        await new Promise(r => setTimeout(r, 800));
+      }
+      
+      document.getElementById('sumTotal').textContent = stats.total;
+      document.getElementById('sumMoved').textContent = stats.moved;
+      document.getElementById('sumSkipped').textContent = stats.skipped;
+      document.getElementById('sumErrors').textContent = stats.errors;
+      document.getElementById('summary').classList.add('show');
+      
+      showToast('✅ File move complete!', 'success');
+      
+      isRunning = false;
+      document.getElementById('runBtn').disabled = false;
+    }
+    
+    // ==================== RESET ====================
+    function resetAll() {
+      if (isRunning) { alert('Running...'); return; }
+      if (!confirm('Reset?')) return;
+      initFileList();
+      document.getElementById('summary').classList.remove('show');
+      document.getElementById('progressBar').classList.remove('show');
+      document.getElementById('progressFill').style.width = '0%';
+    }
+    
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', function() {
+      checkToken();
+      initFileList();
+    });
+  </script>
+</body>
+</html>
