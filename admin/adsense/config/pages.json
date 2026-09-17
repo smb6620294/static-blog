@@ -1,7 +1,7 @@
 {
   "pages": {
     "index.html": {
-      "enabled": true,
+      "enabled": false,
       "units": [
         "index-top-banner",
         "after-post-title",
@@ -40,7 +40,7 @@
       ]
     },
     "search.html": {
-      "enabled": false,
+      "enabled": true,
       "units": [
         "search-top",
         "after-post-title",
