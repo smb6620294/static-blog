@@ -365,6 +365,79 @@ a:hover { text-decoration: underline; }
   letter-spacing: 2px;
 }
 
+/* ============ PAGINATION ============ */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+
+.page-link {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #fff;
+  color: #2271b1;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.page-link:hover {
+  background: #2271b1;
+  color: #fff;
+  border-color: #2271b1;
+  text-decoration: none;
+}
+
+.page-link.current {
+  background: #2271b1;
+  color: #fff;
+  border-color: #2271b1;
+  font-weight: 700;
+  cursor: default;
+}
+
+.page-link.disabled {
+  color: #a7aaad;
+  background: #f6f7f7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.page-dots {
+  padding: 8px 4px;
+  color: #646970;
+  font-weight: 600;
+}
+
+.page-info {
+  padding: 8px 14px;
+  color: #646970;
+  font-size: 13px;
+}
+
+.load-more {
+  padding: 10px 24px;
+  background: #2271b1;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.load-more:hover {
+  background: #135e96;
+  color: #fff;
+}
+
 /* ============ FOOTER ============ */
 .site-footer {
   background: #1d2327;
@@ -463,4 +536,7 @@ a:hover { text-decoration: underline; }
   .post-body { padding: 15px; }
   .post-title-link { padding: 15px 15px 0; }
   .post-meta, .post-footer { padding-left: 15px; padding-right: 15px; }
+  
+  .pagination { gap: 4px; }
+  .page-link { padding: 6px 10px; font-size: 13px; }
 }
