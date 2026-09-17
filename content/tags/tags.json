@@ -77,6 +77,60 @@
       "description": "",
       "count": 0,
       "createdAt": "2026-09-15T21:15:00.154Z"
+    },
+    {
+      "id": "tag_1789624836279_ynnfp",
+      "name": "подделка iPhone",
+      "title": "подделка iPhone",
+      "slug": "poddelka-iphone",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-17T06:00:36.279Z"
+    },
+    {
+      "id": "tag_1789624836280_z9u3b",
+      "name": "проверка IMEI",
+      "title": "проверка IMEI",
+      "slug": "proverka-imei",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-17T06:00:36.280Z"
+    },
+    {
+      "id": "tag_1789624836280_5psw9",
+      "name": "как отличить оригинал",
+      "title": "как отличить оригинал",
+      "slug": "kak-otlychyt-oryhynal",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-17T06:00:36.280Z"
+    },
+    {
+      "id": "tag_1789624836280_0dvyc",
+      "name": "проверка iPhone перед покупкой",
+      "title": "проверка iPhone перед покупкой",
+      "slug": "proverka-iphone-pered-pokupkoy",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-17T06:00:36.280Z"
+    },
+    {
+      "id": "tag_1789624836280_l24sm",
+      "name": "восстановленный iPhone",
+      "title": "восстановленный iPhone",
+      "slug": "vosstanovlennyy-iphone",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-17T06:00:36.280Z"
+    },
+    {
+      "id": "tag_1789624836280_w5kci",
+      "name": "оригинальность iPhone",
+      "title": "оригинальность iPhone",
+      "slug": "oryhynalnost-iphone",
+      "description": "",
+      "count": 0,
+      "createdAt": "2026-09-17T06:00:36.280Z"
     }
   ]
 }
