@@ -1,0 +1,64 @@
+{
+  "units": [
+    {
+      "id": "unit_1",
+      "name": "Index Top Banner",
+      "slug": "index-top-banner",
+      "slot_id": "",
+      "format": "auto",
+      "responsive": true,
+      "enabled": true,
+      "createdAt": "2026-09-16T00:00:00.000Z"
+    },
+    {
+      "id": "unit_2",
+      "name": "After Post Title",
+      "slug": "after-post-title",
+      "slot_id": "",
+      "format": "auto",
+      "responsive": true,
+      "enabled": true,
+      "createdAt": "2026-09-16T00:00:00.000Z"
+    },
+    {
+      "id": "unit_3",
+      "name": "Between Posts",
+      "slug": "between-posts",
+      "slot_id": "",
+      "format": "auto",
+      "responsive": true,
+      "enabled": true,
+      "createdAt": "2026-09-16T00:00:00.000Z"
+    },
+    {
+      "id": "unit_4",
+      "name": "Index Bottom Banner",
+      "slug": "index-bottom-banner",
+      "slot_id": "",
+      "format": "auto",
+      "responsive": true,
+      "enabled": true,
+      "createdAt": "2026-09-16T00:00:00.000Z"
+    },
+    {
+      "id": "unit_5",
+      "name": "Sidebar Top",
+      "slug": "sidebar-top",
+      "slot_id": "",
+      "format": "auto",
+      "responsive": true,
+      "enabled": true,
+      "createdAt": "2026-09-16T00:00:00.000Z"
+    },
+    {
+      "id": "unit_6",
+      "name": "Sidebar Bottom",
+      "slug": "sidebar-bottom",
+      "slot_id": "",
+      "format": "auto",
+      "responsive": true,
+      "enabled": true,
+      "createdAt": "2026-09-16T00:00:00.000Z"
+    }
+  ]
+}
