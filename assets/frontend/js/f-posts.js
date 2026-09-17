@@ -1,6 +1,7 @@
 /* ============================================
    F-POSTS.JS - Frontend Posts Loader with Pagination
    Reads frontend.config.json settings
+   AdSense blocks INSIDE post cards
    ============================================ */
 
 let frontendConfig = null;
@@ -17,20 +18,19 @@ async function loadFrontendConfig() {
     
     if (response.ok) {
       frontendConfig = await response.json();
-      console.log('✅ Frontend config loaded:', frontendConfig);
+      console.log('✅ Frontend config loaded');
     } else {
       frontendConfig = getDefaultConfig();
       console.warn('⚠️ Using default config');
     }
   } catch (err) {
-    console.warn('⚠️ Config load error, using defaults:', err);
+    console.warn('⚠️ Config load error:', err);
     frontendConfig = getDefaultConfig();
   }
   
   return frontendConfig;
 }
 
-// ==================== DEFAULT CONFIG ====================
 function getDefaultConfig() {
   return {
     homepage: {
@@ -49,7 +49,7 @@ function getDefaultConfig() {
   };
 }
 
-// ==================== LOAD ALL POSTS FROM GITHUB ====================
+// ==================== LOAD ALL POSTS ====================
 async function loadAllPosts() {
   let container = document.getElementById('postsContainer');
   if (!container) return;
@@ -76,20 +76,17 @@ async function loadAllPosts() {
       }
     }
     
-    // Sort by date (newest first)
     allPosts.sort((a, b) => {
       let dateA = (a.date || '') + ' ' + (a.time || '');
       let dateB = (b.date || '') + ' ' + (b.time || '');
       return dateB.localeCompare(dateA);
     });
     
-    // Calculate total pages
     let perPage = frontendConfig.homepage.posts_per_page || 10;
     totalPages = Math.ceil(allPosts.length / perPage);
     
     console.log('✅ Loaded posts:', allPosts.length, 'Pages:', totalPages);
     
-    // Check URL for page number
     let urlParams = new URLSearchParams(window.location.search);
     currentPage = parseInt(urlParams.get('page')) || 1;
     if (currentPage < 1) currentPage = 1;
@@ -120,20 +117,13 @@ function renderPage(page) {
   
   let html = '';
   
-  // Top AdSense (only on page 1)
-  if (page === 1) {
-    html += '<div class="adsense-placeholder" data-slot="index-top-banner"></div>';
-  }
-  
   pagePosts.forEach((post, index) => {
+    // ✅ AdSense اب renderPostCard کے اندر ہے
     html += renderPostCard(post, settings);
     
-    // After Post Title AdSense
-    html += '<div class="adsense-placeholder" data-slot="after-post-title"></div>';
-    
-    // Between Posts AdSense (every 3rd)
+    // Between Posts AdSense (every 3rd post)
     if ((index + 1) % 3 === 0 && index < pagePosts.length - 1) {
-      html += '<div class="adsense-placeholder" data-slot="between-posts"></div>';
+      html += '<div class="adsense-placeholder" data-slot="between-posts" style="margin: 10px 0;"></div>';
     }
   });
   
@@ -145,12 +135,10 @@ function renderPage(page) {
   
   container.innerHTML = html;
   
-  // Re-attach AdSense
   if (typeof loadAdSenseBlocks === 'function') {
     loadAdSenseBlocks();
   }
   
-  // Scroll to top on page change
   if (page > 1) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -158,7 +146,6 @@ function renderPage(page) {
 
 // ==================== RENDER POST CARD ====================
 function renderPostCard(post, settings) {
-  // Excerpt
   let excerpt = post.excerpt || '';
   if (!excerpt && post.content) {
     let tmp = document.createElement('div');
@@ -168,7 +155,6 @@ function renderPostCard(post, settings) {
     excerpt = words.join(' ') + '...';
   }
   
-  // Image
   let imageHtml = '';
   if (settings.show_featured_image && post.image) {
     imageHtml = `<div class="post-image" style="background-image: url('${escapeHtml(post.image)}');"></div>`;
@@ -176,7 +162,6 @@ function renderPostCard(post, settings) {
     imageHtml = '<div class="post-image">📝</div>';
   }
   
-  // Meta (date + author)
   let metaHtml = '';
   if (settings.show_date || settings.show_author) {
     metaHtml = '<div class="post-meta">';
@@ -185,7 +170,6 @@ function renderPostCard(post, settings) {
     metaHtml += '</div>';
   }
   
-  // Categories
   let catsHtml = '';
   if (settings.show_categories && post.categories && post.categories.length > 0) {
     catsHtml = post.categories.slice(0, 3).map(cat => 
@@ -193,7 +177,6 @@ function renderPostCard(post, settings) {
     ).join('');
   }
   
-  // Tags
   let tagsHtml = '';
   if (settings.show_tags && post.tags && post.tags.length > 0) {
     tagsHtml = post.tags.slice(0, 3).map(tag => 
@@ -201,17 +184,23 @@ function renderPostCard(post, settings) {
     ).join('');
   }
   
-  // Excerpt HTML
   let excerptHtml = '';
   if (settings.show_excerpt) {
     excerptHtml = `<div class="post-excerpt">${escapeHtml(excerpt)}</div>`;
   }
   
+  // ============================================
+  // 🎯 AdSense Block — Title کے بعد، Meta سے پہلے
+  // ============================================
   return `
     <article class="post-card">
       <a href="/post/${escapeHtml(post.permalink || post.id)}" class="post-title-link">
         <h2 class="post-title">${escapeHtml(post.title || 'Untitled')}</h2>
       </a>
+      
+      <!-- 💰 AdSense Block -->
+      <div class="adsense-placeholder" data-slot="after-post-title" style="margin: 12px 24px;"></div>
+      
       ${metaHtml}
       <div class="post-body ${settings.show_featured_image && post.image ? '' : 'no-image'}">
         ${settings.show_featured_image ? imageHtml : ''}
@@ -232,7 +221,6 @@ function renderPagination(currentPage, totalPages, type, pagesShown) {
   let html = '<nav class="pagination">';
   
   if (type === 'prev-next') {
-    // Previous / Next
     html += currentPage > 1 
       ? `<a href="?page=${currentPage - 1}" class="page-link">← Previous</a>`
       : `<span class="page-link disabled">← Previous</span>`;
@@ -244,13 +232,11 @@ function renderPagination(currentPage, totalPages, type, pagesShown) {
       : `<span class="page-link disabled">Next →</span>`;
       
   } else if (type === 'load-more') {
-    // Load More Button
     html += currentPage < totalPages
       ? `<button class="page-link load-more" onclick="loadNextPage()">Load More Posts</button>`
       : `<span class="page-info">All posts loaded</span>`;
       
   } else {
-    // Numbered (default)
     html += currentPage > 1 
       ? `<a href="?page=${currentPage - 1}" class="page-link">← Prev</a>`
       : `<span class="page-link disabled">← Prev</span>`;
@@ -289,7 +275,6 @@ function loadNextPage() {
   if (currentPage < totalPages) {
     currentPage++;
     renderPage(currentPage);
-    // Update URL
     window.history.pushState({}, '', '?page=' + currentPage);
   }
 }
@@ -300,11 +285,10 @@ async function initFrontendPosts() {
   await loadAllPosts();
 }
 
-// Auto-init
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initFrontendPosts);
 } else {
   initFrontendPosts();
 }
 
-console.log('✅ f-posts.js loaded — with pagination + settings');
+console.log('✅ f-posts.js loaded — AdSense inside post cards');
