@@ -1,0 +1,46 @@
+{
+  "homepage": {
+    "posts_per_page": 10,
+    "pagination_type": "numbered",
+    "pagination_pages_shown": 5,
+    "show_featured_image": true,
+    "show_excerpt": true,
+    "excerpt_length": 200,
+    "show_author": true,
+    "show_date": true,
+    "show_categories": true,
+    "show_tags": true,
+    "read_more_text": "Read More →"
+  },
+  "rss": {
+    "enabled": true,
+    "posts_count": 10,
+    "include_full_content": false,
+    "include_featured_image": true,
+    "language": "en",
+    "copyright": "© 2026 My Static Blog"
+  },
+  "sidebar": {
+    "show_widgets": true,
+    "widgets_position": "right"
+  },
+  "single_post": {
+    "show_related_posts": true,
+    "related_posts_count": 3,
+    "related_posts_based_on": "both",
+    "show_comments": true,
+    "show_author_box": true
+  },
+  "site_metadata": {
+    "site_title": "My Static Blog",
+    "site_tagline": "Fast, Modern, Netlify-ready",
+    "site_url": "https://links.kakproveritiphone.ru",
+    "admin_email": "admin@example.com",
+    "timezone": "Asia/Karachi",
+    "date_format": "YYYY-MM-DD",
+    "time_format": "24h",
+    "public_language": "ru",
+    "available_languages": ["ru", "ur", "ar", "en"]
+  },
+  "updated_at": "2026-09-17T00:00:00.000Z"
+}
