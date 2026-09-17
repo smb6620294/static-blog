@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bulk File Mover - Admin</title>
-  <link rel="stylesheet" href="/assets/css/admin.css">
+  <link rel="stylesheet" href="/admin/assets/css/admin.css">
   <style>
     .form-group { margin-bottom: 18px; }
     .info-box {
@@ -164,27 +164,27 @@
   </div>
 
   <script src="/assets/js/transliterate.js"></script>
-  <script src="/assets/js/load-sidebar.js"></script>
+  <script src="/admin/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
   <script src="/assets/js/utils.js"></script>
-  <script src="/assets/js/token.js"></script>
-  <script src="/assets/js/github-api.js"></script>
+  <script src="/admin/assets/js/token.js"></script>
+  <script src="/admin/assets/js/github-api.js"></script>
   
   <script>
     // ==================== FILES TO MOVE ====================
     const FILES_TO_MOVE = [
-      { from: 'assets/css/admin.css', to: 'admin/assets/css/admin.css' },
-      { from: 'assets/js/token.js', to: 'admin/assets/js/token.js' },
-      { from: 'assets/js/github-api.js', to: 'admin/assets/js/github-api.js' },
-      { from: 'assets/js/editor.js', to: 'admin/assets/js/editor.js' },
-      { from: 'assets/js/tags.js', to: 'admin/assets/js/tags.js' },
-      { from: 'assets/js/categories.js', to: 'admin/assets/js/categories.js' },
-      { from: 'assets/js/image-upload.js', to: 'admin/assets/js/image-upload.js' },
-      { from: 'assets/js/seo.js', to: 'admin/assets/js/seo.js' },
-      { from: 'assets/js/post-form.js', to: 'admin/assets/js/post-form.js' },
-      { from: 'assets/js/load-sidebar.js', to: 'admin/assets/js/load-sidebar.js' },
-      { from: 'assets/js/bulk-update.js', to: 'admin/assets/js/bulk-update.js' },
-      { from: 'assets/components/sidebar.html', to: 'admin/assets/components/sidebar.html' }
+      { from: 'assets/css/admin.css', to: 'admin/admin/assets/css/admin.css' },
+      { from: 'assets/js/token.js', to: 'admin/admin/assets/js/token.js' },
+      { from: 'assets/js/github-api.js', to: 'admin/admin/assets/js/github-api.js' },
+      { from: 'assets/js/editor.js', to: 'admin/admin/assets/js/editor.js' },
+      { from: 'assets/js/tags.js', to: 'admin/admin/assets/js/tags.js' },
+      { from: 'assets/js/categories.js', to: 'admin/admin/assets/js/categories.js' },
+      { from: 'assets/js/image-upload.js', to: 'admin/admin/assets/js/image-upload.js' },
+      { from: 'assets/js/seo.js', to: 'admin/admin/assets/js/seo.js' },
+      { from: 'assets/js/post-form.js', to: 'admin/admin/assets/js/post-form.js' },
+      { from: 'assets/js/load-sidebar.js', to: 'admin/admin/assets/js/load-sidebar.js' },
+      { from: 'assets/js/bulk-update.js', to: 'admin/admin/assets/js/bulk-update.js' },
+      { from: 'assets/components/sidebar.html', to: 'admin/admin/assets/components/sidebar.html' }
     ];
     
     let isRunning = false;
