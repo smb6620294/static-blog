@@ -1,8 +1,17 @@
 /* ============================================
    F-POSTS.JS - Frontend Posts Loader
    Uses modular pagination (f-load-pagination.js)
-   AdSense placeholders (After Pagination included)
-   Excerpt: word-based, truncated properly
+   
+   Ad Rules (Max 3 Ads per page):
+   ├── Ad #1 → After 1st post    (always)
+   ├── Ad #2 → After 2nd post    (only if 2+ posts)
+   └── Ad #3 → After last post   (always)
+   
+   Sidebar Ads (separate):
+   ├── Sidebar Top
+   └── Sidebar Bottom
+   
+   Used by: index.html, category.html, tag.html, search.html
    ============================================ */
 
 let frontendConfig = null;
@@ -130,29 +139,39 @@ function renderPage(page) {
   }
   
   let html = '';
+  let totalPosts = pagePosts.length;
   
-  // Posts loop with placeholders
+  // ==================== POSTS LOOP WITH ADS ====================
   pagePosts.forEach((post, index) => {
+    // Render post card
     html += renderPostCard(post, settings);
     
-    // Between Posts (every 3rd)
-    if ((index + 1) % 3 === 0 && index < pagePosts.length - 1) {
-      html += '<div class="adsense-placeholder" data-slot="between-posts" style="margin: 10px 0;"></div>';
+    // ============================================
+    // Ad Placement Rules (Max 3 Ads per page)
+    // ============================================
+    
+    // Ad #1: After 1st post (index 0)
+    if (index === 0) {
+      html += '<div class="adsense-placeholder" data-slot="after-post-title" data-ad-number="1" style="margin: 15px 24px;"></div>';
+    }
+    
+    // Ad #2: After 2nd post (index 1) — only if 2+ posts
+    if (index === 1 && totalPosts >= 2) {
+      html += '<div class="adsense-placeholder" data-slot="after-post-title" data-ad-number="2" style="margin: 15px 24px;"></div>';
+    }
+    
+    // Ad #3: After last post — always
+    if (index === totalPosts - 1) {
+      html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner" data-ad-number="3" style="margin: 20px 0;"></div>';
     }
   });
   
-  // Bottom Ad (before pagination)
-  html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner"></div>';
-  
-  // Pagination
+  // ==================== PAGINATION ====================
   html += renderPagination(page, totalPages, settings.pagination_type, settings.pagination_pages_shown);
-  
-  // After Pagination Ad (NEW)
-  html += '<div class="adsense-placeholder" data-slot="after-pagination" style="margin: 30px 0 10px;"></div>';
   
   container.innerHTML = html;
   
-  // Modular pagination
+  // ==================== MODULAR PAGINATION ====================
   if (typeof initPagination === 'function') {
     initPagination({
       currentPage: page,
@@ -164,7 +183,7 @@ function renderPage(page) {
     });
   }
   
-  // Reload AdSense blocks
+  // ==================== RELOAD ADSENSE ====================
   if (typeof loadAdSenseBlocks === 'function') {
     loadAdSenseBlocks();
   }
@@ -228,8 +247,6 @@ function renderPostCard(post, settings) {
       <a href="/post/${escapeHtml(post.permalink || post.id)}" class="post-title-link">
         <h2 class="post-title">${escapeHtml(post.title || 'Untitled')}</h2>
       </a>
-      
-      <div class="adsense-placeholder" data-slot="after-post-title" style="margin: 12px 24px;"></div>
       
       ${metaHtml}
       
@@ -319,4 +336,4 @@ if (document.readyState === 'loading') {
   initFrontendPosts();
 }
 
-console.log('✅ f-posts.js loaded — with After Pagination placeholder');
+console.log('✅ f-posts.js loaded — Max 3 Ads per page (Ad #1, #2, #3)');
