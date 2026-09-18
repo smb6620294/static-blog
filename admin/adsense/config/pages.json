@@ -1,71 +1,71 @@
 {
   "pages": {
     "index.html": {
+      "name": "🏠 Homepage",
       "enabled": false,
       "units": [
         "index-top-banner",
         "after-post-title",
         "between-posts",
         "index-bottom-banner",
-        "sidebar-top"
+        "sidebar-top",
+        "sidebar-bottom",
+        "after-pagination"
       ]
     },
     "single-post.html": {
-      "enabled": true,
+      "name": "📝 Single Post",
+      "enabled": false,
       "units": [
-        "single-top",
-        "single-in-content",
-        "single-before-comments",
         "sidebar-top",
         "sidebar-bottom"
       ]
     },
     "category.html": {
-      "enabled": true,
+      "name": "📂 Category Page",
+      "enabled": false,
       "units": [
-        "category-top",
         "after-post-title",
         "sidebar-top",
         "sidebar-bottom"
       ]
     },
     "tag.html": {
-      "enabled": true,
+      "name": "🏷️ Tag Page",
+      "enabled": false,
       "units": [
-        "tag-top",
         "after-post-title",
         "sidebar-top",
         "sidebar-bottom"
       ]
     },
     "search.html": {
-      "enabled": true,
+      "name": "🔍 Search Results",
+      "enabled": false,
       "units": [
-        "search-top",
         "after-post-title",
         "sidebar-top",
         "sidebar-bottom"
       ]
     },
     "about.html": {
-      "enabled": true,
+      "name": "ℹ️ About Page",
+      "enabled": false,
       "units": [
-        "page-top",
-        "page-middle",
         "sidebar-top",
         "sidebar-bottom"
       ]
     },
     "contact.html": {
-      "enabled": true,
+      "name": "📧 Contact Page",
+      "enabled": false,
       "units": [
-        "page-top",
-        "page-middle",
         "sidebar-top",
         "sidebar-bottom"
       ]
     },
     "404.html": {
+      "name": "❌ 404 Page",
       "enabled": false,
       "units": []
     }
