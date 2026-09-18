@@ -1,6 +1,7 @@
 /* ============================================
    F-POSTS.JS - Frontend Posts Loader
    Uses modular pagination (f-load-pagination.js)
+   AdSense placeholders (After Pagination included)
    Excerpt: word-based, truncated properly
    ============================================ */
 
@@ -130,18 +131,28 @@ function renderPage(page) {
   
   let html = '';
   
+  // Posts loop with placeholders
   pagePosts.forEach((post, index) => {
     html += renderPostCard(post, settings);
+    
+    // Between Posts (every 3rd)
     if ((index + 1) % 3 === 0 && index < pagePosts.length - 1) {
       html += '<div class="adsense-placeholder" data-slot="between-posts" style="margin: 10px 0;"></div>';
     }
   });
   
+  // Bottom Ad (before pagination)
   html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner"></div>';
+  
+  // Pagination
+  html += renderPagination(page, totalPages, settings.pagination_type, settings.pagination_pages_shown);
+  
+  // After Pagination Ad (NEW)
+  html += '<div class="adsense-placeholder" data-slot="after-pagination" style="margin: 30px 0 10px;"></div>';
   
   container.innerHTML = html;
   
-  // ✅ Modular pagination
+  // Modular pagination
   if (typeof initPagination === 'function') {
     initPagination({
       currentPage: page,
@@ -153,6 +164,7 @@ function renderPage(page) {
     });
   }
   
+  // Reload AdSense blocks
   if (typeof loadAdSenseBlocks === 'function') {
     loadAdSenseBlocks();
   }
@@ -169,6 +181,7 @@ function renderPostCard(post, settings) {
     excerpt = generateExcerpt(post, settings);
   }
   
+  // Image — always occupies space
   let imageHtml = '';
   if (settings.show_featured_image) {
     if (post.image && post.image.trim() !== '') {
@@ -178,6 +191,7 @@ function renderPostCard(post, settings) {
     }
   }
   
+  // Meta
   let metaHtml = '';
   if (settings.show_date || settings.show_author) {
     metaHtml = '<div class="post-meta">';
@@ -186,6 +200,7 @@ function renderPostCard(post, settings) {
     metaHtml += '</div>';
   }
   
+  // Categories
   let catsHtml = '';
   if (settings.show_categories && post.categories && post.categories.length > 0) {
     catsHtml = post.categories.slice(0, 3).map(cat => 
@@ -193,6 +208,7 @@ function renderPostCard(post, settings) {
     ).join('');
   }
   
+  // Tags
   let tagsHtml = '';
   if (settings.show_tags && post.tags && post.tags.length > 0) {
     tagsHtml = post.tags.slice(0, 3).map(tag => 
@@ -200,11 +216,13 @@ function renderPostCard(post, settings) {
     ).join('');
   }
   
+  // Excerpt
   let excerptHtml = '';
   if (settings.show_excerpt && excerpt) {
     excerptHtml = `<div class="post-excerpt">${escapeHtml(excerpt)}</div>`;
   }
   
+  // Post Card
   return `
     <article class="post-card">
       <a href="/post/${escapeHtml(post.permalink || post.id)}" class="post-title-link">
@@ -228,6 +246,67 @@ function renderPostCard(post, settings) {
   `;
 }
 
+// ==================== RENDER PAGINATION ====================
+function renderPagination(currentPage, totalPages, type, pagesShown) {
+  if (totalPages <= 1) return '';
+  
+  let html = '<nav class="pagination">';
+  
+  if (type === 'prev-next') {
+    html += currentPage > 1 
+      ? `<a href="?page=${currentPage - 1}" class="page-link">← Previous</a>`
+      : `<span class="page-link disabled">← Previous</span>`;
+    html += `<span class="page-info">Page ${currentPage} of ${totalPages}</span>`;
+    html += currentPage < totalPages 
+      ? `<a href="?page=${currentPage + 1}" class="page-link">Next →</a>`
+      : `<span class="page-link disabled">Next →</span>`;
+  } else if (type === 'load-more') {
+    html += currentPage < totalPages
+      ? `<button class="page-link load-more" onclick="loadNextPage()">Load More Posts</button>`
+      : `<span class="page-info">All posts loaded</span>`;
+  } else {
+    html += currentPage > 1 
+      ? `<a href="?page=${currentPage - 1}" class="page-link">← Prev</a>`
+      : `<span class="page-link disabled">← Prev</span>`;
+    
+    let start = Math.max(1, currentPage - Math.floor(pagesShown / 2));
+    let end = Math.min(totalPages, start + pagesShown - 1);
+    if (end - start + 1 < pagesShown) start = Math.max(1, end - pagesShown + 1);
+    
+    if (start > 1) {
+      html += `<a href="?page=1" class="page-link">1</a>`;
+      if (start > 2) html += `<span class="page-dots">...</span>`;
+    }
+    
+    for (let i = start; i <= end; i++) {
+      html += i === currentPage
+        ? `<span class="page-link current">${i}</span>`
+        : `<a href="?page=${i}" class="page-link">${i}</a>`;
+    }
+    
+    if (end < totalPages) {
+      if (end < totalPages - 1) html += `<span class="page-dots">...</span>`;
+      html += `<a href="?page=${totalPages}" class="page-link">${totalPages}</a>`;
+    }
+    
+    html += currentPage < totalPages 
+      ? `<a href="?page=${currentPage + 1}" class="page-link">Next →</a>`
+      : `<span class="page-link disabled">Next →</span>`;
+  }
+  
+  html += '</nav>';
+  return html;
+}
+
+// ==================== LOAD MORE ====================
+function loadNextPage() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage(currentPage);
+    window.history.pushState({}, '', '?page=' + currentPage);
+  }
+}
+
 // ==================== INITIALIZE ====================
 async function initFrontendPosts() {
   await loadFrontendConfig();
@@ -240,4 +319,4 @@ if (document.readyState === 'loading') {
   initFrontendPosts();
 }
 
-console.log('✅ f-posts.js loaded — modular pagination');
+console.log('✅ f-posts.js loaded — with After Pagination placeholder');
