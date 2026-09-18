@@ -1,5 +1,6 @@
 /* ============================================
    F-LOAD-HEADER.JS - Auto-load header
+   Mobile hamburger → toggles SIDEBAR drawer
    ============================================ */
 
 (function() {
@@ -15,10 +16,7 @@
       let html = await response.text();
       container.innerHTML = html;
       
-      // Setup language switcher
       setupLangSwitcher();
-      
-      // Setup mobile menu
       setupMobileMenu();
       
       console.log('✅ Header loaded');
@@ -27,42 +25,65 @@
     }
   }
   
+  // ============ LANGUAGE SWITCHER ============
   function setupLangSwitcher() {
     document.querySelectorAll('#langSwitcher a').forEach(link => {
       link.addEventListener('click', function(e) {
         e.preventDefault();
         let lang = this.dataset.lang;
-        
-        // Update active state
         document.querySelectorAll('#langSwitcher a').forEach(l => l.classList.remove('active'));
         this.classList.add('active');
-        
-        // Save preference
         localStorage.setItem('site_language', lang);
-        
-        // Trigger language change event
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: lang } }));
-        
         console.log('🌐 Language:', lang);
       });
     });
   }
   
+  // ============ MOBILE MENU → SIDEBAR DRAWER ============
   function setupMobileMenu() {
     let btn = document.getElementById('mobileMenuBtn');
-    let nav = document.getElementById('siteNav');
-    if (btn && nav) {
-      btn.addEventListener('click', function() {
-        nav.classList.toggle('open');
-      });
-    }
+    if (!btn) return;
+    
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSidebarDrawer();
+    });
   }
   
-  // Global function for inline onclick
-  window.toggleMobileMenu = function() {
-    let nav = document.getElementById('siteNav');
-    if (nav) nav.classList.toggle('open');
+  // Toggle sidebar drawer (mobile only)
+  window.toggleSidebarDrawer = function() {
+    let sidebar = document.querySelector('.site-sidebar');
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!sidebar) return;
+    
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+      overlay.onclick = closeSidebarDrawer;
+      document.body.appendChild(overlay);
+    }
+    
+    let isOpen = sidebar.classList.toggle('open');
+    overlay.classList.toggle('show', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
   };
+  
+  window.closeSidebarDrawer = function() {
+    let sidebar = document.querySelector('.site-sidebar');
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  };
+  
+  // Close on resize (desktop)
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 900) {
+      closeSidebarDrawer();
+    }
+  });
   
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadHeader);
