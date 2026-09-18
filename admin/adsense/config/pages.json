@@ -7,8 +7,7 @@
         "after-post-title",
         "between-posts",
         "index-bottom-banner",
-        "sidebar-top",
-        "sidebar-bottom"
+        "sidebar-top"
       ]
     },
     "single-post.html": {
