@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -10,20 +10,16 @@
 </head>
 <body>
 
-  <!-- ============================================
-       HEADER (auto-loaded)
-       ============================================ -->
+  <!-- HEADER -->
   <div id="header-container"></div>
 
-  <!-- ============================================
-       MAIN LAYOUT: 30% Sidebar + 70% Content
-       ============================================ -->
+  <!-- MAIN LAYOUT: 30% Sidebar + 70% Content -->
   <div class="site-layout">
     
-    <!-- SIDEBAR (30% - auto-loaded) -->
+    <!-- SIDEBAR -->
     <div id="sidebar-container"></div>
     
-    <!-- MAIN CONTENT (70%) -->
+    <!-- MAIN CONTENT -->
     <main class="site-main">
       <div id="postsContainer">
         <div style="text-align:center;padding:40px;background:#fff;border-radius:8px;">
@@ -31,18 +27,17 @@
           <div>Loading posts...</div>
         </div>
       </div>
+      
+      <!-- ✅ PAGINATION CONTAINER (empty) -->
+      <div id="paginationContainer"></div>
     </main>
     
   </div>
 
-  <!-- ============================================
-       FOOTER (auto-loaded)
-       ============================================ -->
+  <!-- FOOTER -->
   <div id="footer-container"></div>
 
-  <!-- ============================================
-       JAVASCRIPT MODULES
-       ============================================ -->
+  <!-- JAVASCRIPT MODULES -->
   <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/config.js"></script>
@@ -51,26 +46,18 @@
   <script src="/assets/frontend/js/f-load-sidebar.js"></script>
   <script src="/assets/frontend/js/f-load-footer.js"></script>
   <script src="/assets/frontend/js/f-widgets.js"></script>
+  <script src="/assets/frontend/js/f-load-pagination.js"></script>
   <script src="/assets/frontend/js/f-posts.js"></script>
   <script src="/assets/frontend/js/adsense.js"></script>
   
   <script>
-    // ==================== INITIALIZE ====================
     window.addEventListener('load', async function() {
       console.log('🚀 Frontend loading...');
       
-      // Wait for modules to load
       setTimeout(async () => {
-        // Load posts
         if (typeof loadFrontendPosts === 'function') {
           await loadFrontendPosts();
         }
-        
-        // Load AdSense blocks
-        if (typeof loadAdSenseBlocks === 'function') {
-          await loadAdSenseBlocks();
-        }
-        
         console.log('✅ Frontend ready');
       }, 300);
     });
