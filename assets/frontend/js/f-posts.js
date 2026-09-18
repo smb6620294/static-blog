@@ -31,12 +31,12 @@ async function loadFrontendConfig() {
 function getDefaultConfig() {
   return {
     homepage: {
-      posts_per_page: 10,
+      posts_per_page: 5,
       pagination_type: 'numbered',
       pagination_pages_shown: 5,
       show_featured_image: true,
       show_excerpt: true,
-      excerpt_length: 200,
+      excerpt_length: 100,
       show_author: true,
       show_date: true,
       show_categories: true,
