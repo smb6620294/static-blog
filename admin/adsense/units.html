@@ -3,57 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ad Units - AdSense</title>
+  <title>Ad Units - AdSense Admin</title>
   <link rel="stylesheet" href="/admin/assets/css/admin.css">
   <style>
-    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #dcdcde; flex-wrap: wrap; }
-    .nav-tab { padding: 10px 18px; font-size: 13px; color: #50575e; text-decoration: none; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; background: transparent; font-family: inherit; }
+    /* ============ NAV TABS ============ */
+    .nav-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px;
+      border-bottom: 1px solid #dcdcde; flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 10px 18px; font-size: 13px;
+      color: #50575e; text-decoration: none;
+      border: 1px solid transparent; border-bottom: none;
+      border-radius: 4px 4px 0 0; cursor: pointer;
+      background: transparent; font-family: inherit;
+    }
     .nav-tab:hover { background: #f6f7f7; color: #2271b1; }
-    .nav-tab.active { background: #fff; border-color: #dcdcde; border-bottom-color: #fff; color: #2271b1; font-weight: 600; margin-bottom: -1px; }
+    .nav-tab.active {
+      background: #fff; border-color: #dcdcde;
+      border-bottom-color: #fff; color: #2271b1;
+      font-weight: 600; margin-bottom: -1px;
+    }
     
-    .info-box { background: #f0f6fc; border-left: 4px solid #2271b1; padding: 14px 18px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; line-height: 1.7; }
+    /* ============ INFO BOX ============ */
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 14px 18px; border-radius: 4px;
+      margin-bottom: 20px; font-size: 13px; line-height: 1.8;
+    }
+    .info-box.warning {
+      background: #fff8e5;
+      border-left-color: #dba617;
+    }
+    .info-box code {
+      background: #fff; padding: 2px 6px;
+      border-radius: 3px; font-size: 12px; color: #d63638;
+    }
     
-    .units-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    /* ============ UNITS HEADER ============ */
+    .units-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 20px;
+      flex-wrap: wrap; gap: 10px;
+    }
     
-    .unit-card { background: #fff; border: 1px solid #dcdcde; border-radius: 6px; padding: 18px; margin-bottom: 12px; transition: box-shadow 0.15s; }
-    .unit-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    /* ============ UNIT CARD ============ */
+    .unit-card {
+      background: #fff;
+      border: 1px solid #dcdcde;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: box-shadow 0.15s;
+    }
+    .unit-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
     
-    .unit-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-    .unit-title { font-size: 16px; font-weight: 600; color: #1d2327; display: flex; align-items: center; gap: 8px; }
-    .unit-badge { background: #f0f6fc; color: #2271b1; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: normal; }
+    /* Unit Header */
+    .unit-header {
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 12px;
+      padding: 14px 18px;
+      background: #f6f7f7;
+      border-bottom: 1px solid #dcdcde;
+      flex-wrap: wrap;
+    }
+    .unit-title {
+      font-size: 16px; font-weight: 600;
+      color: #1d2327;
+      display: flex; align-items: center; gap: 8px;
+      flex: 1; min-width: 200px;
+    }
+    .unit-badge {
+      font-size: 11px; padding: 3px 10px;
+      border-radius: 10px; font-weight: 600;
+    }
+    .unit-badge.active {
+      background: #edfaef; color: #00a32a;
+    }
+    .unit-badge.inactive {
+      background: #f0f0f1; color: #999;
+    }
+    .unit-badge.empty {
+      background: #fff8e5; color: #dba617;
+    }
+    .unit-slug {
+      font-family: 'Consolas', monospace;
+      font-size: 12px; color: #646970;
+      margin-top: 4px; font-weight: normal;
+    }
     
-    .unit-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px; }
-    .unit-field { font-size: 13px; }
-    .unit-field .label { color: #646970; font-size: 11px; text-transform: uppercase; font-weight: 600; margin-bottom: 3px; }
-    .unit-field .value { color: #1d2327; font-family: 'Consolas', monospace; }
+    /* Unit Body */
+    .unit-body {
+      padding: 18px;
+    }
     
-    .unit-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid #f0f0f1; }
-    .unit-actions button { padding: 6px 14px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid #dcdcde; background: #f6f7f7; font-family: inherit; }
-    .unit-actions button:hover { background: #e9ecef; }
-    .unit-actions .btn-edit { color: #2271b1; border-color: #2271b1; background: #fff; }
-    .unit-actions .btn-delete { color: #d63638; border-color: #d63638; background: #fff; }
-    .unit-actions .btn-toggle { color: #00a32a; border-color: #00a32a; background: #fff; }
-    .unit-actions .btn-toggle.off { color: #999; border-color: #ccc; }
+    /* Code Field */
+    .code-field {
+      margin-bottom: 16px;
+    }
+    .code-field:last-of-type {
+      margin-bottom: 0;
+    }
+    .code-field label {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      font-weight: 600; font-size: 13px;
+      color: #1d2327; margin-bottom: 6px;
+      flex-wrap: wrap; gap: 6px;
+    }
+    .code-field label .badge {
+      background: #f0f6fc; color: #2271b1;
+      padding: 2px 8px; border-radius: 3px;
+      font-size: 11px; font-weight: normal;
+      font-family: 'Consolas', monospace;
+    }
+    .code-field textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px 12px;
+      border: 1px solid #8c8f94;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      resize: vertical;
+      box-sizing: border-box;
+      background: #fafafa;
+      color: #1d2327;
+    }
+    .code-field textarea:focus {
+      border-color: #2271b1;
+      outline: none;
+      box-shadow: 0 0 0 1px #2271b1;
+      background: #fff;
+    }
+    .code-field textarea.has-code {
+      background: #fff;
+    }
     
-    .status-message { padding: 12px 16px; border-radius: 4px; margin-top: 16px; font-size: 13px; display: none; }
-    .status-message.success { background: #edfaef; color: #00a32a; border-left: 4px solid #00a32a; display: block; }
-    .status-message.error { background: #fcf0f1; color: #d63638; border-left: 4px solid #d63638; display: block; }
-    .status-message.info { background: #f0f6fc; color: #2271b1; border-left: 4px solid #2271b1; display: block; }
+    /* Unit Actions */
+    .unit-actions {
+      display: flex; gap: 8px;
+      margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid #f0f0f1;
+      flex-wrap: wrap;
+    }
+    .unit-actions button {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid;
+      background: #fff;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .btn-save {
+      color: #00a32a; border-color: #00a32a;
+      background: #edfaef;
+    }
+    .btn-save:hover { background: #00a32a; color: #fff; }
     
-    /* Modal */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
-    .modal-overlay.show { display: flex; }
-    .modal-box { background: #fff; border-radius: 8px; padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-    .modal-box h3 { margin: 0 0 20px; font-size: 18px; }
-    .modal-box .form-group { margin-bottom: 16px; }
-    .modal-box label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-    .modal-box input { width: 100%; padding: 10px 12px; border: 1px solid #8c8f94; border-radius: 4px; font-size: 14px; box-sizing: border-box; font-family: inherit; }
-    .modal-box input:focus { border-color: #2271b1; outline: none; box-shadow: 0 0 0 1px #2271b1; }
-    .modal-box .note { font-size: 12px; color: #646970; margin-top: 5px; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .modal-actions button { flex: 1; padding: 11px; font-size: 14px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; }
-    .modal-actions .btn-cancel { background: #f6f7f7; color: #2271b1; border: 1px solid #2271b1; }
-    .modal-actions .btn-save { background: #2271b1; color: #fff; }
+    .btn-toggle {
+      color: #2271b1; border-color: #2271b1;
+      background: #f0f6fc;
+    }
+    .btn-toggle:hover { background: #2271b1; color: #fff; }
+    .btn-toggle.turn-off { color: #646970; border-color: #ccc; background: #f6f7f7; }
+    
+    .btn-clear {
+      color: #dba617; border-color: #dba617;
+      background: #fff8e5;
+    }
+    .btn-clear:hover { background: #dba617; color: #fff; }
+    
+    /* Loading */
+    .loading-state {
+      text-align: center; padding: 40px;
+      color: #666;
+    }
+    
+    /* Status Message */
+    .status-message {
+      padding: 10px 16px; border-radius: 4px;
+      margin-top: 12px; font-size: 13px;
+      display: none;
+    }
+    .status-message.success {
+      background: #edfaef; color: #00a32a;
+      border-left: 4px solid #00a32a; display: block;
+    }
+    .status-message.error {
+      background: #fcf0f1; color: #d63638;
+      border-left: 4px solid #d63638; display: block;
+    }
+    .status-message.info {
+      background: #f0f6fc; color: #2271b1;
+      border-left: 4px solid #2271b1; display: block;
+    }
   </style>
 </head>
 <body>
@@ -65,68 +216,36 @@
       
       <div class="admin-page-header">
         <h1 class="admin-page-title">📦 Ad Units</h1>
-        <a href="../index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
       </div>
       
       <div class="nav-tabs">
         <a href="index.html" class="nav-tab">📊 Dashboard</a>
-        <a href="settings.html" class="nav-tab">⚙️ Settings</a>
         <a href="units.html" class="nav-tab active">📦 Ad Units</a>
         <a href="pages.html" class="nav-tab">📄 Pages</a>
       </div>
       
-      <div class="info-box">
-        ℹ️ <b>Ad Units:</b> یہاں اپنے AdSense Ad Units کا انتظام کریں۔<br>
-        ہر یونٹ کا اپنا نام اور Slot ID ہوگی۔ Cloudflare/Netlify پر deploy ہوگی۔
+      <div class="info-box warning">
+        ⚠️ <b>ہر Unit کے دو خانے ہیں:</b><br>
+        • <b>Header Code</b> — یہاں <code>&lt;script&gt;</code> والا کوڈ پیسٹ کریں<br>
+        • <b>Body Code</b> — یہاں <code>&lt;ins class="adsbygoogle"&gt;</code> والا کوڈ پیسٹ کریں<br><br>
+        ℹ️ یہ کوڈ آپ <b>Google AdSense Dashboard</b> سے copy کریں گے۔
       </div>
       
       <div class="units-header">
-        <h2 style="margin: 0; font-size: 18px;">All Units</h2>
-        <button class="wp-btn wp-btn-primary" onclick="openAddModal()">+ Add New Unit</button>
+        <h2 style="margin: 0; font-size: 18px;">All Ad Units (7)</h2>
       </div>
       
       <div id="unitsList">
-        <div class="loading-state" style="text-align:center;padding:40px;color:#666;">
-          <div>⏳ Loading units...</div>
-        </div>
+        <div class="loading-state">⏳ Loading units...</div>
       </div>
       
       <div class="status-message" id="statusMessage"></div>
       
     </main>
   </div>
-  
-  <!-- Add/Edit Modal -->
-  <div class="modal-overlay" id="unitModal">
-    <div class="modal-box">
-      <h3 id="modalTitle">➕ Add New Ad Unit</h3>
-      <input type="hidden" id="unitId">
-      
-      <div class="form-group">
-        <label>Unit Name</label>
-        <input type="text" id="unitName" placeholder="e.g., Index Top Banner">
-        <div class="note">صارف کے لیے واضح نام</div>
-      </div>
-      
-      <div class="form-group">
-        <label>Slug (URL identifier)</label>
-        <input type="text" id="unitSlug" placeholder="e.g., index-top-banner">
-        <div class="note">خودکار بن جائے گا (روسی/اردو سپورٹ)</div>
-      </div>
-      
-      <div class="form-group">
-        <label>AdSense Slot ID</label>
-        <input type="text" id="unitSlot" placeholder="e.g., 1234567890">
-        <div class="note">AdSense dashboard سے حاصل کریں (test mode میں خالی چھوڑیں)</div>
-      </div>
-      
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-        <button class="btn-save" onclick="saveUnit()">💾 Save Unit</button>
-      </div>
-    </div>
-  </div>
 
+  <!-- Admin Modules (نئے paths) -->
   <script src="/assets/js/transliterate.js"></script>
   <script src="/admin/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
@@ -144,12 +263,12 @@
       if (!token) { promptForToken(); return; }
       
       let list = document.getElementById('unitsList');
-      list.innerHTML = '<div class="loading-state" style="text-align:center;padding:40px;color:#666;">⏳ Loading...</div>';
+      list.innerHTML = '<div class="loading-state">⏳ Loading units...</div>';
       
       try {
         let data = await fetchFileFromGitHub(UNITS_FILE);
         
-        if (data && data.units) {
+        if (data && Array.isArray(data.units)) {
           unitsData = data;
           console.log('✅ Loaded units:', unitsData.units.length);
         } else {
@@ -159,7 +278,7 @@
         renderUnits();
       } catch (err) {
         console.error(err);
-        list.innerHTML = '<div style="text-align:center;padding:40px;color:#d63638;">❌ Error loading units</div>';
+        list.innerHTML = '<div class="loading-state" style="color:#d63638;">❌ Error loading units</div>';
       }
     }
     
@@ -167,47 +286,82 @@
     function renderUnits() {
       let list = document.getElementById('unitsList');
       
-      if (unitsData.units.length === 0) {
-        list.innerHTML = `
-          <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:6px;color:#666;">
-            <div style="font-size:48px;">📦</div>
-            <h3 style="margin: 15px 0 8px; color:#1d2327;">No Ad Units yet</h3>
-            <p>Click "+ Add New Unit" to create your first ad unit.</p>
-          </div>`;
+      if (!unitsData.units || unitsData.units.length === 0) {
+        list.innerHTML = '<div class="loading-state">No units found</div>';
         return;
       }
       
       let html = '';
-      unitsData.units.forEach(unit => {
+      
+      unitsData.units.forEach((unit, index) => {
         let isEnabled = unit.enabled !== false;
+        let hasHeader = unit.header_code && unit.header_code.trim() !== '';
+        let hasBody = unit.body_code && unit.body_code.trim() !== '';
+        let isFilled = hasHeader || hasBody;
+        
+        // Badge type
+        let badgeClass = 'inactive';
+        let badgeText = '⏸ Disabled';
+        if (isEnabled && isFilled) {
+          badgeClass = 'active';
+          badgeText = '✅ Active';
+        } else if (isEnabled && !isFilled) {
+          badgeClass = 'empty';
+          badgeText = '⚠️ Empty';
+        }
+        
         html += `
-          <div class="unit-card">
-            <div class="unit-top">
-              <div class="unit-title">
-                📦 ${escapeHtml(unit.name)}
-                ${isEnabled ? '<span class="unit-badge" style="background:#edfaef;color:#00a32a;">✅ Active</span>' : '<span class="unit-badge" style="background:#f0f0f1;color:#999;">⏸ Disabled</span>'}
+          <div class="unit-card" data-unit-id="${escapeHtml(unit.id)}">
+            
+            <div class="unit-header">
+              <div>
+                <div class="unit-title">
+                  📦 ${escapeHtml(unit.name)}
+                  <span class="unit-badge ${badgeClass}">${badgeText}</span>
+                </div>
+                <div class="unit-slug">Slug: ${escapeHtml(unit.slug)}</div>
               </div>
             </div>
-            <div class="unit-info">
-              <div class="unit-field">
-                <div class="label">Slug</div>
-                <div class="value">${escapeHtml(unit.slug)}</div>
+            
+            <div class="unit-body">
+              
+              <!-- HEADER CODE -->
+              <div class="code-field">
+                <label>
+                  <span>📌 Header Code</span>
+                  <span class="badge">${hasHeader ? '✓ موجود' : 'خالی'}</span>
+                </label>
+                <textarea 
+                  id="header-${index}" 
+                  class="${hasHeader ? 'has-code' : ''}"
+                  placeholder="یہاں AdSense کا &lt;script&gt; والا کوڈ پیسٹ کریں...">${escapeHtml(unit.header_code || '')}</textarea>
               </div>
-              <div class="unit-field">
-                <div class="label">Slot ID</div>
-                <div class="value">${escapeHtml(unit.slot_id || '(not set)')}</div>
+              
+              <!-- BODY CODE -->
+              <div class="code-field">
+                <label>
+                  <span>📌 Body Code</span>
+                  <span class="badge">${hasBody ? '✓ موجود' : 'خالی'}</span>
+                </label>
+                <textarea 
+                  id="body-${index}" 
+                  class="${hasBody ? 'has-code' : ''}"
+                  placeholder="یہاں AdSense کا &lt;ins class='adsbygoogle'&gt; والا کوڈ پیسٹ کریں...">${escapeHtml(unit.body_code || '')}</textarea>
               </div>
-              <div class="unit-field">
-                <div class="label">Format</div>
-                <div class="value">${escapeHtml(unit.format || 'auto')}</div>
+              
+              <!-- ACTIONS -->
+              <div class="unit-actions">
+                <button type="button" class="btn-save" onclick="saveUnit(${index})">
+                  💾 Save
+                </button>
+                <button type="button" class="btn-toggle ${isEnabled ? 'turn-off' : ''}" onclick="toggleUnit(${index})">
+                  ${isEnabled ? '⏸ Disable' : '▶ Enable'}
+                </button>
+                <button type="button" class="btn-clear" onclick="clearUnit(${index})">
+                  🧹 Clear Codes
+                </button>
               </div>
-            </div>
-            <div class="unit-actions">
-              <button class="btn-edit" onclick="openEditModal('${escapeHtml(unit.id)}')">✏️ Edit</button>
-              <button class="btn-toggle ${isEnabled ? '' : 'off'}" onclick="toggleUnit('${escapeHtml(unit.id)}')">
-                ${isEnabled ? '⏸ Disable' : '▶ Enable'}
-              </button>
-              <button class="btn-delete" onclick="deleteUnit('${escapeHtml(unit.id)}')">🗑️ Delete</button>
+              
             </div>
           </div>
         `;
@@ -216,92 +370,50 @@
       list.innerHTML = html;
     }
     
-    // ==================== OPEN MODAL ====================
-    function openAddModal() {
-      document.getElementById('modalTitle').textContent = '➕ Add New Ad Unit';
-      document.getElementById('unitId').value = '';
-      document.getElementById('unitName').value = '';
-      document.getElementById('unitSlug').value = '';
-      document.getElementById('unitSlot').value = '';
-      document.getElementById('unitModal').classList.add('show');
-      setTimeout(() => document.getElementById('unitName').focus(), 100);
-    }
-    
-    function openEditModal(unitId) {
-      let unit = unitsData.units.find(u => u.id === unitId);
-      if (!unit) return;
-      
-      document.getElementById('modalTitle').textContent = '✏️ Edit Ad Unit';
-      document.getElementById('unitId').value = unit.id;
-      document.getElementById('unitName').value = unit.name;
-      document.getElementById('unitSlug').value = unit.slug;
-      document.getElementById('unitSlot').value = unit.slot_id || '';
-      document.getElementById('unitModal').classList.add('show');
-    }
-    
-    function closeModal() {
-      document.getElementById('unitModal').classList.remove('show');
-    }
-    
     // ==================== SAVE UNIT ====================
-    async function saveUnit() {
-      let id = document.getElementById('unitId').value;
-      let name = document.getElementById('unitName').value.trim();
-      let slug = document.getElementById('unitSlug').value.trim();
-      let slot = document.getElementById('unitSlot').value.trim();
-      
-      if (!name) { alert('Please enter a unit name.'); return; }
-      
-      // Auto-generate slug if empty
-      if (!slug) {
-        slug = generateSlug(name);
-      }
-      
+    async function saveUnit(index) {
       let token = getToken();
       if (!token) { promptForToken(); return; }
       
+      let unit = unitsData.units[index];
+      if (!unit) return;
+      
+      let headerCode = document.getElementById('header-' + index).value;
+      let bodyCode = document.getElementById('body-' + index).value;
+      
+      // Update data
+      unit.header_code = headerCode;
+      unit.body_code = bodyCode;
+      unit.updatedAt = new Date().toISOString();
+      
       try {
-        if (id) {
-          // Edit existing
-          let unit = unitsData.units.find(u => u.id === id);
-          if (unit) {
-            unit.name = name;
-            unit.slug = slug;
-            unit.slot_id = slot;
-          }
-        } else {
-          // Add new
-          unitsData.units.push({
-            id: 'unit_' + Date.now(),
-            name: name,
-            slug: slug,
-            slot_id: slot,
-            format: 'auto',
-            responsive: true,
-            enabled: true,
-            createdAt: new Date().toISOString()
-          });
-        }
-        
-        // Save to GitHub
         let jsonContent = JSON.stringify(unitsData, null, 2);
         let contentBase64 = encodeBase64(jsonContent);
         
-        await uploadFileToGitHub(UNITS_FILE, contentBase64, `Update ad units: ${id ? 'edit' : 'add'} ${name}`);
+        await uploadFileToGitHub(
+          UNITS_FILE,
+          contentBase64,
+          `Update unit codes: ${unit.name}`
+        );
         
-        closeModal();
+        showStatus('✅ Unit saved: ' + unit.name, 'success');
+        showToast('✅ Saved!', 'success');
+        
+        // Re-render to update badges
         renderUnits();
-        showStatus('✅ Unit saved!', 'success');
-        showToast('✅ Unit saved!', 'success');
         
       } catch (err) {
+        console.error(err);
         showStatus('❌ ' + err.message, 'error');
       }
     }
     
     // ==================== TOGGLE UNIT ====================
-    async function toggleUnit(unitId) {
-      let unit = unitsData.units.find(u => u.id === unitId);
+    async function toggleUnit(index) {
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
+      
+      let unit = unitsData.units[index];
       if (!unit) return;
       
       unit.enabled = !unit.enabled;
@@ -309,32 +421,59 @@
       try {
         let jsonContent = JSON.stringify(unitsData, null, 2);
         let contentBase64 = encodeBase64(jsonContent);
-        await uploadFileToGitHub(UNITS_FILE, contentBase64, `${unit.enabled ? 'Enable' : 'Disable'} unit: ${unit.name}`);
         
+        await uploadFileToGitHub(
+          UNITS_FILE,
+          contentBase64,
+          `${unit.enabled ? 'Enable' : 'Disable'} unit: ${unit.name}`
+        );
+        
+        showStatus(`✅ ${unit.name} ${unit.enabled ? 'enabled' : 'disabled'}`, 'success');
         renderUnits();
-        showToast(unit.enabled ? '✅ Enabled' : '⏸ Disabled', 'success');
+        
       } catch (err) {
+        console.error(err);
         showStatus('❌ ' + err.message, 'error');
       }
     }
     
-    // ==================== DELETE UNIT ====================
-    async function deleteUnit(unitId) {
-      let unit = unitsData.units.find(u => u.id === unitId);
+    // ==================== CLEAR UNIT CODES ====================
+    async function clearUnit(index) {
+      let unit = unitsData.units[index];
       if (!unit) return;
       
-      if (!confirm(`Delete this unit?\n\n"${unit.name}"`)) return;
+      if (!confirm(`Clear both Header and Body codes for "${unit.name}"?\n\nیہ دونوں خانے خالی ہو جائیں گے۔`)) {
+        return;
+      }
       
-      unitsData.units = unitsData.units.filter(u => u.id !== unitId);
+      // Clear from UI
+      document.getElementById('header-' + index).value = '';
+      document.getElementById('body-' + index).value = '';
+      
+      // Clear from data
+      unit.header_code = '';
+      unit.body_code = '';
+      unit.updatedAt = new Date().toISOString();
+      
+      // Save to GitHub
+      let token = getToken();
+      if (!token) { promptForToken(); return; }
       
       try {
         let jsonContent = JSON.stringify(unitsData, null, 2);
         let contentBase64 = encodeBase64(jsonContent);
-        await uploadFileToGitHub(UNITS_FILE, contentBase64, `Delete unit: ${unit.name}`);
         
+        await uploadFileToGitHub(
+          UNITS_FILE,
+          contentBase64,
+          `Clear codes for unit: ${unit.name}`
+        );
+        
+        showStatus('🧹 Codes cleared: ' + unit.name, 'success');
         renderUnits();
-        showToast('🗑️ Unit deleted!', 'success');
+        
       } catch (err) {
+        console.error(err);
         showStatus('❌ ' + err.message, 'error');
       }
     }
@@ -344,13 +483,13 @@
       let el = document.getElementById('statusMessage');
       el.textContent = message;
       el.className = 'status-message ' + type;
-      setTimeout(() => el.className = 'status-message', 5000);
+      setTimeout(() => el.className = 'status-message', 4000);
     }
     
     // ==================== INITIALIZE ====================
-    window.addEventListener('load', async function() {
+    window.addEventListener('load', function() {
       checkToken();
-      await loadUnits();
+      loadUnits();
     });
   </script>
 </body>
