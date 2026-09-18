@@ -22,7 +22,7 @@
     "pagination_pages_shown": 5,
     "show_featured_image": true,
     "show_excerpt": true,
-    "show_author": true,
+    "show_author": false,
     "show_date": true,
     "show_categories": true,
     "show_tags": true,
@@ -47,5 +47,5 @@
     "show_widgets": true,
     "widgets_position": "right"
   },
-  "updated_at": "2026-09-18T03:20:32.475Z"
+  "updated_at": "2026-09-18T03:21:49.041Z"
 }
