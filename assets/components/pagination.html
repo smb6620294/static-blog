@@ -1,0 +1,29 @@
+<!-- ============================================
+     FRONTEND PAGINATION COMPONENT
+     Path: /assets/frontend/components/pagination.html
+     Loaded by: /assets/frontend/js/f-load-pagination.js
+     ============================================ -->
+
+<nav class="pagination-wrapper" id="paginationWrapper" aria-label="Posts navigation">
+  
+  <!-- Prev Button -->
+  <button type="button" class="pagination-btn pagination-prev" id="pagPrev" onclick="goToPrevPage()">
+    <span class="pag-icon">←</span>
+    <span class="pag-label">Previous</span>
+  </button>
+  
+  <!-- Page Numbers -->
+  <div class="pagination-numbers" id="paginationNumbers">
+    <!-- Numbers will be inserted by JS -->
+  </div>
+  
+  <!-- Next Button -->
+  <button type="button" class="pagination-btn pagination-next" id="pagNext" onclick="goToNextPage()">
+    <span class="pag-label">Next</span>
+    <span class="pag-icon">→</span>
+  </button>
+  
+</nav>
+
+<!-- Page Info -->
+<div class="pagination-info" id="paginationInfo"></div>
