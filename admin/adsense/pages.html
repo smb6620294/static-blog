@@ -3,37 +3,262 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Assignments - AdSense</title>
+  <title>Page Assignments - AdSense Admin</title>
   <link rel="stylesheet" href="/admin/assets/css/admin.css">
   <style>
-    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #dcdcde; flex-wrap: wrap; }
-    .nav-tab { padding: 10px 18px; font-size: 13px; color: #50575e; text-decoration: none; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; background: transparent; font-family: inherit; }
+    /* ============ NAV TABS ============ */
+    .nav-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px;
+      border-bottom: 1px solid #dcdcde; flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 10px 18px; font-size: 13px;
+      color: #50575e; text-decoration: none;
+      border: 1px solid transparent; border-bottom: none;
+      border-radius: 4px 4px 0 0; cursor: pointer;
+      background: transparent; font-family: inherit;
+    }
     .nav-tab:hover { background: #f6f7f7; color: #2271b1; }
-    .nav-tab.active { background: #fff; border-color: #dcdcde; border-bottom-color: #fff; color: #2271b1; font-weight: 600; margin-bottom: -1px; }
+    .nav-tab.active {
+      background: #fff; border-color: #dcdcde;
+      border-bottom-color: #fff; color: #2271b1;
+      font-weight: 600; margin-bottom: -1px;
+    }
     
-    .info-box { background: #f0f6fc; border-left: 4px solid #2271b1; padding: 14px 18px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; line-height: 1.7; }
+    /* ============ INFO BOX ============ */
+    .info-box {
+      background: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding: 14px 18px; border-radius: 4px;
+      margin-bottom: 20px; font-size: 13px; line-height: 1.8;
+    }
+    .info-box.warning {
+      background: #fff8e5;
+      border-left-color: #dba617;
+    }
     
-    .page-row { background: #fff; border: 1px solid #dcdcde; border-radius: 6px; padding: 18px; margin-bottom: 12px; }
-    .page-header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .page-name { font-size: 15px; font-weight: 600; color: #1d2327; display: flex; align-items: center; gap: 8px; }
-    .page-path { font-family: 'Consolas', monospace; font-size: 12px; color: #646970; margin-top: 3px; }
+    /* ============ PAGE CARD ============ */
+    .page-card {
+      background: #fff;
+      border: 1px solid #dcdcde;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: box-shadow 0.15s;
+    }
+    .page-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
     
-    .toggle-switch { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; transition: 0.3s; border-radius: 24px; }
-    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; transition: 0.3s; border-radius: 50%; }
-    input:checked + .toggle-slider { background: #00a32a; }
-    input:checked + .toggle-slider:before { transform: translateX(22px); }
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      background: #f6f7f7;
+      border-bottom: 1px solid #dcdcde;
+      flex-wrap: wrap;
+    }
+    .page-title-wrap {
+      flex: 1;
+      min-width: 200px;
+    }
+    .page-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d2327;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .page-file {
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: #646970;
+    }
+    .page-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .page-badge.active {
+      background: #edfaef;
+      color: #00a32a;
+    }
+    .page-badge.inactive {
+      background: #f0f0f1;
+      color: #999;
+    }
     
-    .page-units { margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f1; }
-    .page-units-title { font-size: 12px; color: #646970; text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
-    .unit-tag { display: inline-flex; align-items: center; gap: 4px; background: #f0f6fc; color: #2271b1; padding: 4px 10px; border-radius: 3px; font-size: 12px; margin: 3px; }
-    .unit-tag .x { cursor: pointer; font-weight: bold; color: #d63638; }
-    .unit-tag .x:hover { color: #a02225; }
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #ccc;
+      transition: 0.3s;
+      border-radius: 26px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: #00a32a;
+    }
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
     
-    .status-message { padding: 12px 16px; border-radius: 4px; margin-top: 16px; font-size: 13px; display: none; }
-    .status-message.success { background: #edfaef; color: #00a32a; border-left: 4px solid #00a32a; display: block; }
-    .status-message.error { background: #fcf0f1; color: #d63638; border-left: 4px solid #d63638; display: block; }
+    /* Page Body */
+    .page-body {
+      padding: 16px 18px;
+    }
+    
+    /* Units List */
+    .units-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .unit-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .unit-item:hover {
+      background: #f0f6fc;
+      border-color: #2271b1;
+    }
+    .unit-item.checked {
+      background: #edfaef;
+      border-color: #00a32a;
+    }
+    .unit-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #00a32a;
+      flex-shrink: 0;
+    }
+    .unit-icon {
+      font-size: 16px;
+    }
+    .unit-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1d2327;
+      flex: 1;
+    }
+    
+    /* Empty state */
+    .empty-units {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+      font-size: 13px;
+      background: #f6f7f7;
+      border-radius: 4px;
+    }
+    
+    /* Page Actions */
+    .page-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid #f0f0f1;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .selected-count {
+      font-size: 12px;
+      color: #646970;
+    }
+    .selected-count strong {
+      color: #00a32a;
+    }
+    .btn-save {
+      padding: 8px 18px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #00a32a;
+      background: #edfaef;
+      color: #00a32a;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .btn-save:hover {
+      background: #00a32a;
+      color: #fff;
+    }
+    
+    /* Loading */
+    .loading-state {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    /* Status Message */
+    .status-message {
+      padding: 10px 16px;
+      border-radius: 4px;
+      margin-top: 12px;
+      font-size: 13px;
+      display: none;
+    }
+    .status-message.success {
+      background: #edfaef;
+      color: #00a32a;
+      border-left: 4px solid #00a32a;
+      display: block;
+    }
+    .status-message.error {
+      background: #fcf0f1;
+      color: #d63638;
+      border-left: 4px solid #d63638;
+      display: block;
+    }
+    .status-message.info {
+      background: #f0f6fc;
+      color: #2271b1;
+      border-left: 4px solid #2271b1;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -45,23 +270,24 @@
       
       <div class="admin-page-header">
         <h1 class="admin-page-title">📄 Page Assignments</h1>
-        <a href="../index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
+        <a href="index.html" class="wp-btn wp-btn-secondary">← Dashboard</a>
       </div>
       
       <div class="nav-tabs">
         <a href="index.html" class="nav-tab">📊 Dashboard</a>
-        <a href="settings.html" class="nav-tab">⚙️ Settings</a>
         <a href="units.html" class="nav-tab">📦 Ad Units</a>
         <a href="pages.html" class="nav-tab active">📄 Pages</a>
       </div>
       
-      <div class="info-box">
-        ℹ️ <b>Page Assignments:</b> جس پیج پر AdSense چاہیں، اسے Enabled کریں۔<br>
-        <b>404.html</b> ہمیشہ Disabled رہے گا (AdSense وہاں نہیں دکھانا)۔
+      <div class="info-box warning">
+        ⚠️ <b>How it works:</b><br>
+        • Check the boxes next to the Ad Units you want to display on each page.<br>
+        • Only checked units will be shown on the frontend.<br>
+        • <b>404 Page</b> is always disabled (no ads shown).
       </div>
       
       <div id="pagesList">
-        <div style="text-align:center;padding:40px;color:#666;">⏳ Loading...</div>
+        <div class="loading-state">⏳ Loading pages...</div>
       </div>
       
       <div class="status-message" id="statusMessage"></div>
@@ -69,6 +295,7 @@
     </main>
   </div>
 
+  <!-- Admin Modules -->
   <script src="/assets/js/transliterate.js"></script>
   <script src="/admin/assets/js/load-sidebar.js"></script>
   <script src="/assets/js/config.js"></script>
@@ -83,67 +310,111 @@
     let pagesData = { pages: {} };
     let unitsData = { units: [] };
     
-    const ALL_PAGES = [
-      { path: 'index.html', name: '🏠 Homepage' },
-      { path: 'single-post.html', name: '📝 Single Post' },
-      { path: 'category.html', name: '📂 Category Page' },
-      { path: 'tag.html', name: '🏷️ Tag Page' },
-      { path: 'search.html', name: '🔍 Search Results' },
-      { path: 'about.html', name: 'ℹ️ About Page' },
-      { path: 'contact.html', name: '📧 Contact Page' },
-      { path: '404.html', name: '❌ 404 Page (غیر فعال)' }
-    ];
-    
-    // ==================== LOAD ====================
+    // ==================== LOAD DATA ====================
     async function loadData() {
       let token = getToken();
       if (!token) { promptForToken(); return; }
       
+      let list = document.getElementById('pagesList');
+      list.innerHTML = '<div class="loading-state">⏳ Loading pages...</div>';
+      
       try {
+        // Load pages
         let pagesFetched = await fetchFileFromGitHub(PAGES_FILE);
-        if (pagesFetched && pagesFetched.pages) pagesData = pagesFetched;
+        if (pagesFetched && pagesFetched.pages) {
+          pagesData = pagesFetched;
+        }
         
+        // Load units
         let unitsFetched = await fetchFileFromGitHub(UNITS_FILE);
-        if (unitsFetched && unitsFetched.units) unitsData = unitsFetched;
+        if (unitsFetched && Array.isArray(unitsFetched.units)) {
+          unitsData = unitsFetched;
+        }
+        
+        console.log('✅ Loaded:', {
+          pages: Object.keys(pagesData.pages).length,
+          units: unitsData.units.length
+        });
         
         renderPages();
+        
       } catch (err) {
         console.error(err);
-        document.getElementById('pagesList').innerHTML = '<div style="text-align:center;padding:40px;color:#d63638;">❌ Error</div>';
+        list.innerHTML = '<div class="loading-state" style="color:#d63638;">❌ Error loading data</div>';
       }
     }
     
-    // ==================== RENDER ====================
+    // ==================== RENDER PAGES ====================
     function renderPages() {
       let list = document.getElementById('pagesList');
+      
+      let pageKeys = Object.keys(pagesData.pages);
+      if (pageKeys.length === 0) {
+        list.innerHTML = '<div class="loading-state">No pages found</div>';
+        return;
+      }
+      
       let html = '';
       
-      ALL_PAGES.forEach(page => {
-        let pageConfig = pagesData.pages[page.path] || { enabled: false, units: [] };
-        let is404 = page.path === '404.html';
-        let isEnabled = is404 ? false : (pageConfig.enabled || false);
+      pageKeys.forEach((pageKey) => {
+        let page = pagesData.pages[pageKey];
+        let is404 = pageKey === '404.html';
+        let isEnabled = is404 ? false : (page.enabled === true);
+        let selectedUnits = Array.isArray(page.units) ? page.units : [];
+        
+        // Build unit checkboxes
+        let unitsHtml = '';
+        unitsData.units.forEach(unit => {
+          let isChecked = selectedUnits.includes(unit.slug);
+          let safeSlug = escapeHtml(unit.slug);
+          let safeName = escapeHtml(unit.name);
+          
+          unitsHtml += `
+            <label class="unit-item ${isChecked ? 'checked' : ''}" data-page="${escapeHtml(pageKey)}" data-slug="${safeSlug}">
+              <input type="checkbox" ${isChecked ? 'checked' : ''} ${is404 ? 'disabled' : ''} onchange="onUnitToggle(this)">
+              <span class="unit-icon">📦</span>
+              <span class="unit-name">${safeName}</span>
+            </label>
+          `;
+        });
+        
+        // Badge
+        let badgeHtml = isEnabled
+          ? '<span class="page-badge active">✅ Enabled</span>'
+          : '<span class="page-badge inactive">⏸ Disabled</span>';
         
         html += `
-          <div class="page-row">
-            <div class="page-header-row">
-              <div>
-                <div class="page-name">${page.name}</div>
-                <div class="page-path">${page.path}</div>
+          <div class="page-card" data-page-key="${escapeHtml(pageKey)}">
+            
+            <div class="page-header">
+              <div class="page-title-wrap">
+                <div class="page-title">
+                  ${escapeHtml(page.name || pageKey)}
+                  ${badgeHtml}
+                </div>
+                <div class="page-file">${escapeHtml(pageKey)}</div>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" ${isEnabled ? 'checked' : ''} ${is404 ? 'disabled' : ''} onchange="togglePage('${page.path}', this.checked)">
+                <input type="checkbox" ${isEnabled ? 'checked' : ''} ${is404 ? 'disabled' : ''} onchange="onPageToggle('${escapeHtml(pageKey)}', this.checked)">
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            ${!is404 ? `
-              <div class="page-units">
-                <div class="page-units-title">Active Units (${pageConfig.units.length})</div>
-                ${pageConfig.units.map(slug => {
-                  let unit = unitsData.units.find(u => u.slug === slug);
-                  return unit ? `<span class="unit-tag">📦 ${escapeHtml(unit.name)} <span class="x" onclick="removeUnitFromPage('${page.path}', '${slug}')">×</span></span>` : '';
-                }).join('') || '<div style="color:#999;font-size:12px;">No units assigned</div>'}
+            
+            <div class="page-body">
+              <div class="units-list">
+                ${unitsHtml}
               </div>
-            ` : ''}
+              
+              <div class="page-actions">
+                <div class="selected-count">
+                  Selected: <strong>${selectedUnits.length}</strong> units
+                </div>
+                <button type="button" class="btn-save" onclick="savePage('${escapeHtml(pageKey)}')">
+                  💾 Save Selection
+                </button>
+              </div>
+            </div>
+            
           </div>
         `;
       });
@@ -151,37 +422,89 @@
       list.innerHTML = html;
     }
     
-    // ==================== TOGGLE PAGE ====================
-    async function togglePage(pagePath, enabled) {
-      if (!pagesData.pages[pagePath]) {
-        pagesData.pages[pagePath] = { enabled: enabled, units: [] };
+    // ==================== TOGGLE UNIT CHECKBOX (visual only) ====================
+    function onUnitToggle(checkbox) {
+      let label = checkbox.closest('.unit-item');
+      if (checkbox.checked) {
+        label.classList.add('checked');
       } else {
-        pagesData.pages[pagePath].enabled = enabled;
+        label.classList.remove('checked');
       }
       
-      await savePages();
-      showStatus(`✅ ${pagePath} ${enabled ? 'enabled' : 'disabled'}`, 'success');
+      // Update selected count in this card
+      let card = checkbox.closest('.page-card');
+      if (card) {
+        let checked = card.querySelectorAll('input[type="checkbox"]:checked').length;
+        // Note: page toggle is also a checkbox, so we need to only count unit checkboxes
+        let unitChecked = card.querySelectorAll('.unit-item input[type="checkbox"]:checked').length;
+        let countEl = card.querySelector('.selected-count strong');
+        if (countEl) countEl.textContent = unitChecked;
+      }
     }
     
-    // ==================== REMOVE UNIT ====================
-    async function removeUnitFromPage(pagePath, unitSlug) {
-      if (!pagesData.pages[pagePath]) return;
-      pagesData.pages[pagePath].units = pagesData.pages[pagePath].units.filter(u => u !== unitSlug);
-      await savePages();
-      renderPages();
-      showStatus(`🗑️ Unit removed from ${pagePath}`, 'success');
+    // ==================== PAGE TOGGLE ====================
+    async function onPageToggle(pageKey, isChecked) {
+      if (!pagesData.pages[pageKey]) return;
+      if (pageKey === '404.html') return;
+      
+      pagesData.pages[pageKey].enabled = isChecked;
+      
+      // Update badge in UI
+      let card = document.querySelector(`.page-card[data-page-key="${pageKey}"]`);
+      if (card) {
+        let badge = card.querySelector('.page-badge');
+        if (badge) {
+          if (isChecked) {
+            badge.className = 'page-badge active';
+            badge.textContent = '✅ Enabled';
+          } else {
+            badge.className = 'page-badge inactive';
+            badge.textContent = '⏸ Disabled';
+          }
+        }
+      }
+      
+      await savePagesToGitHub(`Update page: ${pageKey}`);
     }
     
-    // ==================== SAVE ====================
-    async function savePages() {
+    // ==================== SAVE PAGE SELECTION ====================
+    async function savePage(pageKey) {
+      let card = document.querySelector(`.page-card[data-page-key="${pageKey}"]`);
+      if (!card) return;
+      
+      if (pageKey === '404.html') {
+        showStatus('⚠️ 404 page cannot have ads.', 'error');
+        return;
+      }
+      
+      // Collect checked unit slugs
+      let checked = [];
+      card.querySelectorAll('.unit-item input[type="checkbox"]:checked').forEach(cb => {
+        let label = cb.closest('.unit-item');
+        checked.push(label.dataset.slug);
+      });
+      
+      pagesData.pages[pageKey].units = checked;
+      
+      await savePagesToGitHub(`Update units for: ${pageKey} (${checked.length} units)`);
+    }
+    
+    // ==================== SAVE TO GITHUB ====================
+    async function savePagesToGitHub(message) {
       let token = getToken();
-      if (!token) return;
+      if (!token) { promptForToken(); return; }
       
       try {
         let jsonContent = JSON.stringify(pagesData, null, 2);
         let contentBase64 = encodeBase64(jsonContent);
-        await uploadFileToGitHub(PAGES_FILE, contentBase64, `Update page assignments`);
+        
+        await uploadFileToGitHub(PAGES_FILE, contentBase64, message);
+        
+        showStatus('✅ Saved successfully!', 'success');
+        showToast('✅ Saved!', 'success');
+        
       } catch (err) {
+        console.error(err);
         showStatus('❌ ' + err.message, 'error');
       }
     }
@@ -194,10 +517,10 @@
       setTimeout(() => el.className = 'status-message', 4000);
     }
     
-    // ==================== INIT ====================
-    window.addEventListener('load', async function() {
+    // ==================== INITIALIZE ====================
+    window.addEventListener('load', function() {
       checkToken();
-      await loadData();
+      loadData();
     });
   </script>
 </body>
