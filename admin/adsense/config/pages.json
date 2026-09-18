@@ -1,0 +1,73 @@
+{
+  "pages": {
+    "index.html": {
+      "name": "🏠 Homepage",
+      "enabled": false,
+      "units": [
+        "index-top-banner",
+        "after-post-title",
+        "between-posts",
+        "index-bottom-banner",
+        "sidebar-top",
+        "sidebar-bottom",
+        "after-pagination"
+      ]
+    },
+    "single-post.html": {
+      "name": "📝 Single Post",
+      "enabled": false,
+      "units": [
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "category.html": {
+      "name": "📂 Category Page",
+      "enabled": false,
+      "units": [
+        "after-post-title",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "tag.html": {
+      "name": "🏷️ Tag Page",
+      "enabled": false,
+      "units": [
+        "after-post-title",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "search.html": {
+      "name": "🔍 Search Results",
+      "enabled": false,
+      "units": [
+        "after-post-title",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "about.html": {
+      "name": "ℹ️ About Page",
+      "enabled": false,
+      "units": [
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "contact.html": {
+      "name": "📧 Contact Page",
+      "enabled": false,
+      "units": [
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "404.html": {
+      "name": "❌ 404 Page",
+      "enabled": false,
+      "units": []
+    }
+  }
+}
