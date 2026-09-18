@@ -1,6 +1,7 @@
 /* ============================================
-   F-POSTS.JS - Frontend Posts Loader with Pagination
-   Empty fields → empty space (no shifts)
+   F-POSTS.JS - Frontend Posts Loader
+   Uses modular pagination (f-load-pagination.js)
+   Excerpt: word-based, truncated properly
    ============================================ */
 
 let frontendConfig = null;
@@ -14,7 +15,6 @@ async function loadFrontendConfig() {
     let response = await fetch(
       `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/config/frontend.config.json`
     );
-    
     if (response.ok) {
       frontendConfig = await response.json();
       console.log('✅ Frontend config loaded');
@@ -24,19 +24,18 @@ async function loadFrontendConfig() {
   } catch (err) {
     frontendConfig = getDefaultConfig();
   }
-  
   return frontendConfig;
 }
 
 function getDefaultConfig() {
   return {
     homepage: {
-      posts_per_page: 5,
+      posts_per_page: 10,
       pagination_type: 'numbered',
       pagination_pages_shown: 5,
       show_featured_image: true,
       show_excerpt: true,
-      excerpt_length: 100,
+      excerpt_length: 25,
       show_author: true,
       show_date: true,
       show_categories: true,
@@ -44,6 +43,29 @@ function getDefaultConfig() {
       read_more_text: 'Read More →'
     }
   };
+}
+
+// ==================== GENERATE EXCERPT ====================
+function generateExcerpt(post, settings) {
+  let maxWords = settings.excerpt_length || 25;
+  
+  let source = '';
+  if (post.excerpt && post.excerpt.trim() !== '') {
+    source = post.excerpt.trim();
+  } else if (post.content) {
+    let tmp = document.createElement('div');
+    tmp.innerHTML = post.content;
+    source = (tmp.textContent || '').trim();
+  }
+  
+  if (!source) return '';
+  
+  let words = source.split(/\s+/).filter(w => w.length > 0);
+  if (words.length <= maxWords) {
+    return words.join(' ');
+  }
+  
+  return words.slice(0, maxWords).join(' ') + '...';
 }
 
 // ==================== LOAD ALL POSTS ====================
@@ -57,7 +79,6 @@ async function loadAllPosts() {
     let response = await fetch(
       `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/contents/content/posts`
     );
-    
     if (!response.ok) throw new Error('Failed to fetch posts');
     let files = await response.json();
     
@@ -111,16 +132,26 @@ function renderPage(page) {
   
   pagePosts.forEach((post, index) => {
     html += renderPostCard(post, settings);
-    
     if ((index + 1) % 3 === 0 && index < pagePosts.length - 1) {
       html += '<div class="adsense-placeholder" data-slot="between-posts" style="margin: 10px 0;"></div>';
     }
   });
   
   html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner"></div>';
-  html += renderPagination(page, totalPages, settings.pagination_type, settings.pagination_pages_shown);
   
   container.innerHTML = html;
+  
+  // ✅ Modular pagination
+  if (typeof initPagination === 'function') {
+    initPagination({
+      currentPage: page,
+      totalPages: totalPages,
+      context: 'index',
+      contextValue: '',
+      pagesShown: settings.pagination_pages_shown || 5,
+      type: settings.pagination_type || 'numbered'
+    });
+  }
   
   if (typeof loadAdSenseBlocks === 'function') {
     loadAdSenseBlocks();
@@ -133,20 +164,11 @@ function renderPage(page) {
 
 // ==================== RENDER POST CARD ====================
 function renderPostCard(post, settings) {
-  // ============ EXCERPT ============
   let excerpt = '';
   if (settings.show_excerpt) {
-    excerpt = post.excerpt || '';
-    if (!excerpt && post.content) {
-      let tmp = document.createElement('div');
-      tmp.innerHTML = post.content;
-      let fullText = tmp.textContent || '';
-      let words = fullText.split(/\s+/).slice(0, settings.excerpt_length || 200);
-      excerpt = words.join(' ') + '...';
-    }
+    excerpt = generateExcerpt(post, settings);
   }
   
-  // ============ IMAGE — ہمیشہ جگہ رہے (چاہے خالی ہو) ============
   let imageHtml = '';
   if (settings.show_featured_image) {
     if (post.image && post.image.trim() !== '') {
@@ -156,20 +178,14 @@ function renderPostCard(post, settings) {
     }
   }
   
-  // ============ META — خالی جگہ رہے اگر دونوں خالی ہوں ============
   let metaHtml = '';
   if (settings.show_date || settings.show_author) {
     metaHtml = '<div class="post-meta">';
-    if (settings.show_date) {
-      metaHtml += `<span>📅 ${escapeHtml(post.date || '')}</span>`;
-    }
-    if (settings.show_author) {
-      metaHtml += `<span>👤 ${escapeHtml(post.author || '')}</span>`;
-    }
+    if (settings.show_date) metaHtml += `<span>📅 ${escapeHtml(post.date || '')}</span>`;
+    if (settings.show_author) metaHtml += `<span>👤 ${escapeHtml(post.author || '')}</span>`;
     metaHtml += '</div>';
   }
   
-  // ============ CATEGORIES ============
   let catsHtml = '';
   if (settings.show_categories && post.categories && post.categories.length > 0) {
     catsHtml = post.categories.slice(0, 3).map(cat => 
@@ -177,7 +193,6 @@ function renderPostCard(post, settings) {
     ).join('');
   }
   
-  // ============ TAGS ============
   let tagsHtml = '';
   if (settings.show_tags && post.tags && post.tags.length > 0) {
     tagsHtml = post.tags.slice(0, 3).map(tag => 
@@ -185,13 +200,11 @@ function renderPostCard(post, settings) {
     ).join('');
   }
   
-  // ============ EXCERPT HTML ============
   let excerptHtml = '';
-  if (settings.show_excerpt) {
+  if (settings.show_excerpt && excerpt) {
     excerptHtml = `<div class="post-excerpt">${escapeHtml(excerpt)}</div>`;
   }
   
-  // ============ POST CARD ============
   return `
     <article class="post-card">
       <a href="/post/${escapeHtml(post.permalink || post.id)}" class="post-title-link">
@@ -215,67 +228,6 @@ function renderPostCard(post, settings) {
   `;
 }
 
-// ==================== RENDER PAGINATION ====================
-function renderPagination(currentPage, totalPages, type, pagesShown) {
-  if (totalPages <= 1) return '';
-  
-  let html = '<nav class="pagination">';
-  
-  if (type === 'prev-next') {
-    html += currentPage > 1 
-      ? `<a href="?page=${currentPage - 1}" class="page-link">← Previous</a>`
-      : `<span class="page-link disabled">← Previous</span>`;
-    html += `<span class="page-info">Page ${currentPage} of ${totalPages}</span>`;
-    html += currentPage < totalPages 
-      ? `<a href="?page=${currentPage + 1}" class="page-link">Next →</a>`
-      : `<span class="page-link disabled">Next →</span>`;
-  } else if (type === 'load-more') {
-    html += currentPage < totalPages
-      ? `<button class="page-link load-more" onclick="loadNextPage()">Load More Posts</button>`
-      : `<span class="page-info">All posts loaded</span>`;
-  } else {
-    html += currentPage > 1 
-      ? `<a href="?page=${currentPage - 1}" class="page-link">← Prev</a>`
-      : `<span class="page-link disabled">← Prev</span>`;
-    
-    let start = Math.max(1, currentPage - Math.floor(pagesShown / 2));
-    let end = Math.min(totalPages, start + pagesShown - 1);
-    if (end - start + 1 < pagesShown) start = Math.max(1, end - pagesShown + 1);
-    
-    if (start > 1) {
-      html += `<a href="?page=1" class="page-link">1</a>`;
-      if (start > 2) html += `<span class="page-dots">...</span>`;
-    }
-    
-    for (let i = start; i <= end; i++) {
-      html += i === currentPage
-        ? `<span class="page-link current">${i}</span>`
-        : `<a href="?page=${i}" class="page-link">${i}</a>`;
-    }
-    
-    if (end < totalPages) {
-      if (end < totalPages - 1) html += `<span class="page-dots">...</span>`;
-      html += `<a href="?page=${totalPages}" class="page-link">${totalPages}</a>`;
-    }
-    
-    html += currentPage < totalPages 
-      ? `<a href="?page=${currentPage + 1}" class="page-link">Next →</a>`
-      : `<span class="page-link disabled">Next →</span>`;
-  }
-  
-  html += '</nav>';
-  return html;
-}
-
-// ==================== LOAD MORE ====================
-function loadNextPage() {
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderPage(currentPage);
-    window.history.pushState({}, '', '?page=' + currentPage);
-  }
-}
-
 // ==================== INITIALIZE ====================
 async function initFrontendPosts() {
   await loadFrontendConfig();
@@ -288,4 +240,4 @@ if (document.readyState === 'loading') {
   initFrontendPosts();
 }
 
-console.log('✅ f-posts.js loaded — empty fields → empty space');
+console.log('✅ f-posts.js loaded — modular pagination');
