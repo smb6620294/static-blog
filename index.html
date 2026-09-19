@@ -5,20 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Static Blog</title>
   <meta name="description" content="My Static Blog - Fast, Modern, Netlify-ready">
-  
   <link rel="stylesheet" href="/assets/frontend/css/frontend.css">
 </head>
 <body>
-
   <!-- HEADER -->
   <div id="header-container"></div>
 
   <!-- MAIN LAYOUT: 30% Sidebar + 70% Content -->
   <div class="site-layout">
-    
+
     <!-- SIDEBAR -->
     <div id="sidebar-container"></div>
-    
+
     <!-- MAIN CONTENT -->
     <main class="site-main">
       <div id="postsContainer">
@@ -27,11 +25,11 @@
           <div>Loading posts...</div>
         </div>
       </div>
-      
-      <!-- ✅ PAGINATION CONTAINER (empty) -->
+
+      <!-- PAGINATION CONTAINER (filled by f-load-pagination.js) -->
       <div id="paginationContainer"></div>
     </main>
-    
+
   </div>
 
   <!-- FOOTER -->
@@ -41,7 +39,7 @@
   <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/config.js"></script>
-  
+
   <script src="/assets/frontend/js/f-load-header.js"></script>
   <script src="/assets/frontend/js/f-load-sidebar.js"></script>
   <script src="/assets/frontend/js/f-load-footer.js"></script>
@@ -49,17 +47,11 @@
   <script src="/assets/frontend/js/f-load-pagination.js"></script>
   <script src="/assets/frontend/js/f-posts.js"></script>
   <script src="/assets/frontend/js/adsense.js"></script>
-  
+
+  <!-- INIT — No manual call needed, f-posts.js auto-inits -->
   <script>
-    window.addEventListener('load', async function() {
-      console.log('🚀 Frontend loading...');
-      
-      setTimeout(async () => {
-        if (typeof loadFrontendPosts === 'function') {
-          await loadFrontendPosts();
-        }
-        console.log('✅ Frontend ready');
-      }, 300);
+    window.addEventListener('load', function () {
+      console.log('🚀 Frontend ready');
     });
   </script>
 </body>
