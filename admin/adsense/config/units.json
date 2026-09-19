@@ -1,0 +1,76 @@
+{
+  "units": [
+    {
+      "id": "unit_1",
+      "name": "Ad Slot 1 (List)",
+      "slug": "ad-slot-1",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_2",
+      "name": "Ad Slot 2 (List)",
+      "slug": "ad-slot-2",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_3",
+      "name": "Ad Slot 3 (List)",
+      "slug": "ad-slot-3",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_4",
+      "name": "Ad Slot Post 1 (After Title)",
+      "slug": "ad-slot-post-1",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_5",
+      "name": "Ad Slot Post 2 (After 2nd Paragraph)",
+      "slug": "ad-slot-post-2",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_6",
+      "name": "Ad Slot Post 3 (Before Comments)",
+      "slug": "ad-slot-post-3",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_7",
+      "name": "Sidebar Top",
+      "slug": "sidebar-top",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    },
+    {
+      "id": "unit_8",
+      "name": "Sidebar Bottom",
+      "slug": "sidebar-bottom",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-19T00:00:00.000Z"
+    }
+  ]
+}
