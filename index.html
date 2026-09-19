@@ -8,16 +8,11 @@
   <link rel="stylesheet" href="/assets/frontend/css/frontend.css">
 </head>
 <body>
-  <!-- HEADER -->
   <div id="header-container"></div>
 
-  <!-- MAIN LAYOUT: 30% Sidebar + 70% Content -->
   <div class="site-layout">
-
-    <!-- SIDEBAR -->
     <div id="sidebar-container"></div>
 
-    <!-- MAIN CONTENT -->
     <main class="site-main">
       <div id="postsContainer">
         <div style="text-align:center;padding:40px;background:#fff;border-radius:8px;">
@@ -25,21 +20,18 @@
           <div>Loading posts...</div>
         </div>
       </div>
-
-      <!-- PAGINATION CONTAINER (filled by f-load-pagination.js) -->
       <div id="paginationContainer"></div>
     </main>
-
   </div>
 
-  <!-- FOOTER -->
   <div id="footer-container"></div>
 
-  <!-- JAVASCRIPT MODULES -->
+  <!-- Core libs -->
   <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/config.js"></script>
 
+  <!-- Frontend modules -->
   <script src="/assets/frontend/js/f-load-header.js"></script>
   <script src="/assets/frontend/js/f-load-sidebar.js"></script>
   <script src="/assets/frontend/js/f-load-footer.js"></script>
@@ -48,11 +40,60 @@
   <script src="/assets/frontend/js/f-posts.js"></script>
   <script src="/assets/frontend/js/adsense.js"></script>
 
-  <!-- INIT — No manual call needed, f-posts.js auto-inits -->
+  <!-- DEBUG PANEL — REMOVE AFTER TESTING -->
+  <div id="debug-panel" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:10px;z-index:99999;max-height:50vh;overflow-y:auto;display:none;">
+    <div style="color:#fff;font-weight:bold;margin-bottom:6px;">
+      DEBUG PANEL — <span id="debug-toggle" style="cursor:pointer;color:#ff0;">[HIDE]</span>
+    </div>
+    <div id="debug-log"></div>
+  </div>
+  <button id="debug-show-btn" style="position:fixed;bottom:10px;right:10px;z-index:99998;background:#000;color:#0f0;border:1px solid #0f0;padding:8px 12px;border-radius:20px;font-family:monospace;font-size:12px;cursor:pointer;">
+    🔍 DEBUG
+  </button>
   <script>
-    window.addEventListener('load', function () {
-      console.log('🚀 Frontend ready');
+  (function() {
+    const panel = document.getElementById('debug-panel');
+    const log = document.getElementById('debug-log');
+    const showBtn = document.getElementById('debug-show-btn');
+    const toggle = document.getElementById('debug-toggle');
+    function addLog(msg, color) {
+      const div = document.createElement('div');
+      div.style.color = color || '#0f0';
+      div.textContent = '> ' + msg;
+      log.appendChild(div);
+      panel.scrollTop = panel.scrollHeight;
+    }
+    showBtn.onclick = function() {
+      panel.style.display = 'block';
+      showBtn.style.display = 'none';
+    };
+    toggle.onclick = function() {
+      panel.style.display = 'none';
+      showBtn.style.display = 'block';
+    };
+    const origLog = console.log;
+    const origError = console.error;
+    const origWarn = console.warn;
+    console.log = function() {
+      origLog.apply(console, arguments);
+      addLog(Array.from(arguments).join(' '), '#0f0');
+    };
+    console.error = function() {
+      origError.apply(console, arguments);
+      addLog('❌ ' + Array.from(arguments).join(' '), '#f00');
+    };
+    console.warn = function() {
+      origWarn.apply(console, arguments);
+      addLog('⚠️ ' + Array.from(arguments).join(' '), '#ff0');
+    };
+    window.addEventListener('error', function(e) {
+      addLog('🔥 ERROR: ' + e.message + ' at ' + e.filename + ':' + e.lineno, '#f00');
     });
+    window.addEventListener('unhandledrejection', function(e) {
+      addLog('🔥 PROMISE REJECT: ' + e.reason, '#f00');
+    });
+    addLog('✅ Debug panel ready', '#0ff');
+  })();
   </script>
 </body>
 </html>
