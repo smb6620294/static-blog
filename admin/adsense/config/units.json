@@ -2,72 +2,71 @@
   "units": [
     {
       "id": "unit_1",
-      "name": "Ad Slot 1 (List)",
-      "slug": "ad-slot-1",
+      "name": "Index Top Banner",
+      "slug": "index-top-banner",
       "header_code": "",
       "body_code": "",
       "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
+      "createdAt": "2026-09-18T00:00:00.000Z"
     },
     {
       "id": "unit_2",
-      "name": "Ad Slot 2 (List)",
-      "slug": "ad-slot-2",
+      "name": "After Post Title",
+      "slug": "after-post-title",
       "header_code": "",
       "body_code": "",
       "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
+      "createdAt": "2026-09-18T00:00:00.000Z"
     },
     {
       "id": "unit_3",
-      "name": "Ad Slot 3 (List)",
-      "slug": "ad-slot-3",
+      "name": "Between Posts",
+      "slug": "between-posts",
       "header_code": "",
       "body_code": "",
       "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
+      "createdAt": "2026-09-18T00:00:00.000Z"
     },
     {
       "id": "unit_4",
-      "name": "Ad Slot Post 1 (After Title)",
-      "slug": "ad-slot-post-1",
+      "name": "Index Bottom Banner",
+      "slug": "index-bottom-banner",
       "header_code": "",
-      "body_code": "<div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 25px; text-align: center; border-radius: 8px; font-family: Arial;\">\n  <div style=\"font-size: 11px; letter-spacing: 3px; opacity: 0.85;\">ADVERTISEMENT</div>\n  <div style=\"font-size: 22px; font-weight: bold; margin-top: 6px;\">📢 After Post Title</div>\n  <div style=\"font-size: 13px; opacity: 0.9; margin-top: 6px;\">728 × 90 — ٹائٹل کے نیچے</div>\n</div>",
+      "body_code": "",
       "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z",
-      "updatedAt": "2026-09-19T05:35:34.428Z"
+      "createdAt": "2026-09-18T00:00:00.000Z"
     },
     {
       "id": "unit_5",
-      "name": "Ad Slot Post 2 (After 2nd Paragraph)",
-      "slug": "ad-slot-post-2",
-      "header_code": "",
-      "body_code": "",
-      "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
-    },
-    {
-      "id": "unit_6",
-      "name": "Ad Slot Post 3 (Before Comments)",
-      "slug": "ad-slot-post-3",
-      "header_code": "",
-      "body_code": "",
-      "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
-    },
-    {
-      "id": "unit_7",
       "name": "Sidebar Top",
       "slug": "sidebar-top",
       "header_code": "",
       "body_code": "",
       "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
+      "createdAt": "2026-09-18T00:00:00.000Z"
+    },
+    {
+      "id": "unit_6",
+      "name": "Sidebar Bottom",
+      "slug": "sidebar-bottom",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-18T00:00:00.000Z"
+    },
+    {
+      "id": "unit_7",
+      "name": "After Pagination",
+      "slug": "after-pagination",
+      "header_code": "",
+      "body_code": "",
+      "enabled": true,
+      "createdAt": "2026-09-18T00:00:00.000Z"
     },
     {
       "id": "unit_8",
-      "name": "Sidebar Bottom",
-      "slug": "sidebar-bottom",
+      "name": "After Last Post",
+      "slug": "after-last-post",
       "header_code": "",
       "body_code": "",
       "enabled": true,
