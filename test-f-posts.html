@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEST — f-posts.js only</title>
+  <style>
+    body { font-family: monospace; margin: 0; padding: 10px; background: #111; color: #0f0; font-size: 13px; line-height: 1.6; }
+    h1 { color: #0ff; font-size: 16px; margin: 0 0 10px 0; }
+    .log { padding: 4px 8px; margin: 2px 0; border-left: 3px solid #333; white-space: pre-wrap; word-break: break-all; }
+    .log.info { border-color: #0ff; color: #0ff; }
+    .log.success { border-color: #0f0; color: #0f0; }
+    .log.error { border-color: #f00; color: #f55; }
+    .log.warn { border-color: #ff0; color: #ff0; }
+    hr { border: 0; border-top: 1px solid #333; margin: 10px 0; }
+    #postsContainer { background: #fff; color: #000; padding: 15px; margin-top: 15px; border-radius: 4px; }
+    .post-item { border-bottom: 1px solid #ccc; padding: 8px 0; }
+    .post-item h3 { margin: 0 0 4px 0; color: #2271b1; font-size: 14px; }
+    .post-item small { color: #666; }
+  </style>
+</head>
+<body>
+
+<h1>🧪 TEST — f-posts.js ONLY</h1>
+<div class="log info">Testing f-posts.js in isolation (no widgets, no adsense, no pagination)</div>
+<hr>
+
+<div id="log"></div>
+
+<div id="postsContainer"></div>
+
+<!-- ONLY these 3 scripts loaded -->
+<script src="/assets/js/transliterate.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/frontend/js/f-posts.js"></script>
+
+<script>
+(function() {
+  const logEl = document.getElementById('log');
+
+  function log(msg, type) {
+    type = type || 'info';
+    const div = document.createElement('div');
+    div.className = 'log ' + type;
+    div.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+    logEl.appendChild(div);
+    console.log('[' + type + '] ' + msg);
+  }
+
+  // Capture console
+  var origLog = console.log;
+  var origError = console.error;
+  var origWarn = console.warn;
+
+  console.log = function() {
+    origLog.apply(console, arguments);
+    log(Array.prototype.slice.call(arguments).join(' '), 'info');
+  };
+  console.error = function() {
+    origError.apply(console, arguments);
+    log('❌ ' + Array.prototype.slice.call(arguments).join(' '), 'error');
+  };
+  console.warn = function() {
+    origWarn.apply(console, arguments);
+    log('⚠️ ' + Array.prototype.slice.call(arguments).join(' '), 'warn');
+  };
+
+  window.addEventListener('error', function(e) {
+    log('🔥 GLOBAL ERROR: ' + e.message + ' @ ' + (e.filename || '').split('/').pop() + ':' + e.lineno, 'error');
+  });
+
+  window.addEventListener('unhandledrejection', function(e) {
+    log('🔥 PROMISE REJECT: ' + e.reason, 'error');
+  });
+
+  log('═══════════════════════════════', 'info');
+  log('STEP 1: Checking globals...', 'info');
+
+  setTimeout(function() {
+    log('CONFIG: ' + (typeof CONFIG !== 'undefined' ? '✅ loaded' : '❌ undefined'), typeof CONFIG !== 'undefined' ? 'success' : 'error');
+    log('frontendConfig: ' + (typeof frontendConfig !== 'undefined' && frontendConfig !== null ? '✅ loaded' : '⏳ pending'), 'info');
+    log('allPosts: ' + (typeof allPosts !== 'undefined' ? allPosts.length + ' items' : '❌ undefined'), 'info');
+    log('initFrontendPosts: ' + (typeof initFrontendPosts === 'function' ? '✅ exists' : '❌ missing'), typeof initFrontendPosts === 'function' ? 'success' : 'error');
+    
+    log('═══════════════════════════════', 'info');
+    log('STEP 2: Rendering posts...', 'info');
+    log('postsContainer innerHTML length: ' + document.getElementById('postsContainer').innerHTML.length, 'info');
+    
+    // Check if posts actually rendered
+    const postsHTML = document.getElementById('postsContainer').innerHTML;
+    if (postsHTML.includes('post-card')) {
+      log('✅ POSTS RENDERED! Found .post-card elements', 'success');
+      const count = (postsHTML.match(/post-card/g) || []).length;
+      log('Post cards count: ' + count, 'success');
+    } else if (postsHTML.includes('Loading posts')) {
+      log('❌ STILL LOADING — posts did not render', 'error');
+    } else if (postsHTML.includes('No posts yet')) {
+      log('⚠️ No posts found', 'warn');
+    } else if (postsHTML.includes('Error loading')) {
+      log('❌ Error loading posts', 'error');
+    } else {
+      log('⚠️ Unknown state', 'warn');
+    }
+    
+    log('═══════════════════════════════', 'info');
+    log('TEST COMPLETE', 'success');
+  }, 5000);
+
+})();
+</script>
+
+</body>
+</html>
