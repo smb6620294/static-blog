@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test 3 - f-posts.js</title>
+  <style>
+    body { font-family: monospace; background: #000; color: #0f0; padding: 20px; font-size: 14px; line-height: 1.5; }
+    .ok { color: #0f0; }
+    .fail { color: #f55; }
+    .info { color: #0ff; }
+    .warn { color: #ff0; }
+    #postsContainer { background: #fff; color: #000; padding: 15px; margin-top: 15px; }
+    .post-card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1 style="color:#0ff;">TEST 3 - f-posts.js</h1>
+  <div id="out">Loading...</div>
+  <div id="postsContainer"></div>
+
+  <script>
+    // Set up global error handler FIRST
+    window.onerror = function(msg, url, line, col, err) {
+      var out = document.getElementById('out');
+      if (out) {
+        out.innerHTML += '<div class="fail">GLOBAL ERROR: ' + msg + ' @ ' + (url || '').split('/').pop() + ':' + line + '</div>';
+      }
+      return false;
+    };
+  </script>
+
+  <script src="/assets/js/transliterate.js"></script>
+  <script>
+    document.getElementById('out').innerHTML += '<div class="ok">transliterate.js loaded</div>';
+  </script>
+
+  <script src="/assets/js/utils.js"></script>
+  <script>
+    document.getElementById('out').innerHTML += '<div class="ok">utils.js loaded</div>';
+  </script>
+
+  <script src="/assets/js/config.js"></script>
+  <script>
+    document.getElementById('out').innerHTML += '<div class="ok">config.js loaded</div>';
+  </script>
+
+  <script src="/assets/frontend/js/f-posts.js"></script>
+  <script>
+    document.getElementById('out').innerHTML += '<div class="ok">f-posts.js loaded</div>';
+    
+    setTimeout(function() {
+      var postsHTML = document.getElementById('postsContainer').innerHTML;
+      if (postsHTML.indexOf('post-card') !== -1) {
+        document.getElementById('out').innerHTML += '<div class="ok">SUCCESS: Posts rendered!</div>';
+      } else if (postsHTML.indexOf('Loading') !== -1) {
+        document.getElementById('out').innerHTML += '<div class="warn">STILL LOADING after 5s</div>';
+      } else {
+        document.getElementById('out').innerHTML += '<div class="warn">Unknown state: ' + postsHTML.substring(0, 100) + '</div>';
+      }
+    }, 5000);
+  </script>
+</body>
+</html>
