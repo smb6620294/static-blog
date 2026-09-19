@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEBUG TEST — Posts Loader</title>
+  <style>
+    body { font-family: monospace; margin: 0; padding: 10px; background: #111; color: #0f0; font-size: 13px; line-height: 1.5; }
+    h1 { color: #0ff; font-size: 16px; margin: 0 0 10px 0; }
+    .log { padding: 4px 8px; margin: 2px 0; border-left: 3px solid #333; white-space: pre-wrap; word-break: break-all; }
+    .log.info { border-color: #0ff; color: #0ff; }
+    .log.success { border-color: #0f0; color: #0f0; }
+    .log.error { border-color: #f00; color: #f55; }
+    .log.warn { border-color: #ff0; color: #ff0; }
+    .log.data { border-color: #f0f; color: #f0f; background: #1a1a1a; padding: 8px; }
+    hr { border: 0; border-top: 1px solid #333; margin: 10px 0; }
+    .section { background: #1a1a1a; padding: 10px; border-radius: 4px; margin: 8px 0; }
+    .section h2 { color: #0ff; font-size: 14px; margin: 0 0 8px 0; }
+  </style>
+</head>
+<body>
+
+<h1>🧪 DEBUG TEST PAGE</h1>
+<div class="log info">Testing bare-minimum post loading...</div>
+<hr>
+
+<div id="log"></div>
+
+<hr>
+<div class="section">
+  <h2>📊 Raw Data</h2>
+  <div id="rawData">Waiting...</div>
+</div>
+
+<script src="/assets/js/config.js"></script>
+
+<script>
+(function() {
+  const logEl = document.getElementById('log');
+  const rawEl = document.getElementById('rawData');
+
+  function log(msg, type) {
+    type = type || 'info';
+    const div = document.createElement('div');
+    div.className = 'log ' + type;
+    const time = new Date().toLocaleTimeString();
+    div.textContent = '[' + time + '] ' + msg;
+    logEl.appendChild(div);
+    console.log('[' + type + '] ' + msg);
+  }
+
+  function logData(label, data) {
+    const div = document.createElement('div');
+    div.className = 'log data';
+    div.textContent = label + ':\n' + JSON.stringify(data, null, 2);
+    logEl.appendChild(div);
+    console.log(label, data);
+  }
+
+  // ══════════════════════════════════════════════
+  // STEP 1: Check CONFIG
+  // ══════════════════════════════════════════════
+  log('STEP 1: Checking CONFIG...', 'info');
+
+  if (typeof CONFIG === 'undefined') {
+    log('❌ CONFIG is UNDEFINED — config.js did not load!', 'error');
+    rawEl.textContent = 'CONFIG undefined';
+    return;
+  }
+
+  log('✅ CONFIG loaded', 'success');
+  logData('CONFIG keys', {
+    repo: CONFIG.GITHUB_REPO,
+    branch: CONFIG.GITHUB_BRANCH,
+    api: CONFIG.GITHUB_API,
+    postsFolder: CONFIG.POSTS_FOLDER
+  });
+
+  // ══════════════════════════════════════════════
+  // STEP 2: Test GitHub API — List Posts
+  // ══════════════════════════════════════════════
+  log('STEP 2: Fetching posts list from GitHub API...', 'info');
+
+  const apiUrl = 'https://api.github.com/repos/' + CONFIG.GITHUB_REPO + '/contents/' + CONFIG.POSTS_FOLDER;
+  log('API URL: ' + apiUrl, 'info');
+
+  fetch(apiUrl)
+    .then(function(response) {
+      log('Response status: ' + response.status + ' ' + response.statusText, response.ok ? 'success' : 'error');
+      
+      if (!response.ok) {
+        throw new Error('API returned ' + response.status);
+      }
+      
+      return response.json();
+    })
+    .then(function(files) {
+      log('✅ Got file list', 'success');
+      logData('Files count', { count: files.length, files: files.map(function(f) { return f.name; }) });
+
+      // ══════════════════════════════════════════════
+      // STEP 3: Load First Post
+      // ══════════════════════════════════════════════
+      const jsonFiles = files.filter(function(f) { return f.name.endsWith('.json'); });
+      log('STEP 3: JSON files found: ' + jsonFiles.length, 'info');
+
+      if (jsonFiles.length === 0) {
+        log('❌ No JSON files found', 'error');
+        rawEl.textContent = 'No JSON files';
+        return;
+      }
+
+      const firstFile = jsonFiles[0];
+      log('Loading: ' + firstFile.name, 'info');
+      log('Download URL: ' + firstFile.download_url, 'info');
+
+      return fetch(firstFile.download_url)
+        .then(function(r) {
+          log('Post response: ' + r.status, r.ok ? 'success' : 'error');
+          if (!r.ok) throw new Error('Post fetch failed: ' + r.status);
+          return r.json();
+        })
+        .then(function(post) {
+          log('✅ POST LOADED SUCCESSFULLY', 'success');
+          logData('Post data', {
+            title: post.title,
+            permalink: post.permalink,
+            date: post.date,
+            author: post.author,
+            tags: post.tags
+          });
+
+          // Load ALL posts
+          log('STEP 4: Loading ALL posts...', 'info');
+          return Promise.all(
+            jsonFiles.map(function(f) {
+              return fetch(f.download_url)
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .catch(function() { return null; });
+            })
+          );
+        })
+        .then(function(allPosts) {
+          const validPosts = allPosts.filter(function(p) { return p !== null; });
+          log('✅ Loaded ' + validPosts.length + ' valid posts', 'success');
+          logData('All posts loaded', validPosts.map(function(p) { return p.title; }));
+
+          rawEl.innerHTML = '<span style="color:#0f0;">✅ SUCCESS: ' + validPosts.length + ' posts loaded</span>';
+          log('═══════════════════════════════', 'success');
+          log('🎉 TEST COMPLETE — Everything works!', 'success');
+        });
+    })
+    .catch(function(err) {
+      log('❌ FATAL ERROR: ' + err.message, 'error');
+      log('Stack: ' + (err.stack || 'no stack'), 'error');
+      rawEl.innerHTML = '<span style="color:#f55;">❌ ERROR: ' + err.message + '</span>';
+    });
+
+  // ══════════════════════════════════════════════
+  // TIMEOUT — If nothing happens in 10 sec
+  // ══════════════════════════════════════════════
+  setTimeout(function() {
+    if (rawEl.textContent === 'Waiting...') {
+      log('⚠️ TIMEOUT: Nothing happened after 10 seconds', 'warn');
+      log('This usually means a fetch() is hanging', 'warn');
+      rawEl.innerHTML = '<span style="color:#ff0;">⚠️ TIMEOUT — fetch hanging</span>';
+    }
+  }, 10000);
+
+})();
+</script>
+
+</body>
+</html>
