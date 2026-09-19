@@ -1,17 +1,13 @@
 /* ============================================
    F-POSTS.JS - Frontend Posts Loader
-   Uses modular pagination (f-load-pagination.js)
+   Path: /assets/frontend/js/f-posts.js
    
-   Ad Rules (Max 3 Ads per page):
-   ├── Ad #1 → After 1st post    (always)
-   ├── Ad #2 → After 2nd post    (only if 2+ posts)
-   └── Ad #3 → After last post   (always)
-   
-   Sidebar Ads (separate):
-   ├── Sidebar Top
-   └── Sidebar Bottom
-   
-   Used by: index.html, category.html, tag.html, search.html
+   Ad Placement:
+     1. after-post-title  → پوسٹ ٹائٹل کے نیچے، Author/Date سے اوپر
+                            (صرف پہلی 2 پوسٹوں میں)
+     2. between-posts     → 3rd پوسٹ کے بعد ایک بار
+     3. index-bottom-banner → تمام پوسٹوں کے بعد
+     4. after-pagination  → pagination کے بعد (اگر pagination ہو)
    ============================================ */
 
 let frontendConfig = null;
@@ -19,7 +15,9 @@ let allPosts = [];
 let currentPage = 1;
 let totalPages = 1;
 
-// ==================== LOAD CONFIG ====================
+/* --------------------------------------------
+   LOAD FRONTEND CONFIG
+   -------------------------------------------- */
 async function loadFrontendConfig() {
   try {
     let response = await fetch(
@@ -55,11 +53,13 @@ function getDefaultConfig() {
   };
 }
 
-// ==================== GENERATE EXCERPT ====================
+/* --------------------------------------------
+   EXCERPT GENERATOR
+   -------------------------------------------- */
 function generateExcerpt(post, settings) {
   let maxWords = settings.excerpt_length || 25;
-  
   let source = '';
+
   if (post.excerpt && post.excerpt.trim() !== '') {
     source = post.excerpt.trim();
   } else if (post.content) {
@@ -67,32 +67,34 @@ function generateExcerpt(post, settings) {
     tmp.innerHTML = post.content;
     source = (tmp.textContent || '').trim();
   }
-  
+
   if (!source) return '';
-  
+
   let words = source.split(/\s+/).filter(w => w.length > 0);
-  if (words.length <= maxWords) {
-    return words.join(' ');
-  }
-  
+  if (words.length <= maxWords) return words.join(' ');
   return words.slice(0, maxWords).join(' ') + '...';
 }
 
-// ==================== LOAD ALL POSTS ====================
+/* --------------------------------------------
+   LOAD ALL POSTS FROM GITHUB
+   -------------------------------------------- */
 async function loadAllPosts() {
   let container = document.getElementById('postsContainer');
   if (!container) return;
-  
-  container.innerHTML = '<div style="text-align:center;padding:40px;background:#fff;border-radius:8px;"><div class="spinner"></div><div>Loading posts...</div></div>';
-  
+
+  container.innerHTML =
+    '<div style="text-align:center;padding:40px;background:#fff;border-radius:8px;">' +
+    '<div class="spinner"></div><div>Loading posts...</div></div>';
+
   try {
     let response = await fetch(
       `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/contents/content/posts`
     );
     if (!response.ok) throw new Error('Failed to fetch posts');
+
     let files = await response.json();
-    
     allPosts = [];
+
     for (let file of files) {
       if (!file.name.endsWith('.json')) continue;
       try {
@@ -101,77 +103,73 @@ async function loadAllPosts() {
         allPosts.push(post);
       } catch (e) {}
     }
-    
+
     allPosts.sort((a, b) => {
       let dateA = (a.date || '') + ' ' + (a.time || '');
       let dateB = (b.date || '') + ' ' + (b.time || '');
       return dateB.localeCompare(dateA);
     });
-    
+
     let perPage = frontendConfig.homepage.posts_per_page || 10;
-    totalPages = Math.ceil(allPosts.length / perPage);
-    
+    totalPages = Math.ceil(allPosts.length / perPage) || 1;
+
     let urlParams = new URLSearchParams(window.location.search);
     currentPage = parseInt(urlParams.get('page')) || 1;
     if (currentPage < 1) currentPage = 1;
     if (currentPage > totalPages) currentPage = totalPages;
-    
+
     renderPage(currentPage);
-    
   } catch (err) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:#d63638;">Error loading posts</div>';
+    console.error(err);
+    container.innerHTML =
+      '<div style="text-align:center;padding:40px;color:#d63638;">Error loading posts</div>';
   }
 }
 
-// ==================== RENDER PAGE ====================
+/* --------------------------------------------
+   RENDER PAGE
+   -------------------------------------------- */
 function renderPage(page) {
   let container = document.getElementById('postsContainer');
   let settings = frontendConfig.homepage;
   let perPage = settings.posts_per_page || 10;
-  
   let startIndex = (page - 1) * perPage;
   let endIndex = startIndex + perPage;
   let pagePosts = allPosts.slice(startIndex, endIndex);
-  
+
   if (pagePosts.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;background:#fff;border-radius:8px;color:#666;">No posts yet</div>';
+    container.innerHTML =
+      '<div style="text-align:center;padding:40px;background:#fff;border-radius:8px;color:#666;">No posts yet</div>';
     return;
   }
-  
+
   let html = '';
-  let totalPosts = pagePosts.length;
-  
-  // ==================== POSTS LOOP WITH ADS ====================
+  let hasPagination = totalPages > 1;
+
   pagePosts.forEach((post, index) => {
-    // Render post card
-    html += renderPostCard(post, settings);
-    
-    // ============================================
-    // Ad Placement Rules (Max 3 Ads per page)
-    // ============================================
-    
-    // Ad #1: After 1st post (index 0)
-    if (index === 0) {
-      html += '<div class="adsense-placeholder" data-slot="after-post-title" data-ad-number="1" style="margin: 15px 24px;"></div>';
-    }
-    
-    // Ad #2: After 2nd post (index 1) — only if 2+ posts
-    if (index === 1 && totalPosts >= 2) {
-      html += '<div class="adsense-placeholder" data-slot="after-post-title" data-ad-number="2" style="margin: 15px 24px;"></div>';
-    }
-    
-    // Ad #3: After last post — always
-    if (index === totalPosts - 1) {
-      html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner" data-ad-number="3" style="margin: 20px 0;"></div>';
+    // ✅ Ad #1 & #2 → ٹائٹل کے نیچے، Author/Date سے اوپر
+    //    صرف پہلی 2 پوسٹوں میں
+    let showTitleAd = (index < 2);
+
+    html += renderPostCard(post, settings, showTitleAd);
+
+    // ✅ Between Posts Ad → صرف 3rd پوسٹ کے بعد (ایک بار)
+    if (index === 2 && pagePosts.length > 3) {
+      html += '<div class="adsense-placeholder" data-slot="between-posts" style="margin: 15px 0;"></div>';
     }
   });
-  
-  // ==================== PAGINATION ====================
-  html += renderPagination(page, totalPages, settings.pagination_type, settings.pagination_pages_shown);
-  
+
+  // ✅ Bottom Banner → تمام پوسٹوں کے بعد
+  html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner" style="margin: 20px 0;"></div>';
+
+  // ✅ After Pagination → صرف اگر pagination موجود ہو
+  if (hasPagination) {
+    html += '<div class="adsense-placeholder" data-slot="after-pagination" style="margin: 30px 0 10px;"></div>';
+  }
+
   container.innerHTML = html;
-  
-  // ==================== MODULAR PAGINATION ====================
+
+  // Init modular pagination
   if (typeof initPagination === 'function') {
     initPagination({
       currentPage: page,
@@ -182,25 +180,28 @@ function renderPage(page) {
       type: settings.pagination_type || 'numbered'
     });
   }
-  
-  // ==================== RELOAD ADSENSE ====================
-  if (typeof loadAdSenseBlocks === 'function') {
-    loadAdSenseBlocks();
+
+  // ✅ Re-run AdSense injector to fill newly created placeholders
+  if (typeof reloadAdSense === 'function') {
+    setTimeout(reloadAdSense, 300);
   }
-  
-  if (page > 1) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+
+  if (page > 1) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ==================== RENDER POST CARD ====================
-function renderPostCard(post, settings) {
+/* --------------------------------------------
+   RENDER SINGLE POST CARD
+   
+   Ad Placement: post-title کے فوراً بعد، post-meta سے پہلے
+   -------------------------------------------- */
+function renderPostCard(post, settings, showTitleAd) {
+  // Excerpt
   let excerpt = '';
   if (settings.show_excerpt) {
     excerpt = generateExcerpt(post, settings);
   }
-  
-  // Image — always occupies space
+
+  // Featured image
   let imageHtml = '';
   if (settings.show_featured_image) {
     if (post.image && post.image.trim() !== '') {
@@ -209,52 +210,60 @@ function renderPostCard(post, settings) {
       imageHtml = '<div class="post-image"></div>';
     }
   }
-  
-  // Meta
+
+  // Meta (Author + Date)
   let metaHtml = '';
   if (settings.show_date || settings.show_author) {
     metaHtml = '<div class="post-meta">';
-    if (settings.show_date) metaHtml += `<span>📅 ${escapeHtml(post.date || '')}</span>`;
-    if (settings.show_author) metaHtml += `<span>👤 ${escapeHtml(post.author || '')}</span>`;
+    if (settings.show_date) {
+      metaHtml += `<span>📅 ${escapeHtml(post.date || '')}</span>`;
+    }
+    if (settings.show_author) {
+      metaHtml += `<span>👤 ${escapeHtml(post.author || '')}</span>`;
+    }
     metaHtml += '</div>';
   }
-  
+
+  // ✅ Ad slot placed BETWEEN title and meta
+  let adAfterTitle = '';
+  if (showTitleAd) {
+    adAfterTitle = '<div class="adsense-placeholder" data-slot="after-post-title" style="margin: 12px 24px;"></div>';
+  }
+
   // Categories
   let catsHtml = '';
   if (settings.show_categories && post.categories && post.categories.length > 0) {
-    catsHtml = post.categories.slice(0, 3).map(cat => 
+    catsHtml = post.categories.slice(0, 3).map(cat =>
       `<a href="/category/${escapeHtml(generateSlug(cat))}">${escapeHtml(cat)}</a>`
     ).join('');
   }
-  
+
   // Tags
   let tagsHtml = '';
   if (settings.show_tags && post.tags && post.tags.length > 0) {
-    tagsHtml = post.tags.slice(0, 3).map(tag => 
+    tagsHtml = post.tags.slice(0, 3).map(tag =>
       `<a href="/tag/${escapeHtml(generateSlug(tag))}">${escapeHtml(tag)}</a>`
     ).join('');
   }
-  
+
   // Excerpt
   let excerptHtml = '';
   if (settings.show_excerpt && excerpt) {
     excerptHtml = `<div class="post-excerpt">${escapeHtml(excerpt)}</div>`;
   }
-  
-  // Post Card
+
+  // Final card markup
   return `
     <article class="post-card">
       <a href="/post/${escapeHtml(post.permalink || post.id)}" class="post-title-link">
         <h2 class="post-title">${escapeHtml(post.title || 'Untitled')}</h2>
       </a>
-      
+      ${adAfterTitle}
       ${metaHtml}
-      
       <div class="post-body ${settings.show_featured_image ? 'with-image' : 'no-image'}">
         ${imageHtml}
         ${excerptHtml}
       </div>
-      
       <div class="post-footer">
         <div class="post-tags">${catsHtml} ${tagsHtml}</div>
         <a href="/post/${escapeHtml(post.permalink || post.id)}" class="read-more">${escapeHtml(settings.read_more_text || 'Read More →')}</a>
@@ -263,68 +272,9 @@ function renderPostCard(post, settings) {
   `;
 }
 
-// ==================== RENDER PAGINATION ====================
-function renderPagination(currentPage, totalPages, type, pagesShown) {
-  if (totalPages <= 1) return '';
-  
-  let html = '<nav class="pagination">';
-  
-  if (type === 'prev-next') {
-    html += currentPage > 1 
-      ? `<a href="?page=${currentPage - 1}" class="page-link">← Previous</a>`
-      : `<span class="page-link disabled">← Previous</span>`;
-    html += `<span class="page-info">Page ${currentPage} of ${totalPages}</span>`;
-    html += currentPage < totalPages 
-      ? `<a href="?page=${currentPage + 1}" class="page-link">Next →</a>`
-      : `<span class="page-link disabled">Next →</span>`;
-  } else if (type === 'load-more') {
-    html += currentPage < totalPages
-      ? `<button class="page-link load-more" onclick="loadNextPage()">Load More Posts</button>`
-      : `<span class="page-info">All posts loaded</span>`;
-  } else {
-    html += currentPage > 1 
-      ? `<a href="?page=${currentPage - 1}" class="page-link">← Prev</a>`
-      : `<span class="page-link disabled">← Prev</span>`;
-    
-    let start = Math.max(1, currentPage - Math.floor(pagesShown / 2));
-    let end = Math.min(totalPages, start + pagesShown - 1);
-    if (end - start + 1 < pagesShown) start = Math.max(1, end - pagesShown + 1);
-    
-    if (start > 1) {
-      html += `<a href="?page=1" class="page-link">1</a>`;
-      if (start > 2) html += `<span class="page-dots">...</span>`;
-    }
-    
-    for (let i = start; i <= end; i++) {
-      html += i === currentPage
-        ? `<span class="page-link current">${i}</span>`
-        : `<a href="?page=${i}" class="page-link">${i}</a>`;
-    }
-    
-    if (end < totalPages) {
-      if (end < totalPages - 1) html += `<span class="page-dots">...</span>`;
-      html += `<a href="?page=${totalPages}" class="page-link">${totalPages}</a>`;
-    }
-    
-    html += currentPage < totalPages 
-      ? `<a href="?page=${currentPage + 1}" class="page-link">Next →</a>`
-      : `<span class="page-link disabled">Next →</span>`;
-  }
-  
-  html += '</nav>';
-  return html;
-}
-
-// ==================== LOAD MORE ====================
-function loadNextPage() {
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderPage(currentPage);
-    window.history.pushState({}, '', '?page=' + currentPage);
-  }
-}
-
-// ==================== INITIALIZE ====================
+/* --------------------------------------------
+   INIT
+   -------------------------------------------- */
 async function initFrontendPosts() {
   await loadFrontendConfig();
   await loadAllPosts();
@@ -336,4 +286,4 @@ if (document.readyState === 'loading') {
   initFrontendPosts();
 }
 
-console.log('✅ f-posts.js loaded — Max 3 Ads per page (Ad #1, #2, #3)');
+console.log('✅ f-posts.js loaded — title ad + between posts + bottom + after pagination');
