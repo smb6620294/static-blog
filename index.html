@@ -26,12 +26,10 @@
 
   <div id="footer-container"></div>
 
-  <!-- Core libs -->
   <script src="/assets/js/transliterate.js"></script>
   <script src="/assets/js/utils.js"></script>
   <script src="/assets/js/config.js"></script>
 
-  <!-- Frontend modules -->
   <script src="/assets/frontend/js/f-load-header.js"></script>
   <script src="/assets/frontend/js/f-load-sidebar.js"></script>
   <script src="/assets/frontend/js/f-load-footer.js"></script>
@@ -40,29 +38,34 @@
   <script src="/assets/frontend/js/f-posts.js"></script>
   <script src="/assets/frontend/js/adsense.js"></script>
 
-  <!-- DEBUG PANEL — REMOVE AFTER TESTING -->
-  <div id="debug-panel" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:10px;z-index:99999;max-height:50vh;overflow-y:auto;display:none;">
-    <div style="color:#fff;font-weight:bold;margin-bottom:6px;">
+  <!-- ============================================
+       DEBUG PANEL — REMOVE AFTER TESTING
+       Shows all console messages + errors on screen
+       ============================================ -->
+  <div id="debug-panel" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:10px;z-index:99999;max-height:50vh;overflow-y:auto;display:none;direction:ltr;line-height:1.5;">
+    <div style="color:#fff;font-weight:bold;margin-bottom:6px;border-bottom:1px solid #333;padding-bottom:4px;">
       DEBUG PANEL — <span id="debug-toggle" style="cursor:pointer;color:#ff0;">[HIDE]</span>
     </div>
     <div id="debug-log"></div>
   </div>
-  <button id="debug-show-btn" style="position:fixed;bottom:10px;right:10px;z-index:99998;background:#000;color:#0f0;border:1px solid #0f0;padding:8px 12px;border-radius:20px;font-family:monospace;font-size:12px;cursor:pointer;">
+  <button id="debug-show-btn" style="position:fixed;bottom:10px;right:10px;z-index:99998;background:#000;color:#0f0;border:1px solid #0f0;padding:10px 14px;border-radius:20px;font-family:monospace;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
     🔍 DEBUG
   </button>
   <script>
   (function() {
-    const panel = document.getElementById('debug-panel');
-    const log = document.getElementById('debug-log');
-    const showBtn = document.getElementById('debug-show-btn');
-    const toggle = document.getElementById('debug-toggle');
+    var panel = document.getElementById('debug-panel');
+    var log = document.getElementById('debug-log');
+    var showBtn = document.getElementById('debug-show-btn');
+    var toggle = document.getElementById('debug-toggle');
+
     function addLog(msg, color) {
-      const div = document.createElement('div');
+      var div = document.createElement('div');
       div.style.color = color || '#0f0';
       div.textContent = '> ' + msg;
       log.appendChild(div);
       panel.scrollTop = panel.scrollHeight;
     }
+
     showBtn.onclick = function() {
       panel.style.display = 'block';
       showBtn.style.display = 'none';
@@ -71,28 +74,68 @@
       panel.style.display = 'none';
       showBtn.style.display = 'block';
     };
-    const origLog = console.log;
-    const origError = console.error;
-    const origWarn = console.warn;
+
+    var origLog = console.log;
+    var origError = console.error;
+    var origWarn = console.warn;
+
     console.log = function() {
       origLog.apply(console, arguments);
-      addLog(Array.from(arguments).join(' '), '#0f0');
+      addLog(Array.prototype.slice.call(arguments).join(' '), '#0f0');
     };
     console.error = function() {
       origError.apply(console, arguments);
-      addLog('❌ ' + Array.from(arguments).join(' '), '#f00');
+      addLog('❌ ' + Array.prototype.slice.call(arguments).join(' '), '#f00');
     };
     console.warn = function() {
       origWarn.apply(console, arguments);
-      addLog('⚠️ ' + Array.from(arguments).join(' '), '#ff0');
+      addLog('⚠️ ' + Array.prototype.slice.call(arguments).join(' '), '#ff0');
     };
+
     window.addEventListener('error', function(e) {
-      addLog('🔥 ERROR: ' + e.message + ' at ' + e.filename + ':' + e.lineno, '#f00');
+      addLog('🔥 ERROR: ' + e.message + ' @ ' + (e.filename || '').split('/').pop() + ':' + e.lineno, '#f00');
     });
+
     window.addEventListener('unhandledrejection', function(e) {
       addLog('🔥 PROMISE REJECT: ' + e.reason, '#f00');
     });
+
     addLog('✅ Debug panel ready', '#0ff');
+
+    // Check global state after 4 seconds
+    setTimeout(function() {
+      addLog('──── STATE CHECK ────', '#fff');
+      
+      if (typeof CONFIG === 'undefined') {
+        addLog('❌ CONFIG: UNDEFINED', '#f00');
+      } else {
+        addLog('✅ CONFIG: ' + CONFIG.GITHUB_REPO, '#0ff');
+      }
+
+      if (typeof frontendConfig === 'undefined' || frontendConfig === null) {
+        addLog('⚠️ frontendConfig: NOT LOADED', '#ff0');
+      } else {
+        addLog('✅ frontendConfig: loaded', '#0ff');
+      }
+
+      if (typeof allPosts === 'undefined') {
+        addLog('❌ allPosts: UNDEFINED', '#f00');
+      } else {
+        addLog('📊 allPosts: ' + allPosts.length + ' posts', '#0ff');
+      }
+
+      if (typeof initPagination === 'function') {
+        addLog('✅ initPagination: ready', '#0ff');
+      } else {
+        addLog('❌ initPagination: MISSING', '#f00');
+      }
+
+      if (typeof reloadAdSense === 'function') {
+        addLog('✅ reloadAdSense: ready', '#0ff');
+      } else {
+        addLog('❌ reloadAdSense: MISSING', '#f00');
+      }
+    }, 4000);
   })();
   </script>
 </body>
