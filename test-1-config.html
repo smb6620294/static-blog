@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Test 1 - config.js</title>
+  <style>
+    body { font-family: monospace; background: #000; color: #0f0; padding: 20px; font-size: 16px; }
+    .ok { color: #0f0; }
+    .fail { color: #f55; }
+    .info { color: #0ff; }
+  </style>
+</head>
+<body>
+  <h1 style="color:#0ff;">TEST 1 - config.js</h1>
+  <div id="out">Loading...</div>
+
+  <script src="/assets/js/config.js"></script>
+  <script>
+    var out = document.getElementById('out');
+    var html = '';
+    
+    html += '<div class="info">Script loaded. Checking...</div>';
+    
+    if (typeof CONFIG === 'undefined') {
+      html += '<div class="fail">ERROR: CONFIG is UNDEFINED</div>';
+    } else {
+      html += '<div class="ok">SUCCESS: CONFIG exists</div>';
+      html += '<div class="info">Repo: ' + CONFIG.GITHUB_REPO + '</div>';
+      html += '<div class="info">Branch: ' + CONFIG.GITHUB_BRANCH + '</div>';
+      html += '<div class="info">API: ' + CONFIG.GITHUB_API + '</div>';
+    }
+    
+    out.innerHTML = html;
+  </script>
+</body>
+</html>
