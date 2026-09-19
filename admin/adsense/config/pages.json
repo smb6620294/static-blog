@@ -1,0 +1,91 @@
+{
+  "pages": {
+    "index.html": {
+      "name": "🏠 Homepage",
+      "enabled": true,
+      "units": [
+        "ad-slot-1",
+        "ad-slot-2",
+        "ad-slot-3",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "category.html": {
+      "name": "📂 Category Page",
+      "enabled": true,
+      "units": [
+        "ad-slot-1",
+        "ad-slot-2",
+        "ad-slot-3",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "tag.html": {
+      "name": "🏷️ Tag Page",
+      "enabled": true,
+      "units": [
+        "ad-slot-1",
+        "ad-slot-2",
+        "ad-slot-3",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "search.html": {
+      "name": "🔍 Search Results",
+      "enabled": true,
+      "units": [
+        "ad-slot-1",
+        "ad-slot-2",
+        "ad-slot-3",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "single-post.html": {
+      "name": "📝 Single Post",
+      "enabled": true,
+      "units": [
+        "ad-slot-post-1",
+        "ad-slot-post-2",
+        "ad-slot-post-3",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "single-page.html": {
+      "name": "📄 Single Page",
+      "enabled": true,
+      "units": [
+        "ad-slot-post-1",
+        "ad-slot-post-2",
+        "ad-slot-post-3",
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "about.html": {
+      "name": "ℹ️ About Page",
+      "enabled": true,
+      "units": [
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "contact.html": {
+      "name": "📧 Contact Page",
+      "enabled": true,
+      "units": [
+        "sidebar-top",
+        "sidebar-bottom"
+      ]
+    },
+    "404.html": {
+      "name": "❌ 404 Page",
+      "enabled": false,
+      "units": []
+    }
+  }
+}
