@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test 4 - Full Page</title>
+  <style>
+    body { font-family: monospace; background: #000; color: #0f0; padding: 10px; font-size: 13px; line-height: 1.6; margin: 0; }
+    .ok { color: #0f0; background: #003300; padding: 2px 6px; margin: 2px 0; }
+    .fail { color: #f55; background: #330000; padding: 2px 6px; margin: 2px 0; font-weight: bold; }
+    .info { color: #0ff; padding: 2px 6px; margin: 2px 0; }
+    h1 { color: #0ff; font-size: 16px; margin: 0 0 10px 0; }
+    #checkpoints { background: #111; padding: 8px; margin-bottom: 10px; border: 1px solid #333; }
+    #postsContainer { background: #fff; color: #000; padding: 15px; }
+    .post-card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>🧪 TEST 4 — Full Page Load Test</h1>
+  <div id="checkpoints"></div>
+  <div id="postsContainer"></div>
+
+  <script>
+    // Global error handler
+    window.onerror = function(msg, url, line, col, err) {
+      var cp = document.getElementById('checkpoints');
+      if (cp) {
+        cp.innerHTML += '<div class="fail">🔥 GLOBAL ERROR: ' + msg + ' @ ' + (url || '').split('/').pop() + ':' + line + '</div>';
+      }
+      return false;
+    };
+
+    window.addEventListener('unhandledrejection', function(e) {
+      var cp = document.getElementById('checkpoints');
+      if (cp) {
+        cp.innerHTML += '<div class="fail">🔥 PROMISE REJECT: ' + e.reason + '</div>';
+      }
+    });
+
+    function checkpoint(name, status, detail) {
+      var cp = document.getElementById('checkpoints');
+      var cls = status === 'ok' ? 'ok' : (status === 'fail' ? 'fail' : 'info');
+      var icon = status === 'ok' ? '✅' : (status === 'fail' ? '❌' : '⏳');
+      cp.innerHTML += '<div class="' + cls + '">' + icon + ' ' + name + (detail ? ' — ' + detail : '') + '</div>';
+    }
+
+    checkpoint('START', 'info');
+  </script>
+
+  <!-- Script 1 -->
+  <script src="/assets/js/transliterate.js"></script>
+  <script>
+    checkpoint('transliterate.js', typeof transliterate === 'function' ? 'ok' : 'fail',
+      typeof transliterate === 'function' ? 'loaded' : 'NOT loaded');
+  </script>
+
+  <!-- Script 2 -->
+  <script src="/assets/js/utils.js"></script>
+  <script>
+    checkpoint('utils.js', typeof escapeHtml === 'function' ? 'ok' : 'fail',
+      typeof escapeHtml === 'function' ? 'loaded' : 'NOT loaded');
+  </script>
+
+  <!-- Script 3 -->
+  <script src="/assets/js/config.js"></script>
+  <script>
+    checkpoint('config.js', typeof CONFIG !== 'undefined' ? 'ok' : 'fail',
+      typeof CONFIG !== 'undefined' ? 'loaded' : 'NOT loaded');
+  </script>
+
+  <!-- Script 4 -->
+  <script src="/assets/frontend/js/f-load-header.js"></script>
+  <script>
+    checkpoint('f-load-header.js', 'info', 'no crash = passed');
+  </script>
+
+  <!-- Script 5 -->
+  <script src="/assets/frontend/js/f-load-sidebar.js"></script>
+  <script>
+    checkpoint('f-load-sidebar.js', 'info', 'no crash = passed');
+  </script>
+
+  <!-- Script 6 -->
+  <script src="/assets/frontend/js/f-load-footer.js"></script>
+  <script>
+    checkpoint('f-load-footer.js', 'info', 'no crash = passed');
+  </script>
+
+  <!-- Script 7 -->
+  <script src="/assets/frontend/js/f-widgets.js"></script>
+  <script>
+    checkpoint('f-widgets.js', typeof loadWidgets === 'function' ? 'ok' : 'fail',
+      typeof loadWidgets === 'function' ? 'loaded' : 'NOT loaded');
+  </script>
+
+  <!-- Script 8 -->
+  <script src="/assets/frontend/js/f-load-pagination.js"></script>
+  <script>
+    checkpoint('f-load-pagination.js', typeof initPagination === 'function' ? 'ok' : 'fail',
+      typeof initPagination === 'function' ? 'loaded' : 'NOT loaded');
+  </script>
+
+  <!-- Script 9 -->
+  <script src="/assets/frontend/js/f-posts.js"></script>
+  <script>
+    checkpoint('f-posts.js', typeof initFrontendPosts === 'function' ? 'ok' : 'fail',
+      typeof initFrontendPosts === 'function' ? 'loaded' : 'NOT loaded');
+
+    // Check posts after 6 seconds
+    setTimeout(function() {
+      var postsHTML = document.getElementById('postsContainer').innerHTML;
+      if (postsHTML.indexOf('post-card') !== -1) {
+        checkpoint('POSTS RENDERED', 'ok', 'Found .post-card elements');
+      } else if (postsHTML.indexOf('Loading') !== -1) {
+        checkpoint('POSTS', 'fail', 'Still loading after 6s — something blocked it');
+      } else if (postsHTML.length === 0) {
+        checkpoint('POSTS', 'fail', 'Container EMPTY — f-posts.js did not run');
+      } else {
+        checkpoint('POSTS', 'fail', 'Unknown: ' + postsHTML.substring(0, 80));
+      }
+    }, 6000);
+  </script>
+
+  <!-- Script 10 -->
+  <script src="/assets/frontend/js/adsense.js"></script>
+  <script>
+    checkpoint('adsense.js', typeof reloadAdSense === 'function' ? 'ok' : 'fail',
+      typeof reloadAdSense === 'function' ? 'loaded' : 'NOT loaded');
+  </script>
+
+</body>
+</html>
