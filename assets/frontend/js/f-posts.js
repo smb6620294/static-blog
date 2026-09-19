@@ -2,12 +2,25 @@
    F-POSTS.JS - Frontend Posts Loader
    Path: /assets/frontend/js/f-posts.js
    
-   Ad Placement:
-     1. after-post-title  → پوسٹ ٹائٹل کے نیچے، Author/Date سے اوپر
-                            (صرف پہلی 2 پوسٹوں میں)
-     2. between-posts     → 3rd پوسٹ کے بعد ایک بار
-     3. index-bottom-banner → تمام پوسٹوں کے بعد
-     4. after-pagination  → pagination کے بعد (اگر pagination ہو)
+   PURPOSE:
+     Load posts from GitHub, render listing pages,
+     inject ads at specific positions.
+   
+   AD PLACEMENT RULES:
+   
+   Case A: Multiple posts (2 or more)
+     1. after-post-title  → Below 1st post title
+     2. after-post-title  → Below 2nd post title
+     3. after-last-post   → After last post (before pagination)
+   
+   Case B: Single post only
+     1. after-post-title  → Below the only post title
+     2. after-last-post   → After the only post (pagination hidden)
+   
+   NOTE:
+     - Pagination hidden when only 1 post on page
+     - after-pagination slot disabled for now
+     - Multi-language support deferred to future phase
    ============================================ */
 
 let frontendConfig = null;
@@ -17,10 +30,11 @@ let totalPages = 1;
 
 /* --------------------------------------------
    LOAD FRONTEND CONFIG
+   Fetches config from GitHub raw content
    -------------------------------------------- */
 async function loadFrontendConfig() {
   try {
-    let response = await fetch(
+    const response = await fetch(
       `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/config/frontend.config.json`
     );
     if (response.ok) {
@@ -30,11 +44,16 @@ async function loadFrontendConfig() {
       frontendConfig = getDefaultConfig();
     }
   } catch (err) {
+    console.warn('⚠️ Config fetch failed, using defaults');
     frontendConfig = getDefaultConfig();
   }
   return frontendConfig;
 }
 
+/* --------------------------------------------
+   DEFAULT CONFIG FALLBACK
+   Used when remote config is unavailable
+   -------------------------------------------- */
 function getDefaultConfig() {
   return {
     homepage: {
@@ -54,32 +73,34 @@ function getDefaultConfig() {
 }
 
 /* --------------------------------------------
-   EXCERPT GENERATOR
+   GENERATE EXCERPT
+   Uses custom excerpt if provided, else content
    -------------------------------------------- */
 function generateExcerpt(post, settings) {
-  let maxWords = settings.excerpt_length || 25;
+  const maxWords = settings.excerpt_length || 25;
   let source = '';
 
   if (post.excerpt && post.excerpt.trim() !== '') {
     source = post.excerpt.trim();
   } else if (post.content) {
-    let tmp = document.createElement('div');
+    const tmp = document.createElement('div');
     tmp.innerHTML = post.content;
     source = (tmp.textContent || '').trim();
   }
 
   if (!source) return '';
 
-  let words = source.split(/\s+/).filter(w => w.length > 0);
+  const words = source.split(/\s+/).filter(w => w.length > 0);
   if (words.length <= maxWords) return words.join(' ');
   return words.slice(0, maxWords).join(' ') + '...';
 }
 
 /* --------------------------------------------
    LOAD ALL POSTS FROM GITHUB
+   Fetches each post JSON, sorts by date desc
    -------------------------------------------- */
 async function loadAllPosts() {
-  let container = document.getElementById('postsContainer');
+  const container = document.getElementById('postsContainer');
   if (!container) return;
 
   container.innerHTML =
@@ -87,55 +108,65 @@ async function loadAllPosts() {
     '<div class="spinner"></div><div>Loading posts...</div></div>';
 
   try {
-    let response = await fetch(
+    const response = await fetch(
       `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/contents/content/posts`
     );
-    if (!response.ok) throw new Error('Failed to fetch posts');
+    if (!response.ok) throw new Error('Failed to fetch posts list');
 
-    let files = await response.json();
+    const files = await response.json();
     allPosts = [];
 
-    for (let file of files) {
+    for (const file of files) {
       if (!file.name.endsWith('.json')) continue;
       try {
-        let postResp = await fetch(file.download_url);
-        let post = await postResp.json();
+        const postResp = await fetch(file.download_url);
+        const post = await postResp.json();
         allPosts.push(post);
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Post load failed:', file.name);
+      }
     }
 
+    // Sort newest first
     allPosts.sort((a, b) => {
-      let dateA = (a.date || '') + ' ' + (a.time || '');
-      let dateB = (b.date || '') + ' ' + (b.time || '');
+      const dateA = (a.date || '') + ' ' + (a.time || '');
+      const dateB = (b.date || '') + ' ' + (b.time || '');
       return dateB.localeCompare(dateA);
     });
 
-    let perPage = frontendConfig.homepage.posts_per_page || 10;
+    const perPage = frontendConfig.homepage.posts_per_page || 10;
     totalPages = Math.ceil(allPosts.length / perPage) || 1;
 
-    let urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location.search);
     currentPage = parseInt(urlParams.get('page')) || 1;
     if (currentPage < 1) currentPage = 1;
     if (currentPage > totalPages) currentPage = totalPages;
 
     renderPage(currentPage);
   } catch (err) {
-    console.error(err);
+    console.error('Posts load error:', err);
     container.innerHTML =
       '<div style="text-align:center;padding:40px;color:#d63638;">Error loading posts</div>';
   }
 }
 
 /* --------------------------------------------
-   RENDER PAGE
+   RENDER PAGE (Listing)
+   
+   Ad Slots Rendered:
+     - after-post-title  (1st post, 2nd post)
+     - after-last-post   (after all posts)
+   
+   Pagination Rendered:
+     - Only if totalPages > 1 AND page has >1 post
    -------------------------------------------- */
 function renderPage(page) {
-  let container = document.getElementById('postsContainer');
-  let settings = frontendConfig.homepage;
-  let perPage = settings.posts_per_page || 10;
-  let startIndex = (page - 1) * perPage;
-  let endIndex = startIndex + perPage;
-  let pagePosts = allPosts.slice(startIndex, endIndex);
+  const container = document.getElementById('postsContainer');
+  const settings = frontendConfig.homepage;
+  const perPage = settings.posts_per_page || 10;
+  const startIndex = (page - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const pagePosts = allPosts.slice(startIndex, endIndex);
 
   if (pagePosts.length === 0) {
     container.innerHTML =
@@ -143,34 +174,32 @@ function renderPage(page) {
     return;
   }
 
+  const totalPostsOnPage = pagePosts.length;
+  const hasPagination = totalPages > 1 && totalPostsOnPage > 1;
+
   let html = '';
-  let hasPagination = totalPages > 1;
 
+  // Render each post
   pagePosts.forEach((post, index) => {
-    // ✅ Ad #1 & #2 → ٹائٹل کے نیچے، Author/Date سے اوپر
-    //    صرف پہلی 2 پوسٹوں میں
-    let showTitleAd = (index < 2);
-
+    // Show title ad on first two posts only
+    const showTitleAd = (index < 2);
     html += renderPostCard(post, settings, showTitleAd);
-
-    // ✅ Between Posts Ad → صرف 3rd پوسٹ کے بعد (ایک بار)
-    if (index === 2 && pagePosts.length > 3) {
-      html += '<div class="adsense-placeholder" data-slot="between-posts" style="margin: 15px 0;"></div>';
-    }
   });
 
-  // ✅ Bottom Banner → تمام پوسٹوں کے بعد
-  html += '<div class="adsense-placeholder tall" data-slot="index-bottom-banner" style="margin: 20px 0;"></div>';
+  // Ad #3: after-last-post (always after all posts)
+  html += '<div class="adsense-placeholder tall" data-slot="after-last-post" style="margin: 20px 0;"></div>';
 
-  // ✅ After Pagination → صرف اگر pagination موجود ہو
+  // Pagination container (only if applicable)
   if (hasPagination) {
-    html += '<div class="adsense-placeholder" data-slot="after-pagination" style="margin: 30px 0 10px;"></div>';
+    html += '<div id="paginationContainer"></div>';
+  } else {
+    console.log('ℹ️ Single post on page — pagination hidden');
   }
 
   container.innerHTML = html;
 
-  // Init modular pagination
-  if (typeof initPagination === 'function') {
+  // Initialize modular pagination
+  if (hasPagination && typeof initPagination === 'function') {
     initPagination({
       currentPage: page,
       totalPages: totalPages,
@@ -181,7 +210,7 @@ function renderPage(page) {
     });
   }
 
-  // ✅ Re-run AdSense injector to fill newly created placeholders
+  // Re-run AdSense injector for newly created placeholders
   if (typeof reloadAdSense === 'function') {
     setTimeout(reloadAdSense, 300);
   }
@@ -192,7 +221,14 @@ function renderPage(page) {
 /* --------------------------------------------
    RENDER SINGLE POST CARD
    
-   Ad Placement: post-title کے فوراً بعد، post-meta سے پہلے
+   Structure:
+     <article>
+       <a><h2>Title</h2></a>
+       [after-post-title ad if showTitleAd]
+       <div>Author/Date</div>
+       <div>Image + Excerpt</div>
+       <div>Tags + Read More</div>
+     </article>
    -------------------------------------------- */
 function renderPostCard(post, settings, showTitleAd) {
   // Excerpt
@@ -224,7 +260,7 @@ function renderPostCard(post, settings, showTitleAd) {
     metaHtml += '</div>';
   }
 
-  // ✅ Ad slot placed BETWEEN title and meta
+  // Ad after title (conditional)
   let adAfterTitle = '';
   if (showTitleAd) {
     adAfterTitle = '<div class="adsense-placeholder" data-slot="after-post-title" style="margin: 12px 24px;"></div>';
@@ -234,7 +270,7 @@ function renderPostCard(post, settings, showTitleAd) {
   let catsHtml = '';
   if (settings.show_categories && post.categories && post.categories.length > 0) {
     catsHtml = post.categories.slice(0, 3).map(cat =>
-      `<a href="/category/${escapeHtml(generateSlug(cat))}">${escapeHtml(cat)}</a>`
+      `<a href="/category/${escapeHtml(generateSlug(cat))}/">${escapeHtml(cat)}</a>`
     ).join('');
   }
 
@@ -242,11 +278,11 @@ function renderPostCard(post, settings, showTitleAd) {
   let tagsHtml = '';
   if (settings.show_tags && post.tags && post.tags.length > 0) {
     tagsHtml = post.tags.slice(0, 3).map(tag =>
-      `<a href="/tag/${escapeHtml(generateSlug(tag))}">${escapeHtml(tag)}</a>`
+      `<a href="/tag/${escapeHtml(generateSlug(tag))}/">${escapeHtml(tag)}</a>`
     ).join('');
   }
 
-  // Excerpt
+  // Excerpt HTML
   let excerptHtml = '';
   if (settings.show_excerpt && excerpt) {
     excerptHtml = `<div class="post-excerpt">${escapeHtml(excerpt)}</div>`;
@@ -255,7 +291,7 @@ function renderPostCard(post, settings, showTitleAd) {
   // Final card markup
   return `
     <article class="post-card">
-      <a href="/post/${escapeHtml(post.permalink || post.id)}" class="post-title-link">
+      <a href="/post/${escapeHtml(post.permalink || post.id)}/" class="post-title-link">
         <h2 class="post-title">${escapeHtml(post.title || 'Untitled')}</h2>
       </a>
       ${adAfterTitle}
@@ -266,7 +302,7 @@ function renderPostCard(post, settings, showTitleAd) {
       </div>
       <div class="post-footer">
         <div class="post-tags">${catsHtml} ${tagsHtml}</div>
-        <a href="/post/${escapeHtml(post.permalink || post.id)}" class="read-more">${escapeHtml(settings.read_more_text || 'Read More →')}</a>
+        <a href="/post/${escapeHtml(post.permalink || post.id)}/" class="read-more">${escapeHtml(settings.read_more_text || 'Read More →')}</a>
       </div>
     </article>
   `;
@@ -286,4 +322,4 @@ if (document.readyState === 'loading') {
   initFrontendPosts();
 }
 
-console.log('✅ f-posts.js loaded — title ad + between posts + bottom + after pagination');
+console.log('✅ f-posts.js loaded — ad slots: after-post-title x2 + after-last-post');
