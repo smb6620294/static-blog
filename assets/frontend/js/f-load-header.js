@@ -1,4 +1,3 @@
-
 /* ============================================
    F-LOAD-HEADER.JS
    Path: /assets/frontend/js/f-load-header.js
