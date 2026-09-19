@@ -32,9 +32,10 @@
       "name": "Ad Slot Post 1 (After Title)",
       "slug": "ad-slot-post-1",
       "header_code": "",
-      "body_code": "",
+      "body_code": "<div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 25px; text-align: center; border-radius: 8px; font-family: Arial;\">\n  <div style=\"font-size: 11px; letter-spacing: 3px; opacity: 0.85;\">ADVERTISEMENT</div>\n  <div style=\"font-size: 22px; font-weight: bold; margin-top: 6px;\">📢 After Post Title</div>\n  <div style=\"font-size: 13px; opacity: 0.9; margin-top: 6px;\">728 × 90 — ٹائٹل کے نیچے</div>\n</div>",
       "enabled": true,
-      "createdAt": "2026-09-19T00:00:00.000Z"
+      "createdAt": "2026-09-19T00:00:00.000Z",
+      "updatedAt": "2026-09-19T05:35:34.428Z"
     },
     {
       "id": "unit_5",
